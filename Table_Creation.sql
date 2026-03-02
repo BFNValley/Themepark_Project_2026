@@ -11,10 +11,15 @@ CREATE TABLE Customers (
 CREATE TABLE Ticket_Payment (
     payment_id int PRIMARY KEY,
     customer_id int FOREIGN KEY REFERENCES Customers(customer_id),
-    ticket_type int NOT NULL,
-    price DECIMAL CHECK (price > 0),
+    ticket_type_id int NOT NULL FOREIGN KEY REFERENCES Ticket_Type(ticket_type_id),
+    price DECIMAL(10,2) CHECK (price > 0),
     purchase_date TIMESTAMP
 );
+
+CREATE TABLE Ticket_Type(
+    ticket_type_id INT PRIMARY KEY,
+    ticket_type_name VARCHAR(50) NOT NULL,
+)
 
 CREATE TABLE Ride (
     ride_id int PRIMARY KEY,
@@ -79,8 +84,10 @@ CREATE TABLE Gift_Shop(
 CREATE TABLE Sales_Transaction(
     transaction_id INT PRIMARY KEY,
     customer_id INT FOREIGN KEY REFERENCES Customers(customer_id),
-    sales_transaction_date DATE,
-    total_amount DECIMAL
+    transaction_datetime DATETIME2,
+    total_amount DECIMAL(10,2),
+    payment_method VARCHAR(20) NOT NULL
+        CHECK (payment_method IN ('Cash', 'Credit Card', 'Debit Card', 'Apple Pay')),
 );
 
 CREATE TABLE Weather_Record(
