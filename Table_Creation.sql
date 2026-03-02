@@ -19,7 +19,7 @@ CREATE TABLE Ticket_Payment (
 CREATE TABLE Ticket_Type(
     ticket_type_id INT PRIMARY KEY,
     ticket_type_name VARCHAR(50) NOT NULL,
-)
+);
 
 CREATE TABLE Ride (
     ride_id int PRIMARY KEY,
