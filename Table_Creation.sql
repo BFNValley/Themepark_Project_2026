@@ -8,17 +8,17 @@ CREATE TABLE Customers (
     email_address VARCHAR(255) CHECK (email_address > 0) UNIQUE
 );
 
+CREATE TABLE Ticket_Type(
+    ticket_type_id INT PRIMARY KEY,
+    ticket_type_name VARCHAR(50) NOT NULL,
+);
+
 CREATE TABLE Ticket_Payment (
     payment_id int PRIMARY KEY,
     customer_id int FOREIGN KEY REFERENCES Customers(customer_id),
     ticket_type_id int NOT NULL FOREIGN KEY REFERENCES Ticket_Type(ticket_type_id),
     price DECIMAL(10,2) CHECK (price > 0),
     purchase_date TIMESTAMP
-);
-
-CREATE TABLE Ticket_Type(
-    ticket_type_id INT PRIMARY KEY,
-    ticket_type_name VARCHAR(50) NOT NULL,
 );
 
 CREATE TABLE Ride (
