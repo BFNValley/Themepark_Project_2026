@@ -1,16 +1,16 @@
 CREATE TABLE Customers (
     customer_id int PRIMARY KEY,
-    first_name VARCHAR(30) CHECK (first_name > 1),
+    first_name VARCHAR(30) CHECK (LEN(first_name) > 1),
     middle_initial CHAR(1),
-    last_name VARCHAR(30) CHECK (last_name > 1),
+    last_name VARCHAR(30) CHECK (LEN(last_name) > 1),
     date_of_birth DATE,
-    phone_number CHAR(10) CHECK (phone_number = 10),
-    email_address VARCHAR(255) CHECK (email_address > 0) UNIQUE
+    phone_number CHAR(10) CHECK (LEN(phone_number) = 10),
+    email_address VARCHAR(255) CHECK (LEN(email_address) > 0) UNIQUE
 );
 
 CREATE TABLE Ticket_Type(
     ticket_type_id INT PRIMARY KEY,
-    ticket_type_name VARCHAR(50) NOT NULL,
+    ticket_type_name VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE Ticket_Payment (
@@ -31,12 +31,12 @@ CREATE TABLE Ride (
 
 CREATE TABLE Employee (
     employee_id INT PRIMARY KEY,
-    first_name VARCHAR(30) CHECK (first_name > 1),
+    first_name VARCHAR(30) CHECK (LEN(first_name) > 1),
     middle_initial CHAR(1),
-    last_name VARCHAR(30) CHECK (last_name > 1),
+    last_name VARCHAR(30) CHECK (LEN(last_name) > 1),
     role_id INT,
-    username VARCHAR(30) CHECK (username > 6),
-    employee_password VARCHAR(30) CHECK (employee_password > 6),
+    username VARCHAR(30) CHECK (LEN(username) > 6),
+    employee_password VARCHAR(30) CHECK (LEN(employee_password) > 6),
     ssn CHAR(9),
     pay_rate DECIMAL CHECK (pay_rate > 0)
 );
@@ -87,7 +87,7 @@ CREATE TABLE Sales_Transaction(
     transaction_datetime DATETIME2,
     total_amount DECIMAL(10,2),
     payment_method VARCHAR(20) NOT NULL
-        CHECK (payment_method IN ('Cash', 'Credit Card', 'Debit Card', 'Apple Pay')),
+        CHECK (payment_method IN ('Cash', 'Credit Card', 'Debit Card', 'Apple Pay'))
 );
 
 CREATE TABLE Weather_Record(
