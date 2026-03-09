@@ -15,7 +15,8 @@
         <script>
             async function loadCustomers(){
                 const response = await fetch("/customers");
-                const data = await response.json();
+                var data = await response.json();
+                data = JSON.parse(data);
                 
                 const list = document.getElementById("list");
                 list.innerHTML = "";
