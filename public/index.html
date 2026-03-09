@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Customers
+        </title>
+    </head>
+    <body>
+        <h1>Customer List</h1>
+
+        <button onclick="loadCustomers()">Load Customers</button>
+
+        <ul id="list"></ul>
+
+        <script>
+            async function loadCustomers(){
+                const response = await fetch("/customers");
+                const data = await response.json();
+                
+                const list = document.getElementById("list");
+                list.innerHTML = "";
+
+                data.forEach(c => {
+                    const li = document.createElement("li");
+                    li.textContent = c.first_name + " " + c.last_name;
+                    list.appendChild(li);
+                });
+            }
+        </script>
+    </body>
+</html>
