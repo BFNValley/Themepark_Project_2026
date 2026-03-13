@@ -3,6 +3,12 @@ const sql = require("mssql");
 const port = process.env.PORT || 4000
 
 const app = express();
+
+app.get("/", (req,res)=>{
+    res.sendFile(__dirname+"/docs/login.html")
+});
+
+
 app.use(express.static("docs"));
 app.use(express.json());
 
@@ -26,9 +32,6 @@ app.get("/customers", async (req, res) => {
 });
 */
 
-app.get("/", (req,res)=>{
-    res.sendFile(__dirname+"/docs/login.html")
-});
 
 app.post("/login", (req, res) => {
     const role = req.body.role;
