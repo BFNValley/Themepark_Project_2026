@@ -6,13 +6,11 @@ const app = express();
 app.use(express.static("docs"));
 
 const config = {
-    user: "BFNValley",
-    password: "ThemeparkProject3!",
-    server: "themepark-db-server.database.windows.net",
-    database: "themepark-database",
-    options: {
-        encrypt: true
-    }
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    server: process.env.DB_SERVER,
+    database: process.env.DB_NAME,
+    options: { encrypt: true }
 };
 
 app.get("/customers", async (req, res) => {
