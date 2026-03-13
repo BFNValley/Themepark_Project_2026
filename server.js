@@ -20,7 +20,7 @@ const config = {
     options: { encrypt: true }
 };
 
-/*
+
 app.get("/customers", async (req, res) => {
     try{
         await sql.connect(config);
@@ -30,7 +30,7 @@ app.get("/customers", async (req, res) => {
         res.send(err);
     }
 });
-*/
+
 
 
 app.post("/login", (req, res) => {
