@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Login
+        </title>
+    </head>
+    <body>
+        <h1>Theme Park Login</h1>
+        <h2>Select Login Type</h2>
+
+        <button onclick="login('customer')">Login as Customer</button>
+        <button onclick="login('employee')">Login as Employee</button>
+
+        <script>
+            async function login(role) {
+                const response = await fetch("/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({role: role})
+                });
+
+                const data = await response.json();
+
+                window.location.href = data.redirect
+            }
+
+        </script>
+
+    </body>
+</html>
