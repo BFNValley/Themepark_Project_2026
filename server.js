@@ -47,7 +47,7 @@ app.post("/login", (req, res) => {
     else{
         res.status(400).send("Invalid role");
     }
-})
+});
 
 app.listen(port, () => {
     console.log("Server running on port 4000");

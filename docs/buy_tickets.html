@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>Buy Tickets</head>
+
+    <body>
+        <h1>Buy tickets to your favorite attractions here!</h1>
+        <p>Please enter your information and select the attraction you wish to purchase a ticket or tickets for.</p>
+        <form id="ticketForm" action="/buy-ticket" method="POST">
+
+            <label>First Name:</label>
+            <input id="firstName" placeholder="First Name"><br>
+            <label>Middle Initial:</label>
+            <input id="middleInitial" placeholder="Middle Initial" maxlength="1"><br>
+            <label>Last Name:</label>
+            <input id="lastName" placeholder="Last Name"><br>
+            <label>Date of Birth:</label>
+            <input type="date" id="dateOfBirth" placeholder="Date of Birth"><br>
+            <label>Phone Number:</label>
+            <input type="tel" id="phoneNumber" placeholder="Phone Number"><br>
+            <label>Email Address:</label>
+            <input type="email" id="emailAddress" placeholder="Email Address"><br><br>
+
+            <select id="ticketType">
+            <option value="Ride1">Ride1</option>
+            <option value="Ride2">Ride2</option>
+            <option value="Ride3">Ride3</option>
+            </select>
+            <select id="adultOrChild">
+            <option value="Adult">Adult</option>
+            <option value="Child">Child</option>
+            </select>
+            <input type="number" id="ticketQuantity" placeholder="Quantity" min="1">
+            <br><br>
+
+            <input type="submit" value="Submit">
+        </form>  
+    </body>
+</html>
