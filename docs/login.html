@@ -1,33 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <title>
-            Login
-        </title>
-    </head>
-    <body>
-        <h1>Theme Park Login</h1>
-        <h2>Select Login Type</h2>
-
+  <head>
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body>
+    <div class="login-card">
+      <h1>Theme Park Login Portal</h1>
+      <div class="button-container">
         <button onclick="login('customer')">Login as Customer</button>
         <button onclick="login('employee')">Login as Employee</button>
+      </div>
+    </div>
+    <script>
+      async function login(role) {
+        const response = await fetch("/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ role: role }),
+        });
 
-        <script>
-            async function login(role) {
-                const response = await fetch("/login", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({role: role})
-                });
+        const data = await response.json();
 
-                const data = await response.json();
-
-                window.location.href = data.redirect
-            }
-
-        </script>
-
-    </body>
+        window.location.href = data.redirect;
+      }
+    </script>
+  </body>
 </html>
