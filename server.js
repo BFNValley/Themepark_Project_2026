@@ -49,6 +49,43 @@ app.post("/login", (req, res) => {
     }
 });
 
+// --- WEATHER ROUTES ---
+
+app.get("/weather", async (req, res) => {
+    try {
+        await sql.connect(config);
+        const result = await sql.query(`
+            SELECT record_date, condition, rainout_flag
+            FROM Weather_Record
+            ORDER BY record_date DESC
+        `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+app.post("/weather", async (req, res) => {
+    const { record_date, condition, rainout_flag } = req.body;
+    if (!record_date || !condition) {
+        return res.status(400).send("record_date and condition are required.");
+    }
+    try {
+        await sql.connect(config);
+        const request = new sql.Request();
+        request.input("record_date", sql.Date, record_date);
+        request.input("condition", sql.VarChar(30), condition);
+        request.input("rainout_flag", sql.TinyInt, rainout_flag ?? 0);
+        await request.query(`
+            INSERT INTO Weather_Record (record_date, condition, rainout_flag)
+            VALUES (@record_date, @condition, @rainout_flag)
+        `);
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
 app.listen(port, () => {
     console.log("Server running on port 4000");
 });
