@@ -39,6 +39,20 @@
                 background-color: #7a8fa6;
             }
 
+            button.danger {
+                background-color: #c0392b;
+            }
+
+            button.success {
+                background-color: #27ae60;
+            }
+
+            button.small {
+                padding: 6px 12px;
+                font-size: 12px;
+                margin: 0 2px;
+            }
+
             table {
                 width: 100%;
                 border-collapse: collapse;
@@ -68,6 +82,28 @@
                 font-style: italic;
                 margin-bottom: 12px;
             }
+
+            input.inline-edit {
+                padding: 6px 10px;
+                border-radius: 8px;
+                border: none;
+                font-size: 13px;
+                background: rgba(255,255,255,0.85);
+                color: #1f2a37;
+                width: 100%;
+            }
+
+            .msg {
+                margin-top: 10px;
+                font-size: 14px;
+                font-weight: 600;
+                padding: 10px 14px;
+                border-radius: 10px;
+                display: none;
+            }
+
+            .msg.success { background: rgba(100,200,130,0.35); color: #1a5c30; display: block; }
+            .msg.error { background: rgba(220,80,80,0.25); color: #7a1a1a; display: block; }
         </style>
     </head>
     <body>
@@ -79,14 +115,18 @@
                 <button class="secondary" onclick="window.location.href='employee.html'">&#8592; Back</button>
             </div>
 
+            <div class="msg" id="actionMsg"></div>
             <div class="status-msg" id="status"></div>
             <div id="customerTable"></div>
         </div>
         
         <script>
+            let customerData = [];
+
             async function loadCustomers(){
                 document.getElementById("status").textContent = "Loading...";
                 document.getElementById("customerTable").innerHTML = "";
+                document.getElementById("actionMsg").className = "msg";
                 try {
                     const response = await fetch("/customers");
                     const data = await response.json();
@@ -97,32 +137,115 @@
                         return;
                     }
 
-                    let html = "<table><thead><tr>";
-                    html += "<th>Customer ID</th>";
-                    html += "<th>Full Name</th>";
-                    html += "<th>Date of Birth</th>";
-                    html += "<th>Phone Number</th>";
-                    html += "<th>Email Address</th>";
-                    html += "</tr></thead><tbody>";
+                    renderTable(data);
+                } catch (err) {
+                    document.getElementById("status").textContent = "Error loading customers.";
+                }
+            }
+
+            function renderTable(data) {
+                let html = "<table><thead><tr>";
+                html += "<th>Customer ID</th>";
+                html += "<th>Full Name</th>";
+                html += "<th>Date of Birth</th>";
+                html += "<th>Phone Number</th>";
+                html += "<th>Email Address</th>";
+                html += "<th>Actions</th>";
+                html += "</tr></thead><tbody>";
                     
-                    data.forEach(c => {
+                data.forEach(c => {
                     const middleInitial = c.middle_initial ? c.middle_initial + ". " : "";
                     const fullName = c.first_name + " " + middleInitial + c.last_name;
                     const dob = c.date_of_birth ? c.date_of_birth.split("T")[0] : "";
-                    html += "<tr>";
+                    html += `<tr id="row-${c.customer_id}">`;
                     html += `<td>${c.customer_id}</td>`;
                     html += `<td>${fullName}</td>`;
                     html += `<td>${dob}</td>`;
-                    html += `<td>${c.phone_number}</td>`;
-                    html += `<td>${c.email_address}</td>`;
+                    html += `<td id="phone-${c.customer_id}">${c.phone_number}</td>`;
+                    html += `<td id="email-${c.customer_id}">${c.email_address}</td>`;
+                    html += `<td>
+                        <button class="small secondary" onclick="editCustomer(${c.customer_id}, '${c.phone_number}', '${c.email_address}')">&#9999;&#65039; Edit</button>
+                        <button class="small danger" onclick="deleteCustomer(${c.customer_id})">&#128465;&#65039; Delete</button>
+                    </td>`;
                     html += "</tr>";
                     });
-
+            
                     html += "</tbody></table>";
                     document.getElementById("customerTable").innerHTML = html;
+            }
+
+            function editCustomer(id, phone, email) {
+                document.getElementById(`phone-${id}`).innerHTML = `<input class="inline-edit" id="edit-phone-${id}" value="${phone}">`;
+                document.getElementById(`email-${id}`).innerHTML = `<input class="inline-edit" id="edit-email-${id}" value="${email}">`;
+
+                const actionsTd = document.querySelector(`#row-${id} td:last-child`);
+                actionsTd.innerHTML = `
+                    <button class="small success" onclick="saveCustomer(${id})">&#10003; Save</button>
+                    <button class="small secondary" onclick="loadCustomers()">&#10005; Cancel</button>
+                `;
+            }
+
+            async function saveCustomer(id) {
+                const phone = document.getElementById(`edit-phone-${id}`).value.trim();
+                const email = document.getElementById(`edit-email-${id}`).value.trim();
+                const msgEl = document.getElementById("actionMsg");
+
+                if (phone.length !== 10) {
+                        msgEl.className = "msg error";
+                        msgEl.textContent = "Phone number must be exactly 10 digits.";
+                        return;
+                }
+
+                if (!email) {
+                        msgEl.className = "msg error";
+                        msgEl.textContent = "Email cannot be empty.";
+                        return;
+                }
+
+                try {
+                        const res = await fetch(`/customers/${id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ phone_number: phone, email_address: email })
+                    });
+
+                    if (res.ok) {
+                        msgEl.className = "msg success";
+                        msgEl.textContent = "Customer updated successfully.";
+                        loadCustomers();
+                    } else {
+                        const err = await res.text();
+                        msgEl.className = "msg error";
+                        msgEl.textContent = "Error: " + err;
+                    }   
                 } catch (err) {
-                    document.getElementById("status").textContent = "Error loading customers.";
-                }                
+                    msgEl.className = "msg error";
+                    msgEl.textContent = "Failed to connect to server.";
+                }
+            }
+            
+            async function deleteCustomer(id) {
+                if (!confirm("Are you sure you want to delete this customer?")) return;
+
+                const msgEl = document.getElementById("actionMsg");
+                try {
+                    const res = await fetch(`/customers/${id}`, {
+                        method: "DELETE"
+                    });
+
+                    if (res.ok) {
+                        msgEl.className = "msg success";
+                        msgEl.textContent = "Customer deleted successfully.";
+                        loadCustomers();
+                    } else {
+                        const err = await res.text();
+                        msgEl.className = "msg error";
+                        msgEl.textContent = "Error: " + err;
+                    }
+                } catch (err) {
+                    msgEl.className = "msg error";
+                    msgEl.textContent = "Failed to connect to server.";
+                }
             }
         </script>
     </body>

@@ -102,7 +102,7 @@ app.get("/stats/weather-impact", async (req, res) => {
             SELECT 
                 wr.condition                        AS Weather_Condition,
                 SUM(CASE WHEN wr.rainout_flag = 1
-                    THEN 1 ELSE 0 END)              AS Park_Operations_Affected
+                    THEN 1 ELSE 0 END)              AS Park_Operations_Affected,
                 COUNT(t.ticket_id)                  AS Total_Tickets_Sold
             FROM Weather_Record wr
             LEFT JOIN Ticket t ON t.visiting_date = wr.record_date
@@ -111,6 +111,45 @@ app.get("/stats/weather-impact", async (req, res) => {
             ORDER BY Total_Tickets_Sold DESC
         `);
         res.json(result.recordset);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+// ---CUSTOMER UPDATE & DELETE ---
+
+app.put("/customers/:id", async (req, res) => {
+    const { phone_number, email_address } = req.body;
+    const id = req.params.id;
+    try {
+        await sql.connect(config);
+        const request = new sql.Request();
+        request.input("id", sql.Int, id);
+        request.input("phone_number", sql.Char(10), phone_number);
+        request.input("email_address", sql.VarChar(255), email_address);
+        await request.query(`
+            UPDATE Customers
+            SET phone_number = @phone_number,
+                email_address = @email_address
+            WHERE customer_id = @id
+        `);
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+});
+
+app.delete("/customers/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+        await sql.connect(config);
+        const request = new sql.Request();
+        request.input("id", sql.Int, id);
+        await request.query(`
+            DELETE FROM Customers
+            WHERE customer_id = @id
+        `);
+        res.sendStatus(200);
     } catch (err) {
         res.status(500).send(err.message);
     }
