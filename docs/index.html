@@ -1,31 +1,126 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>
-            Customers
-        </title>
+        <title>Customer List</title>
+        <link rel="stylesheet" href="login.css" />
+        <style>
+            body {
+                align-items: flex-start;
+                padding: 40px 20px;
+                flex-direction: column;
+            }
+
+            .card {
+                background: rgba(255, 255, 255, 0.28);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+                border-radius: 28px;
+                padding: 40px 50px;
+                width: 900px;
+                max-width: 90vw;
+                margin: 0 auto;
+            }
+
+            h1 {
+                font-size: 32px;
+                margin-bottom: 24px;
+                color: #1f2a37;
+            }
+
+            .btn-row {
+                display: flex;
+                gap: 12px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+
+            button.secondary {
+                background-color: #7a8fa6;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+            }
+
+            th {
+                background-color: #5f90d8;
+                color: white;
+                padding: 10px 14px;
+                text-align: left;
+                font-weight: 600;
+            }
+
+            td {
+                padding: 9px 14px;
+                border-bottom: 1px solid rgba(0,0,0,0.08);
+                color: #1f2a37;
+            }
+            
+            tr:nth-child(even) td { background: rgba(255,255,255,0.35); }
+            tr:nth-child(odd)  td { background: rgba(255,255,255,0.15); }
+
+            .status-msg {
+                font-size: 14px;
+                color: #1f2a37;
+                font-style: italic;
+                margin-bottom: 12px;
+            }
+        </style>
     </head>
     <body>
-        <h1>Customer List</h1>
+        <div class="card">
+            <h1>Customer List</h1>
 
-        <button onclick="loadCustomers()">Load Customers</button>
+            <div class="btn-row">
+                <button onclick="loadCustomers()">Load Customers</button>
+                <button class="secondary" onclick="window.location.href='employee.html'">&#8592; Back</button>
+            </div>
 
-        <ul id="list"></ul>
-
+            <div class="status-msg" id="status"></div>
+            <div id="customerTable"></div>
+        </div>
+        
         <script>
             async function loadCustomers(){
-                const response = await fetch("/customers");
-                const data = await response.json();
+                document.getElementById("status").textContent = "Loading...";
+                document.getElementById("customerTable").innerHTML = "";
+                try {
+                    const response = await fetch("/customers");
+                    const data = await response.json();
+                    document.getElementById("status").textContent = "";
 
-                
-                const list = document.getElementById("list");
-                list.innerHTML = "";
+                    if (!data || data.length === 0) {
+                        document.getElementById("customerTable").innerHTML = "<p style='color:#555;'>No customers found.</p>";
+                        return;
+                    }
 
-                data.forEach(c => {
-                    const li = document.createElement("li");
-                    li.textContent = c.first_name + " " + c.last_name;
-                    list.appendChild(li);
-                });
+                    let html = "<table><thead><tr>";
+                    html += "<th>Customer ID</th>";
+                    html += "<th>Full Name</th>";
+                    html += "<th>Date of Birth</th>";
+                    html += "<th>Phone Number</th>";
+                    html += "<th>Email Address</th>";
+                    html += "</tr></thead><tbody>";
+                    
+                    data.forEach(c => {
+                    const middleInitial = c.middle_initial ? c.middle_initial + ". " : "";
+                    const fullName = c.first_name + " " + middleInitial + c.last_name;
+                    const dob = c.date_of_birth ? c.date_of_birth.split("T")[0] : "";
+                    html += "<tr>";
+                    html += `<td>${c.customer_id}</td>`;
+                    html += `<td>${fullName}</td>`;
+                    html += `<td>${dob}</td>`;
+                    html += `<td>${c.phone_number}</td>`;
+                    html += `<td>${c.email_address}</td>`;
+                    html += "</tr>";
+                    });
+
+                    html += "</tbody></table>";
+                    document.getElementById("customerTable").innerHTML = html;
+                } catch (err) {
+                    document.getElementById("status").textContent = "Error loading customers.";
+                }                
             }
         </script>
     </body>
