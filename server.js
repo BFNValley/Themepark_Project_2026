@@ -156,8 +156,6 @@ app.delete("/customers/:id", async (req, res) => {
 
 // --- TICKET BUYING ROUTE ---
 
-console.log("Incoming body:", req.body);
-
 app.post("/buy-ticket", (req, res) => {
   console.log(req.body);
   res.send("Route works");
