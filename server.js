@@ -32,7 +32,6 @@ app.get("/customers", async (req, res) => {
 });
 
 
-
 app.post("/login", (req, res) => {
     const role = req.body.role;
 
@@ -41,7 +40,7 @@ app.post("/login", (req, res) => {
     }
 
     else if(role === "employee"){
-        res.json({redirect: "/employee.html"});
+        res.json({redirect: "/employee_login.html"});
     }
 
     else{
@@ -49,111 +48,6 @@ app.post("/login", (req, res) => {
     }
 });
 
-// --- WEATHER ROUTES ---
-
-app.get("/weather", async (req, res) => {
-    try {
-        await sql.connect(config);
-        const result = await sql.query(`
-            SELECT record_date, condition, rainout_flag
-            FROM Weather_Record
-            ORDER BY record_date DESC
-        `);
-        res.json(result.recordset);
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
-
-app.post("/weather", async (req, res) => {
-    const { record_date, condition, rainout_flag } = req.body;
-    if (!record_date || !condition) {
-        return res.status(400).send("record_date and condition are required.");
-    }
-    try {
-        await sql.connect(config);
-        const request = new sql.Request();
-        request.input("record_date", sql.Date, record_date);
-        request.input("condition", sql.VarChar(30), condition);
-        request.input("rainout_flag", sql.TinyInt, rainout_flag ?? 0);
-        await request.query(`
-            INSERT INTO Weather_Record (record_date, condition, rainout_flag)
-            VALUES (@record_date, @condition, @rainout_flag)
-        `);
-        res.sendStatus(200);
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
-
-// --- WEATHER IMPACT ROUTE ---
-
-app.get("/stats/weather-impact", async (req, res) => {
-    const { from, to } = req.query;
-    if (!from || !to) {
-        return res.status(400).send("Please provide from and to dates.");
-    }
-    try {
-        await sql.connect(config);
-        const request = new sql.Request();
-        request.input("from", sql.Date, from);
-        request.input("to", sql.Date, to);
-        const result = await request.query(`
-            SELECT 
-                wr.condition                        AS Weather_Condition,
-                SUM(CASE WHEN wr.rainout_flag = 1
-                    THEN 1 ELSE 0 END)              AS Park_Operations_Affected,
-                COUNT(t.ticket_id)                  AS Total_Tickets_Sold
-            FROM Weather_Record wr
-            LEFT JOIN Ticket t ON t.visiting_date = wr.record_date
-            WHERE wr.record_date BETWEEN @from AND @to
-            GROUP BY wr.condition
-            ORDER BY Total_Tickets_Sold DESC
-        `);
-        res.json(result.recordset);
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
-
-// ---CUSTOMER UPDATE & DELETE ---
-
-app.put("/customers/:id", async (req, res) => {
-    const { phone_number, email_address } = req.body;
-    const id = req.params.id;
-    try {
-        await sql.connect(config);
-        const request = new sql.Request();
-        request.input("id", sql.Int, id);
-        request.input("phone_number", sql.Char(10), phone_number);
-        request.input("email_address", sql.VarChar(255), email_address);
-        await request.query(`
-            UPDATE Customers
-            SET phone_number = @phone_number,
-                email_address = @email_address
-            WHERE customer_id = @id
-        `);
-        res.sendStatus(200);
-    } catch (err) {
-        res.status(500).send(err.message)
-    }
-});
-
-app.delete("/customers/:id", async (req, res) => {
-    const id = req.params.id;
-    try {
-        await sql.connect(config);
-        const request = new sql.Request();
-        request.input("id", sql.Int, id);
-        await request.query(`
-            DELETE FROM Customers
-            WHERE customer_id = @id
-        `);
-        res.sendStatus(200);
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
 
 app.listen(port, () => {
     console.log("Server running on port 4000");

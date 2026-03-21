@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Theme Park Login | Employee Login</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="employee_login.css">
+        <script defer src="employee_login.js"></script>
+    </head>
+    <body>
+        <!--Create box for username and password-->
+        <form id="employee_login_form" method="POST"> 
+
+            <!--username text box-->
+            <div>
+                <label for="username">Username:</label>
+                <input type="username" id="username" name="username" maxlength="30" placeholder="username" required>
+            </div>
+
+            <br>
+            <!--password text box-->
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" minlength="8" maxlength="30" placeholder="password" required>
+            </div>
+            
+            <br>
+            <!--create login button-->
+            <div>
+                <button type="submit" class="login_button">Login</button>
+            </div>
+
+	    </form>
+    </body>
+</html>
