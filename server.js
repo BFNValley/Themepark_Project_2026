@@ -163,67 +163,102 @@ app.post("/buy-ticket", (req, res) => {
 });
 */
 app.post("/buy-ticket", async (req, res) => {
+    console.log("Incoming body:", req.body);
+
     const { customer_id, cart } = req.body;
+
+    // ✅ Basic validation
+    if (!customer_id) {
+        return res.status(400).send("Customer ID is required.");
+    }
 
     if (!cart || cart.length === 0) {
         return res.status(400).send("Cart is empty.");
     }
 
-    const customerCheck = await db.query(
-        "SELECT 1 FROM Customers WHERE customer_id = $1",
-        [customer_id]
-    );
-
-    if (customerCheck.rows.length === 0) {
-        return res.status(400).send("Invalid customer ID.");
-    }
-
-    const client = await db.connect();
-
     try {
-        await client.query("BEGIN");
+        await sql.connect(config);
 
-        let totalPrice = 0;
+        //Check if customer exists
+        const checkRequest = new sql.Request();
+        checkRequest.input("customer_id", sql.Int, parseInt(customer_id));
 
-        for (const item of cart) {
-            const price = item.ticket_type === "adult" ? 50 : 30;
-            totalPrice += price * item.quantity;
-        }
-
-        const issueDate = new Date();
-
-        const expirationDate = new Date();
-        expirationDate.setDate(issueDate.getDate() + 30);
-
-        // ✅ FIXED: returning payment_id
-        const paymentResult = await client.query(
-            "INSERT INTO Ticket_Payment (customer_id, price, purchase_date) VALUES ($1, $2, $3) RETURNING payment_id",
-            [customer_id, totalPrice, issueDate]
+        const customerCheck = await checkRequest.query(
+            "SELECT 1 FROM Customers WHERE customer_id = @customer_id"
         );
 
-        const payment_id = paymentResult.rows[0].payment_id;
-
-        for (const item of cart) {
-            for (let i = 0; i < item.quantity; i++) {
-                await client.query(
-                    "INSERT INTO Ticket (customer_id, visiting_date, expiration_date, ride, payment_id) VALUES ($1, $2, $3, $4, $5)",
-                    [customer_id, issueDate, expirationDate, item.ride_id, payment_id]
-                );
-            }
+        if (customerCheck.recordset.length === 0) {
+            return res.status(400).send("Invalid customer ID.");
         }
 
-        await client.query("COMMIT");
-        res.send("Tickets purchased successfully!");
+        //Start transaction
+        const transaction = new sql.Transaction();
+        await transaction.begin();
+
+        try {
+            //Calculate total price
+            let totalPrice = 0;
+
+            for (const item of cart) {
+                const price = item.ticket_type === "adult" ? 50 : 30;
+                totalPrice += price * item.quantity;
+            }
+
+            const issueDate = new Date();
+
+            const expirationDate = new Date();
+            expirationDate.setDate(issueDate.getDate() + 30);
+
+            //Insert payment
+            const paymentRequest = new sql.Request(transaction);
+
+            paymentRequest.input("customer_id", sql.Int, customer_id);
+            paymentRequest.input("price", sql.Int, totalPrice);
+            paymentRequest.input("purchase_date", sql.DateTime, issueDate);
+
+            const paymentResult = await paymentRequest.query(`
+                INSERT INTO Ticket_Payment (customer_id, price, purchase_date)
+                OUTPUT INSERTED.payment_id
+                VALUES (@customer_id, @price, @purchase_date)
+            `);
+
+            const payment_id = paymentResult.recordset[0].payment_id;
+
+            //Insert tickets
+            for (const item of cart) {
+                for (let i = 0; i < item.quantity; i++) {
+
+                    const ticketRequest = new sql.Request(transaction);
+
+                    ticketRequest.input("customer_id", sql.Int, customer_id);
+                    ticketRequest.input("visit_date", sql.DateTime, issueDate);
+                    ticketRequest.input("exp_date", sql.DateTime, expirationDate);
+                    ticketRequest.input("ride", sql.Int, item.ride_id);
+                    ticketRequest.input("payment_id", sql.Int, payment_id);
+
+                    await ticketRequest.query(`
+                        INSERT INTO Ticket (customer_id, visiting_date, expiration_date, ride)
+                        VALUES (@customer_id, @visit_date, @exp_date, @ride)
+                    `);
+                }
+            }
+
+            // Commit transaction
+            await transaction.commit();
+
+            res.send("Tickets purchased successfully!");
+
+        } catch (err) {
+            await transaction.rollback();
+            console.error("Transaction Error:", err);
+            res.status(500).send("Transaction failed.");
+        }
 
     } catch (err) {
-        await client.query("ROLLBACK");
-        console.error(err);
-        res.status(500).send("An error occurred while processing your purchase.");
-    } finally {
-        client.release();
+        console.error("Connection Error:", err);
+        res.status(500).send("Database connection failed.");
     }
 });
-
 
 app.listen(port, () => {
     console.log("Server running on port 4000");
