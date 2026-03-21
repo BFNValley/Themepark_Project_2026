@@ -4,35 +4,25 @@
 
     <body>
         <h1>Buy tickets to your favorite attractions here!</h1>
-        <p>Please enter your information and select the attraction you wish to purchase a ticket or tickets for.</p>
+        <p>Please enter your customer ID and select the attraction you wish to purchase a ticket or tickets for.</p>
         <form id="ticketForm" action="/buy-ticket" method="POST">
 
-            <label>First Name:</label>
-            <input id="firstName" placeholder="First Name"><br>
-            <label>Middle Initial:</label>
-            <input id="middleInitial" placeholder="Middle Initial" maxlength="1"><br>
-            <label>Last Name:</label>
-            <input id="lastName" placeholder="Last Name"><br>
-            <label>Date of Birth:</label>
-            <input type="date" id="dateOfBirth" placeholder="Date of Birth"><br>
-            <label>Phone Number:</label>
-            <input type="tel" id="phoneNumber" placeholder="Phone Number"><br>
-            <label>Email Address:</label>
-            <input type="email" id="emailAddress" placeholder="Email Address"><br><br>
+            <label>Customer ID:</label>
+            <input type="number" name="customer_id" id="customerID" placeholder="Customer ID" required><br><br>
 
-            <select id="ticketType">
+            <select name="ride_id" id="rideSelect" required>
             <option value="Ride1">Ride1</option>
             <option value="Ride2">Ride2</option>
             <option value="Ride3">Ride3</option>
             </select>
-            <select id="adultOrChild">
+            <select name="ticket_type" id="adultOrChild" required>
             <option value="Adult">Adult</option>
             <option value="Child">Child</option>
             </select>
-            <input type="number" id="ticketQuantity" placeholder="Quantity" min="1">
+            <input type="number" name="ticket_quantity" id="ticketQuantity" placeholder="Quantity" min="1" required>
             <br><br>
 
-            <input type="submit" value="Submit">
+            <input type="submit" value="Purchase Tickets">
         </form>  
     </body>
 </html>
