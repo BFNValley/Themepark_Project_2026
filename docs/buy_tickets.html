@@ -5,10 +5,10 @@
     <body>
         <h1>Buy tickets to your favorite attractions here!</h1>
         <p>Please enter your customer ID and select the attraction you wish to purchase a ticket or tickets for.</p>
-        <form id="ticketForm" action="/buy-ticket" method="POST">
-
             <label>Customer ID:</label>
-            <input type="number" name="customer_id" id="customerID" placeholder="Customer ID" required><br><br>
+            <input type="number" name="customer_id" id="customerID" placeholder="Customer ID" required min="1"><br><br>
+
+            <h3>Add Tickets</h3>
 
             <select name="ride_id" id="rideSelect" required>
             <option value="Ride1">Ride1</option>
@@ -22,7 +22,14 @@
             <input type="number" name="ticket_quantity" id="ticketQuantity" placeholder="Quantity" min="1" required>
             <br><br>
 
-            <input type="submit" value="Purchase Tickets">
-        </form>  
+            <button type="button" onclick="addToCart()">Add to Cart</button>
+
+            <h3>Your Cart</h3>
+            <ul id="cartList"></ul>
+            <br>
+            <h3>Total: $<span id="totalPrice">0</span></h3>
+            <button onclick="checkout()">Checkout</button>
+
+            <script src="cart.js"></script>
     </body>
 </html>

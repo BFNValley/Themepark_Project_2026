@@ -154,6 +154,65 @@ app.delete("/customers/:id", async (req, res) => {
     }
 });
 
+// --- TICKET BUYING ROUTE ---
+
+app.post("/buy-ticket", async (req, res) => {
+    const { customer_id, cart } = req.body;
+
+    const customerCheck = await db.query(
+        "Select 1 FROM Customers WHERE customer_id = $1",
+        [customer_id]
+    );
+
+    if (customerCheck.rows.length === 0) {
+        return res.status(400).send("Invalid customer ID.");
+    }
+
+    const client = await db.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        let totalPrice = 0;
+
+        for (const item of cart) {
+            const price = item.ticket_type === "adult" ? 50 : 30;
+            totalPrice += price * item.quantity;
+        }
+
+        const issueDate = newDate();
+        const expirationData = new Date();
+        expirationData.setDate(issueDate.getDate() + 30);
+
+        const paymentResult = await client.query(
+            "INSERT INTO Ticket_Payment (customer_id, price, purchase_date) VALUES ($1, $2, $3)",
+            [customer_id, totalPrice, issueDate]
+        );  
+
+        const payment_id = paymentResult.rows[0].payment_id;
+
+        for (const item of cart) {
+            for (let i = 0; i < item.quantity; i++) {
+                await client.query(
+                    "INSERT INTO Ticket (customer_id, visiting_date, expiration_date, ride) VALUES ($1, $2, $3, $4)",
+                    [customer_id,  issueDate, expirationData, item.ride_id]
+                );
+            }
+        }
+
+        await client.query("COMMIT");
+        res.send("Tickets purchased successfully!");
+    } catch (err) {
+        await client.query("ROLLBACK");
+        console.error(err);
+        res.status(500).send("An error occurred while processing your purchase.");
+    } finally {
+        client.release();
+    }
+        
+
+});
+
 
 app.listen(port, () => {
     console.log("Server running on port 4000");
