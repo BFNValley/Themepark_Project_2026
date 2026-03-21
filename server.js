@@ -156,16 +156,15 @@ app.delete("/customers/:id", async (req, res) => {
 
 // --- TICKET BUYING ROUTE ---
 
-app.post("/buy-ticket", (req, res) => {
-  console.log(req.body);
-  res.send("Route works");
-});
-/*
 app.post("/buy-ticket", async (req, res) => {
     const { customer_id, cart } = req.body;
 
+    if (!cart || cart.length === 0) {
+        return res.status(400).send("Cart is empty.");
+    }
+
     const customerCheck = await db.query(
-        "Select 1 FROM Customers WHERE customer_id = $1",
+        "SELECT 1 FROM Customers WHERE customer_id = $1",
         [customer_id]
     );
 
@@ -185,22 +184,23 @@ app.post("/buy-ticket", async (req, res) => {
             totalPrice += price * item.quantity;
         }
 
-        const issueDate = newDate();
-        const expirationData = new Date();
-        expirationData.setDate(issueDate.getDate() + 30);
+        const issueDate = new Date();
+
+        const expirationDate = new Date();
+        expirationDate.setDate(issueDate.getDate() + 30);
 
         const paymentResult = await client.query(
-            "INSERT INTO Ticket_Payment (customer_id, price, purchase_date) VALUES ($1, $2, $3)",
+            "INSERT INTO Ticket_Payment (customer_id, price, purchase_date) VALUES ($1, $2, $3) RETURNING payment_id",
             [customer_id, totalPrice, issueDate]
-        );  
+        );
 
         const payment_id = paymentResult.rows[0].payment_id;
 
         for (const item of cart) {
             for (let i = 0; i < item.quantity; i++) {
                 await client.query(
-                    "INSERT INTO Ticket (customer_id, visiting_date, expiration_date, ride) VALUES ($1, $2, $3, $4)",
-                    [customer_id,  issueDate, expirationData, item.ride_id]
+                    "INSERT INTO Ticket (customer_id, visiting_date, expiration_date, ride, payment_id) VALUES ($1, $2, $3, $4, $5)",
+                    [customer_id, issueDate, expirationDate, item.ride_id, payment_id]
                 );
             }
         }
@@ -214,11 +214,4 @@ app.post("/buy-ticket", async (req, res) => {
     } finally {
         client.release();
     }
-        
-
-});
-*/
-
-app.listen(port, () => {
-    console.log("Server running on port 4000");
 });
