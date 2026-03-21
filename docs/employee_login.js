@@ -28,6 +28,7 @@ try {
 } 
 catch(err) { 
     console.error('Database connection failed while in employee login page:', err.message);
+    window.location.href = 'employee_login.html'    //otherwise start over
 }
 
 
