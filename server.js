@@ -156,6 +156,11 @@ app.delete("/customers/:id", async (req, res) => {
 
 // --- TICKET BUYING ROUTE ---
 
+app.post("/buy-ticket", (req, res) => {
+  console.log("Incoming body: ", req.body);
+  res.send("Route works");
+});
+
 app.post("/buy-ticket", async (req, res) => {
     const { customer_id, cart } = req.body;
 
@@ -189,6 +194,7 @@ app.post("/buy-ticket", async (req, res) => {
         const expirationDate = new Date();
         expirationDate.setDate(issueDate.getDate() + 30);
 
+        // ✅ FIXED: returning payment_id
         const paymentResult = await client.query(
             "INSERT INTO Ticket_Payment (customer_id, price, purchase_date) VALUES ($1, $2, $3) RETURNING payment_id",
             [customer_id, totalPrice, issueDate]
@@ -207,6 +213,7 @@ app.post("/buy-ticket", async (req, res) => {
 
         await client.query("COMMIT");
         res.send("Tickets purchased successfully!");
+
     } catch (err) {
         await client.query("ROLLBACK");
         console.error(err);
@@ -214,4 +221,9 @@ app.post("/buy-ticket", async (req, res) => {
     } finally {
         client.release();
     }
+});
+
+
+app.listen(port, () => {
+    console.log("Server running on port 4000");
 });
