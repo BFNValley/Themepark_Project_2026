@@ -200,8 +200,21 @@ app.post("/buy-ticket", async (req, res) => {
             let totalPrice = 0;
 
             for (const item of cart) {
-                const price = item.ticket_type === "adult" ? 50 : 30;
-                totalPrice += price * item.quantity;
+
+                const priceRequest = new sql.Request(transaction);
+                priceRequest.input("ride_id", sql.Int, item.ride_id);
+
+                const priceResult = await priceRequest.query(`
+                    SELECT ride_price FROM Ride WHERE ride_id = @ride_id
+                `);
+
+                if (priceResult.recordset.length === 0) {
+                    throw new Error("Invalid ride ID in cart.");
+                }
+
+                const ridePrice = priceResult.recordset[0].ride_price;
+
+                totalPrice += ridePrice * item.quantity;
             }
 
             const issueDate = new Date();
@@ -234,7 +247,6 @@ app.post("/buy-ticket", async (req, res) => {
                     ticketRequest.input("visit_date", sql.DateTime, issueDate);
                     ticketRequest.input("exp_date", sql.DateTime, expirationDate);
                     ticketRequest.input("ride", sql.Int, item.ride_id);
-                    ticketRequest.input("payment_id", sql.Int, payment_id);
 
                     await ticketRequest.query(`
                         INSERT INTO Ticket (customer_id, visiting_date, expiration_date, ride)
@@ -268,7 +280,7 @@ app.get("/rides", async (req, res) => {
         await sql.connect(config);
 
         const result = await sql.query(`
-            SELECT ride_id, ride_name
+            SELECT ride_id, ride_name, ride_price, height_requirement
             FROM Ride
         `);
 
