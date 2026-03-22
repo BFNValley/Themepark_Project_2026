@@ -260,6 +260,26 @@ app.post("/buy-ticket", async (req, res) => {
     }
 });
 
+
+// --- RIDE RETREIVAL ROUTE ---
+
+app.get("/rides", async (req, res) => {
+    try {
+        await sql.connect(config);
+
+        const result = await sql.query(`
+            SELECT ride_id, ride_name
+            FROM Ride
+        `);
+
+        res.json(result.recordset);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error retrieving rides.");
+    }
+});
+
+
 app.listen(port, () => {
     console.log("Server running on port 4000");
 });

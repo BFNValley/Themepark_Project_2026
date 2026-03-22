@@ -47,6 +47,27 @@ function calculateTotal(){
    document.getElementById("totalPrice").textContent = total.toFixed(2);
 }
 
+async function loadRides(){
+    try{
+        const reponse = await fetch("/rides");
+        const rides = await reponse.json();
+
+        const rideSelect = document.getElementById("rideSelect");
+        rideSelect.innerHTML = "";
+
+        rides.forEach(ride => {
+            const option = document.createElement("option");
+            option.value = ride.ride_id;
+            option.textContent = ride.ride_name;
+            rideSelect.appendChild(option);
+        });
+    } catch (err) {
+        console.error("Error loading rides:", err);
+    }
+}
+
+window.onload = loadRides;
+
 async function checkout(){
     const customer_id = document.getElementById("customerID").value;
 
