@@ -280,7 +280,7 @@ app.get("/rides", async (req, res) => {
         await sql.connect(config);
 
         const result = await sql.query(`
-            SELECT ride_id, ride_name
+            SELECT ride_id, ride_name, ride_price, height_requirement
             FROM Ride
         `);
 
