@@ -4,6 +4,7 @@ function addToCart(){
     const ride_id = document.getElementById("rideSelect").value;
     const ticket_type = document.getElementById("ticketType").value;
     const quantity = parseInt(document.getElementById("ticketQuantity").value);
+
    
     if (quantity < 1)
     {
@@ -11,7 +12,11 @@ function addToCart(){
         return;
     }
 
-    const item = {ride_id, ticket_type, quantity};
+    const rideSelect = document.getElementById("rideSelect");
+    const ride_name = rideSelect.selectedOptions[0].textContent;
+    const ride_price = parseFloat(rideSelect.selectedOptions[0].dataset.price);
+
+    const item = { ride_id, ticket_type, quantity, ride_price, ride_name };
     cart.push(item);
     renderCart();
 }
@@ -41,16 +46,21 @@ function renderCart(){
 function calculateTotal(){
     let total = 0;
     cart.forEach(item => {
-        const price = item.ticket_type === "adult" ? 50 : 30;
+        let price = item.ride_price;
+
+        if (item.ticket_type === "child") {
+            price *= 0.5;
+        }
+
         total += price * item.quantity;
     });
-   document.getElementById("totalPrice").textContent = total.toFixed(2);
+    document.getElementById("totalPrice").textContent = total.toFixed(2);
 }
 
 async function loadRides(){
     try{
-        const reponse = await fetch("/rides");
-        const rides = await reponse.json();
+        const response = await fetch("/rides");
+        const rides = await response.json();
 
         const rideSelect = document.getElementById("rideSelect");
         rideSelect.innerHTML = "";
@@ -58,7 +68,11 @@ async function loadRides(){
         rides.forEach(ride => {
             const option = document.createElement("option");
             option.value = ride.ride_id;
-            option.textContent = ride.ride_name;
+            option.textContent = `${ride.ride_name} ($${ride.ride_price})`;
+
+            option.dataset.price = ride.ride_price;
+            option.dataset.name = ride.ride_name;
+
             rideSelect.appendChild(option);
         });
     } catch (err) {
