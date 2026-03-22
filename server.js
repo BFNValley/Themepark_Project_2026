@@ -40,7 +40,7 @@ app.post("/login", (req, res) => {
     }
 
     else if(role === "employee"){
-        res.json({redirect: "/employee_login.html"});
+        res.json({redirect: "/employee.html"});
     }
 
     else{
