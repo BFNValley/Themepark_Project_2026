@@ -24,7 +24,28 @@ const config = {
 app.get("/customers", async (req, res) => {
     try{
         await sql.connect(config);
-        const result = await sql.query("SELECT * FROM Customers");
+        const result = await sql.query(`
+            SELECT 
+                c.customer_id,
+                c.first_name,
+                c.middle_initial,
+                c.last_name,
+                c.date_of_birth,
+                c.phone_number,
+                c.email_address,
+                MAX/9t.visiting_date) AS last_visit_date
+            FROM Customers c
+            LEFT JOIN Ticket t on c.customer_id = t.customer_id
+            GROUP BY
+                c.customer_id,
+                c.first_name,
+                c.middle_initial,
+                c.last_name,
+                c.date_of_birth,
+                c.phone_number,
+                c.email_address
+            ORDER BY last_visit_date DESC
+            `);
         res.json(result.recordset);
     } catch (err) {
         res.send(err);
