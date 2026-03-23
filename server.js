@@ -184,7 +184,7 @@ app.get("/stats/maintenance-summary", async (req, res) => {
                     THEN 1 ELSE 0 END) AS Major_Issues,
                 SUM(CASE WHEN mt.ride_status = 'minor maintenance'
                     THEN 1 ELSE 0 END) AS Minor_Issues,
-                COUNT(DISTINCT break.breakdown_id) AS Total_Breakdowns
+                COUNT(DISTINCT br.breakdown_id) AS Total_Breakdowns
             FROM Ride r
             LEFT JOIN Maintenance_Ticket mt ON r.ride_id = mt.ride_id
                 AND mt.date_opened BETWEEN @from AND @to
@@ -221,7 +221,7 @@ app.get("/stats/rides-per-month", async (req, res) => {
             JOIN Ride r ON t.ride = r.ride_id
             WHERE t.visiting_date BETWEEN @from AND @to
             GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date), r.ride_name
-            ORDER BY Month_Num, Ticket_Sold DESC
+            ORDER BY Month_Num, Tickets_Sold DESC
             `);
             res.json(result.recordset);
     } catch (err) {
