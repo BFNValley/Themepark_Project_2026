@@ -133,7 +133,7 @@
             <h1>Customer List</h1>
 
             <div class="btn-row">
-                <button onclick="loadCustomers()">Load Customers</button>
+                <button onclick="loadCustomers()">&#8635; Refresh</button>
                 <button class="secondary" onclick="window.location.href='employee.html'">&#8592; Back</button>
             </div>
 
@@ -178,7 +178,7 @@
                     return;
                 }
                 const filtered = allCustomers.filter(c => {
-                    const fullName = (c.first_name + " " + (c.middle_initial || "") + " " + c.last_name).toLowerCase();
+                    const fullName = (c.first_name + " " + c.last_name).toLowerCase();
                     return fullName.includes(query);
                 });
                 renderTable(filtered);
@@ -296,6 +296,8 @@
                     msgEl.textContent = "Failed to connect to server.";
                 }
             }
+           
+        loadCustomers();
         </script>
     </body>
 </html>
