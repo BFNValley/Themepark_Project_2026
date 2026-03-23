@@ -136,7 +136,100 @@ app.get("/stats/weather-impact", async (req, res) => {
     }
 });
 
-// ---CUSTOMER UPDATE & DELETE ---
+// --- STATS: CUSTOMER PER PERIOD ---
+
+app.get("/stats/customers-per-month", async (req, res) => {
+    const { from, to } = req.query;
+    if (!from || !to) {
+        return res.status(400).send("Please provide from and to dates.");
+    }
+    try {
+        await sql.connect(config);
+        const request = new sql.Request();
+        request.input("from", sql.Date, from);
+        request.input("to", sql.Date, to);
+        const result = await request.query(`
+            SELECT 
+                DATENAME(MONTH, t.visiting_date)  AS Month,
+                MONTH(t.visiting_date) AS Month_Num,
+                COUNT(DISTINCT t.customer_id) AS Unique_Customers,
+                COUNT(t.ticket_id) AS Total_Tickets
+            FROM Ticket t
+            WHERE t.visiting_date BETWEEN @from AND @to
+            GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date)
+            ORDER BY Month_Num
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+// --- STATS: MAINTENANCE SUMMARY ---
+
+app.get("/stats/maintenance-summary", async (req, res) => {
+    const { from, to } = req.query;
+    if (!from || !to) {
+        return res.status(400).send("Please provide from and to dates.");
+    } try {
+        await sql.connect(config);
+        const request = new sql.Request();
+        request.input("from", sql.Date, from);
+        request.input("to", sql.Date, to);
+        const result = await request.query(`
+            SELECT 
+                r.ride_name AS Ride,
+                COUNT(DISTINCT mt.maintenance_id) AS Maintenance_Tickets,
+                SUM(CASE WHEN mt.ride_status = 'major maintenance'
+                    THEN 1 ELSE 0 END) AS Major_Issues,
+                SUM(CASE WHEN mt.ride_status = 'minor maintenance'
+                    THEN 1 ELSE 0 END) AS Minor_Issues,
+                COUNT(DISTINCT break.breakdown_id) AS Total_Breakdowns
+            FROM Ride r
+            LEFT JOIN Maintenance_Ticket mt ON r.ride_id = mt.ride_id
+                AND mt.date_opened BETWEEN @from AND @to
+            LEFT JOIN Breakdown_Record br ON r.ride_id = br.ride_id
+                AND CAST (br.breakdown_timestamp AS DATE) BETWEEN @from AND @to
+            GROUP BY r.ride_id, r.ride_name
+            ORDER BY Maintenance_Tickets DESC
+        `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+// --- MOST POPULAR RIDES PER PERIOD ---
+
+app.get("/stats/rides-per-month", async (req, res) => {
+    const { from, to } = req.query;
+    if (!from || !to) {
+        return res.status(400).send("Please provide from and to dates.");
+    }
+    try {
+        await sql.connect(config);
+        const request = new sql.Request();
+        request.input("from", sql.Date, from);
+        request.input("to", sql.Date, to);
+        const result = await request.query(`
+            SELECT
+                DATENAME(MONTH, t.visiting_date) AS Month,
+                MONTH(t.visiting_date) AS Month_Num,
+                r.ride_name AS Ride,
+                COUNT(t.ticket_id) AS Tickets_Sold
+            FROM Ticket t
+            JOIN Ride r ON t.ride = r.ride_id
+            WHERE t.visiting_date BETWEEN @from AND @to
+            GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date), r.ride_name
+            ORDER BY Month_Num, Ticket_Sold DESC
+            `);
+            res.json(result.recordset);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+})
+
+// --- CUSTOMER UPDATE & DELETE ---
 
 app.put("/customers/:id", async (req, res) => {
     const { phone_number, email_address } = req.body;
