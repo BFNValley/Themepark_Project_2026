@@ -147,7 +147,7 @@
         </div>
         
         <script>
-            let customerData = [];
+            let allCustomers = [];
 
             async function loadCustomers(){
                 document.getElementById("status").textContent = "Loading...";
@@ -178,7 +178,7 @@
                     return;
                 }
                 const filtered = allCustomers.filter(c => {
-                    const fullName = (c.first_name + " " (c.middle_initial || "") + " " + c.last_name).toLowerCase();
+                    const fullName = (c.first_name + " " + (c.middle_initial || "") + " " + c.last_name).toLowerCase();
                     return fullName.includes(query);
                 });
                 renderTable(filtered);
@@ -196,6 +196,7 @@
                 html += "<th>Date of Birth</th>";
                 html += "<th>Phone Number</th>";
                 html += "<th>Email Address</th>";
+                html += "<th>Last Visit</th>";
                 html += "<th>Actions</th>";
                 html += "</tr></thead><tbody>";
                     

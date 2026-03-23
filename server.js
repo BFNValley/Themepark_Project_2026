@@ -33,7 +33,7 @@ app.get("/customers", async (req, res) => {
                 c.date_of_birth,
                 c.phone_number,
                 c.email_address,
-                MAX/9t.visiting_date) AS last_visit_date
+                MAX(t.visiting_date) AS last_visit_date
             FROM Customers c
             LEFT JOIN Ticket t on c.customer_id = t.customer_id
             GROUP BY
