@@ -1,26 +1,152 @@
 <!DOCTYPE html>
 <html>
-    <head>
-    <title>Gift Shop</title>
-    </head>
+<head>
+  <title>Gift Shop</title>
+</head>
 
-    <body>
+<body>
 
-    <h1>Gift Shop</h1>
+<h1>Gift Shop</h1>
 
-    <select id="item">
-    <option value="T-Shirt">T-Shirt</option>
-    <option value="Hat">Hat</option>
-    <option value="Plush Toy">Plush Toy</option>
-    </select>
+<!-- CUSTOMER SIDE -->
+<h2>Customer Purchase</h2>
 
-    <br><br>
+<label>Select Item:</label><br>
+<select id="item"></select>
 
-    <input id="quantity" type="number" value="1">
+<br><br>
 
-    <br><br>
+<label>Quantity:</label><br>
+<input id="quantity" type="number" value="1" min="1">
 
-    <button onclick="buyItem()">Purchase Item</button>
+<br><br>
 
-    </body>
+<button onclick="buyItem()">Purchase Item</button>
+
+<hr>
+
+<!-- EMPLOYEE SIDE -->
+<h2>Employee Inventory Management</h2>
+
+<label>Product Name:</label><br>
+<input id="newName" type="text">
+
+<br><br>
+
+<label>Price:</label><br>
+<input id="newPrice" type="number">
+
+<br><br>
+
+<label>Stock:</label><br>
+<input id="newStock" type="number">
+
+<br><br>
+
+<button onclick="addProduct()">Add Product</button>
+
+<br><br>
+
+<label>Remove Product:</label><br>
+<select id="removeItem"></select>
+
+<br><br>
+
+<button onclick="removeProduct()">Remove Product</button>
+
+<hr>
+
+<h2>Current Inventory</h2>
+<ul id="inventoryList"></ul>
+
+<script>
+
+// PRODUCT LIST (acts like database)
+let products = [
+  { name: "T-Shirt", price: 20, stock: 10 },
+  { name: "Hat", price: 15, stock: 8 },
+  { name: "Plush Toy", price: 25, stock: 5 }
+];
+
+// UPDATE UI
+function updateUI() {
+  const itemSelect = document.getElementById("item");
+  const removeSelect = document.getElementById("removeItem");
+  const inventoryList = document.getElementById("inventoryList");
+
+  itemSelect.innerHTML = "";
+  removeSelect.innerHTML = "";
+  inventoryList.innerHTML = "";
+
+  products.forEach((product, index) => {
+
+    // Customer dropdown
+    let option = document.createElement("option");
+    option.value = index;
+    option.text = product.name + " - $" + product.price + " (Stock: " + product.stock + ")";
+    itemSelect.appendChild(option);
+
+    // Remove dropdown
+    let removeOption = document.createElement("option");
+    removeOption.value = index;
+    removeOption.text = product.name;
+    removeSelect.appendChild(removeOption);
+
+    // Inventory display
+    let li = document.createElement("li");
+    li.textContent = product.name + " | $" + product.price + " | Stock: " + product.stock;
+    inventoryList.appendChild(li);
+  });
+}
+
+// CUSTOMER BUY FUNCTION
+function buyItem() {
+  const index = document.getElementById("item").value;
+  const quantity = parseInt(document.getElementById("quantity").value);
+
+  const product = products[index];
+
+  if (product.stock >= quantity) {
+    product.stock -= quantity;
+    const total = product.price * quantity;
+
+    alert("Purchased " + quantity + " " + product.name + "(s)\nTotal: $" + total);
+
+    console.log("Order saved (simulated)");
+  } else {
+    alert("Not enough stock!");
+  }
+
+  updateUI();
+}
+
+// ADD PRODUCT (EMPLOYEE)
+function addProduct() {
+  const name = document.getElementById("newName").value;
+  const price = parseInt(document.getElementById("newPrice").value);
+  const stock = parseInt(document.getElementById("newStock").value);
+
+  if (name && price && stock) {
+    products.push({ name, price, stock });
+    alert("Product added!");
+  }
+
+  updateUI();
+}
+
+// REMOVE PRODUCT (EMPLOYEE)
+function removeProduct() {
+  const index = document.getElementById("removeItem").value;
+  products.splice(index, 1);
+
+  alert("Product removed!");
+  updateUI();
+}
+
+// INITIAL LOAD
+updateUI();
+
+</script>
+
+</body>
 </html>

@@ -35,6 +35,28 @@
                 flex-wrap: wrap;
             }
 
+            .search-row {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 16px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+
+            .search-row input {
+                padding: 9px 14px;
+                border-radius: 12px;
+                border: none;
+                font-size: 14px;
+                background: rgba(255,255,255,0.65);
+                color: #1f2a37;
+                width: 280px;
+            }
+
+            .search-row input:focus {
+                outline: 2px solid #5f90d8;
+            }
+
             button.secondary {
                 background-color: #7a8fa6;
             }
@@ -111,8 +133,12 @@
             <h1>Customer List</h1>
 
             <div class="btn-row">
-                <button onclick="loadCustomers()">Load Customers</button>
+                <button onclick="loadCustomers()">&#8635; Refresh</button>
                 <button class="secondary" onclick="window.location.href='employee.html'">&#8592; Back</button>
+            </div>
+
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="Search by name..." oninput="searchCustomers()">
             </div>
 
             <div class="msg" id="actionMsg"></div>
@@ -121,15 +147,17 @@
         </div>
         
         <script>
-            let customerData = [];
+            let allCustomers = [];
 
             async function loadCustomers(){
                 document.getElementById("status").textContent = "Loading...";
                 document.getElementById("customerTable").innerHTML = "";
                 document.getElementById("actionMsg").className = "msg";
+                document.getElementById("searchInput").value = "";
                 try {
                     const response = await fetch("/customers");
                     const data = await response.json();
+                    allCustomers = data;
                     document.getElementById("status").textContent = "";
 
                     if (!data || data.length === 0) {
@@ -143,13 +171,32 @@
                 }
             }
 
+            function searchCustomers() {
+                const query = document.getElementById("searchInput").value.trim().toLowerCase();
+                if (!query) {
+                    renderTable(allCustomers);
+                    return;
+                }
+                const filtered = allCustomers.filter(c => {
+                    const fullName = (c.first_name + " " + c.last_name).toLowerCase();
+                    return fullName.includes(query);
+                });
+                renderTable(filtered);
+            }
+
             function renderTable(data) {
+                if (!data || data.length === 0) {
+                    document.getElementById("customerTable").innerHTML = "<p style='color:#555;'>No customers found.</p>";
+                    return;
+                }
+
                 let html = "<table><thead><tr>";
                 html += "<th>Customer ID</th>";
                 html += "<th>Full Name</th>";
                 html += "<th>Date of Birth</th>";
                 html += "<th>Phone Number</th>";
                 html += "<th>Email Address</th>";
+                html += "<th>Last Visit</th>";
                 html += "<th>Actions</th>";
                 html += "</tr></thead><tbody>";
                     
@@ -157,12 +204,14 @@
                     const middleInitial = c.middle_initial ? c.middle_initial + ". " : "";
                     const fullName = c.first_name + " " + middleInitial + c.last_name;
                     const dob = c.date_of_birth ? c.date_of_birth.split("T")[0] : "";
+                    const lastVisit = c.last_visit_date ? c.last_visit_date.split("T")[0] : "No visits yet";
                     html += `<tr id="row-${c.customer_id}">`;
                     html += `<td>${c.customer_id}</td>`;
                     html += `<td>${fullName}</td>`;
                     html += `<td>${dob}</td>`;
                     html += `<td id="phone-${c.customer_id}">${c.phone_number}</td>`;
                     html += `<td id="email-${c.customer_id}">${c.email_address}</td>`;
+                    html += `<td>${lastVisit}</td>`;
                     html += `<td>
                         <button class="small secondary" onclick="editCustomer(${c.customer_id}, '${c.phone_number}', '${c.email_address}')">&#9999;&#65039; Edit</button>
                         <button class="small danger" onclick="deleteCustomer(${c.customer_id})">&#128465;&#65039; Delete</button>
@@ -247,6 +296,8 @@
                     msgEl.textContent = "Failed to connect to server.";
                 }
             }
+           
+        loadCustomers();
         </script>
     </body>
 </html>
