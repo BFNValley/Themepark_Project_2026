@@ -23,11 +23,39 @@
             <option value="other">Other</option>
           </select>
           <div id="other-container">
-            <label for="other-reason">please specify:</label>
+            <label for="other-reason">Please specify:</label>
             <input type="text" id="other-reason" name="other-reason" />
           </div>
         </div>
-        <textarea id="complaint-description" name="description"> </textarea>
+        <label for="complaint-description">Describe the complaint:</label>
+        <textarea
+          id="complaint-description"
+          name="description"
+          placeholder="Description of complaint"
+          required
+        >
+        </textarea>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="fname">First name:</label>
+            <input type="text" id="fname" name="fname" required />
+          </div>
+          <div class="input-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="lname">Last name:</label>
+            <input type="text" id="lname" name="lname" required />
+          </div>
+          <div class="input-group">
+            <label for="complaint-date">Date:</label>
+            <input type="date" id="complaint-date" name="date" required />
+          </div>
+        </div>
+        <button type="submit">Submit</button>
       </form>
     </div>
     <script src="complaint_form.js"></script>

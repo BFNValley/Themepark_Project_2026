@@ -1,0 +1,17 @@
+body {
+  background: #a9bbcf;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.portal-card {
+  background-color: rgba(255, 255, 255, 0.18);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
+  height: 50vh;
+  width: 50vw;
+  border-radius: 20px;
+}

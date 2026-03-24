@@ -9,6 +9,6 @@ select.addEventListener("change", function () {
   } else {
     otherContainer.style.display = "none";
     otherInput.required = false;
-    otherInput.value = ""; // clear it
+    otherInput.value = "";
   }
 });
