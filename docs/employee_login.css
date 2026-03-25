@@ -8,6 +8,16 @@ body {
   font-family: sans-serif;
 }
 
+.username_textbox {
+    border-radius: 4px; /*rounded corners*/
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.password_textbox {
+    border-radius: 4px; /*rounded corners*/
+}
+
 .login_button {
   background-color: #5f90d8;
   color: white;
