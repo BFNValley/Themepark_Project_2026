@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Inspection Form</title>
+    <link rel="stylesheet" href="inspection_form.css" />
+  </head>
+  <body>
+    <div class="inspection-card">
+      <h1>Create Inspection</h1>
+      <form method="POST" action="/submit-inspection">
+        <div class="inspection-details">
+          <div class="selects">
+            <div class="select-label-group">
+              <label for="inspected-ride">Inspected ride:</label>
+              <select id="inspected-ride" name="inspected-ride" required>
+                <option value="ride1">Ride 1</option>
+                <option value="ride1">Ride 2</option>
+                <option value="ride1">Ride 3</option>
+                <option value="ride1">Ride 4</option>
+              </select>
+            </div>
+            <div class="select-label-group">
+              <label for="inspection-type">Inspection type:</label>
+              <select id="inspection-type" name="inspection-type" required>
+                <option value="routine">Routine</option>
+                <option value="post-repair">Post-repair</option>
+                <option value="pre-opening">Pre-opening</option>
+              </select>
+            </div>
+            <div class="select-label-group">
+              <label for="inspection-result">Inspection result:</label>
+              <select id="inspection-result" name="inspection-result" required>
+                <option value="pass">Pass</option>
+                <option value="fail">Fail</option>
+              </select>
+            </div>
+          </div>
+          <div class="date-select">
+            <label for="inspection-date">Date of inspection:</label>
+            <input
+              type="datetime-local"
+              id="inspection-date"
+              name="inspection-date"
+              required
+            />
+          </div>
+        </div>
+        <textarea
+          name="inspection-description"
+          id="inspection-description"
+          placeholder="Description of inspection..."
+          required
+        ></textarea>
+      </form>
+      <button type="submit">Submit</button>
+    </div>
+  </body>
+</html>
