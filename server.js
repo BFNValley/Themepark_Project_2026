@@ -59,7 +59,7 @@ app.post("/login", (req, res) => {
   if (role === "customer") {
     res.json({ redirect: "/customer.html" });
   } else if (role === "employee") {
-    res.json({ redirect: "/employee.html" });
+    res.json({ redirect: "/employee_login.html" });
   } else {
     res.status(400).send("Invalid role");
   }
