@@ -51,6 +51,8 @@ app.get("/customers", async (req, res) => {
   }
 });
 
+//  --- LOGIN PAGES ROUTES  ---
+
 app.post("/login", (req, res) => {
   const role = req.body.role;
 
@@ -61,6 +63,58 @@ app.post("/login", (req, res) => {
   } else {
     res.status(400).send("Invalid role");
   }
+});
+
+//  --- EMPLOYEE LOGIN ---
+
+app.get("/employee_login.html", async (req, res) => {
+    //test insertion
+  try{
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("employee_id", sql.Int, 2);
+    request.input("first_name", sql.VarChar(30), 'John');
+    request.input("middle_initial", sql.Char(1), 'F');
+    request.input("last_name", sql.Varchar(30), 'Doe');
+    request.input("username", sql.Varchar(30), 'username');
+    request.input("employee_password", sql.Varchar(30), 'password');
+    request.input("ssn", sql.Char(10), '0123456789');
+    request.input("pay_rate", sql.Decimal(18,0), '40.00');
+
+    await request.query(`
+            INSERT INTO EMPLOYEE
+            VALUES (2, "John", 'F', 'Doe', 'username', 'password', '0123456789', 40.00, null)
+        `);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+
+  //employee user authentication
+    try {
+      const input_username = document.getItemByID('username').value;
+      const input_password = document.getElementById('password').value;
+
+      await sql.connect(config);
+      
+      const db_username = await sql.query('SELECT Employee.username FROM Employee WHERE Employee.username = @input_username');
+
+      if(db_username !== input_username) {                //check if valid username
+        res.json({ redirect: "/employee_login.html" });   //if wrong reload page
+      }
+      else {                                              //check if valid password
+        const db_password = await sql.query('SELECT Employee.employee_password FROM Employee WHERE Employee.username = @input_username');
+        if(db_password !== input_password) {             
+          res.json({ redirect: "/employee_login.html" }); //if wrong reload page
+        }
+        else {
+          res.json({redirect: "/employee.html"});         //correct username and password
+        }
+      }
+
+    } catch(err) {
+      res.status(500).send(err.message);
+    }
 });
 
 // --- WEATHER ROUTES ---
