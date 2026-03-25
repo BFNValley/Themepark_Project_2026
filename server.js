@@ -397,7 +397,7 @@ app.get("/rides", async (req, res) => {
 
 // --- EMPLOYEE MANAGEMENT ---
 app.post("/employees", async (req, res) => {
-    const { first_name, last_name, middle_initial, username, password, ssn, pay_rate, hours_worked } = req.body;
+    const { first_name, last_name, middle_initial, username, password, ssn, pay_rate } = req.body;
     if (!first_name || !last_name || !username || !password || !ssn || !pay_rate) {
         return res.status(400).send("All required fields must be filled in.");
     }
@@ -411,10 +411,9 @@ app.post("/employees", async (req, res) => {
         request.input("password", sql.VarChar(30), password);
         request.input("ssn", sql.Char(9),      ssn);
         request.input("pay_rate", sql.Decimal(10,2), pay_rate);
-        request.input("hours_worked", sql.Int, hours_worked || 0);
         await request.query(`
-            INSERT INTO Employee (first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate, hours_worked)
-            VALUES (@first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate, @hours_worked)
+            INSERT INTO Employee (first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate)
+            VALUES (@first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate)
         `);
         res.sendStatus(200);
     } catch (err) {

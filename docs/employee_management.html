@@ -206,10 +206,6 @@
                     <label>Pay Rate</label>
                     <input type="number" id="add-payrate" placeholder="0.00" min="0" step="0.01">
                 </div>
-                <div class="form-group">
-                    <label>Hours Worked</label>
-                    <input type="number" id="add-hours" placeholder="0" min="0" value="0">
-                </div>
             </div>
 
             <div class="msg" id="addMsg"></div>
@@ -248,7 +244,6 @@
                 const password     = document.getElementById("add-password").value.trim();
                 const ssn          = document.getElementById("add-ssn").value.trim();
                 const pay_rate     = document.getElementById("add-payrate").value;
-                const hours_worked = document.getElementById("add-hours").value;
                 const msgEl        = document.getElementById("addMsg");
 
                 msgEl.className = "msg";
@@ -272,7 +267,7 @@
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             first_name, last_name, middle_initial,
-                            username, password, ssn, pay_rate, hours_worked
+                            username, password, ssn, pay_rate
                         })
                     });
 
@@ -286,7 +281,6 @@
                         document.getElementById("add-password").value = "";
                         document.getElementById("add-ssn").value = "";
                         document.getElementById("add-payrate").value = "";
-                        document.getElementById("add-hours").value = "0";
                         loadEmployees();
                     } else {
                         const err = await res.text();
@@ -346,7 +340,6 @@
                 html += "<th>Role</th>";
                 html += "<th>Username</th>";
                 html += "<th>Pay Rate</th>";
-                html += "<th>Hours Worked</th>";
                 html += "<th>Actions</th>";
                 html += "</tr></thead><tbody>";
 
@@ -359,9 +352,8 @@
                     html += `<td id="erole-${e.employee_id}">${e.role_name || ""}</td>`;
                     html += `<td id="eusername-${e.employee_id}">${e.username}</td>`;
                     html += `<td id="epay-${e.employee_id}">${e.pay_rate}</td>`;
-                    html += `<td id="ehours-${e.employee_id}">${e.hours_worked}</td>`;
                     html += `<td>
-                        <button class="small secondary" onclick="editEmployee(${e.employee_id}, '${e.role_id}', '${e.username}', ${e.pay_rate}, ${e.hours_worked})">&#9999;&#65039; Edit</button>
+                        <button class="small secondary" onclick="editEmployee(${e.employee_id}, '${e.role_id}', '${e.username}', ${e.pay_rate})">&#9999;&#65039; Edit</button>
                         <button class="small danger" onclick="deleteEmployee(${e.employee_id})">&#128465;&#65039; Delete</button>
                     </td>`;
                     html += "</tr>";
@@ -371,12 +363,11 @@
                 document.getElementById("employeeTable").innerHTML = html;
             }
 
-            function editEmployee(id, role_id, username, pay_rate, hours_worked) {
+            function editEmployee(id, role_id, username, pay_rate) {
                 document.getElementById(`erole-${id}`).innerHTML = `<input class="inline-edit" id="edit-role-${id}" value="${role_id}">`;
                 document.getElementById(`eusername-${id}`).innerHTML = `<input class="inline-edit" id="edit-username-${id}" value="${username}">`;
                 document.getElementById(`epay-${id}`).innerHTML = `<input class="inline-edit" type="number" id="edit-pay-${id}" value="${pay_rate}" min="0">`;
-                document.getElementById(`ehours-${id}`).innerHTML = `<input class="inline-edit" type="number" id="edit-hours-${id}" value="${hours_worked}" min="0">`;
-
+                
                 const actionsTd = document.querySelector(`#erow-${id} td:last-child`);
                 actionsTd.innerHTML = `
                     <button class="small success" onclick="saveEmployee(${id})">&#10003; Save</button>
@@ -388,7 +379,6 @@
                 const role_id      = document.getElementById(`edit-role-${id}`).value;
                 const username     = document.getElementById(`edit-username-${id}`).value.trim();
                 const pay_rate     = document.getElementById(`edit-pay-${id}`).value;
-                const hours_worked = document.getElementById(`edit-hours-${id}`).value;
                 const msgEl        = document.getElementById("actionMsg");
 
                 if (!username) {
@@ -401,7 +391,7 @@
                     const res = await fetch(`/employees/${id}`, {
                         method: "PUT",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ role_id, username, pay_rate, hours_worked })
+                        body: JSON.stringify({ role_id, username, pay_rate })
                     });
 
                     if (res.ok) {
