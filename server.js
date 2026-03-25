@@ -70,11 +70,11 @@ app.post("/login", (req, res) => {
 app.post("/employee_login.html", async (req, res) => {
   //employee user authentication
     try {
+      await sql.connect(config);
+      
       const input_username = document.getItemByID('username').value;
       const input_password = document.getElementById('password').value;
 
-      await sql.connect(config);
-      
       const db_username = await sql.query('SELECT Employee.username FROM Employee WHERE Employee.username = @input_username');
 
       if(db_username !== input_username) {                //check if valid username
