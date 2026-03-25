@@ -1,32 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Gift Shop</title>
+  <title>Gift Shop (Employee)</title>
 </head>
 
 <body>
 
-<h1>Gift Shop</h1>
+<h1>Gift Shop - Employee Management</h1>
 
-<!-- CUSTOMER SIDE -->
-<h2>Customer Purchase</h2>
-
-<label>Select Item:</label><br>
-<select id="item"></select>
-
-<br><br>
-
-<label>Quantity:</label><br>
-<input id="quantity" type="number" value="1" min="1">
-
-<br><br>
-
-<button onclick="buyItem()">Purchase Item</button>
-
-<hr>
-
-<!-- EMPLOYEE SIDE -->
-<h2>Employee Inventory Management</h2>
+<h2>Inventory Management</h2>
 
 <label>Product Name:</label><br>
 <input id="newName" type="text">
@@ -70,27 +52,19 @@ let products = [
 
 // UPDATE UI
 function updateUI() {
-  const itemSelect = document.getElementById("item");
   const removeSelect = document.getElementById("removeItem");
   const inventoryList = document.getElementById("inventoryList");
 
-  itemSelect.innerHTML = "";
   removeSelect.innerHTML = "";
   inventoryList.innerHTML = "";
 
   products.forEach((product, index) => {
 
-    // Customer dropdown
+    // Remove dropdown
     let option = document.createElement("option");
     option.value = index;
-    option.text = product.name + " - $" + product.price + " (Stock: " + product.stock + ")";
-    itemSelect.appendChild(option);
-
-    // Remove dropdown
-    let removeOption = document.createElement("option");
-    removeOption.value = index;
-    removeOption.text = product.name;
-    removeSelect.appendChild(removeOption);
+    option.text = product.name;
+    removeSelect.appendChild(option);
 
     // Inventory display
     let li = document.createElement("li");
@@ -99,44 +73,39 @@ function updateUI() {
   });
 }
 
-// CUSTOMER BUY FUNCTION
-function buyItem() {
-  const index = document.getElementById("item").value;
-  const quantity = parseInt(document.getElementById("quantity").value);
-
-  const product = products[index];
-
-  if (product.stock >= quantity) {
-    product.stock -= quantity;
-    const total = product.price * quantity;
-
-    alert("Purchased " + quantity + " " + product.name + "(s)\nTotal: $" + total);
-
-    console.log("Order saved (simulated)");
-  } else {
-    alert("Not enough stock!");
-  }
-
-  updateUI();
-}
-
-// ADD PRODUCT (EMPLOYEE)
+// ADD PRODUCT (with trigger-like validation)
 function addProduct() {
   const name = document.getElementById("newName").value;
   const price = parseInt(document.getElementById("newPrice").value);
   const stock = parseInt(document.getElementById("newStock").value);
 
-  if (name && price && stock) {
-    products.push({ name, price, stock });
-    alert("Product added!");
+  // Basic validation
+  if (!name || isNaN(price) || isNaN(stock)) {
+    alert("Please fill all fields correctly");
+    return;
   }
+
+  // 🔥 Trigger simulation: prevent negative stock
+  if (stock < 0) {
+    alert("Stock cannot be negative (trigger enforced)");
+    return;
+  }
+
+  products.push({ name, price, stock });
+  alert("Product added!");
 
   updateUI();
 }
 
-// REMOVE PRODUCT (EMPLOYEE)
+// REMOVE PRODUCT
 function removeProduct() {
   const index = document.getElementById("removeItem").value;
+
+  if (products.length === 0) {
+    alert("No products to remove");
+    return;
+  }
+
   products.splice(index, 1);
 
   alert("Product removed!");
@@ -145,6 +114,12 @@ function removeProduct() {
 
 // INITIAL LOAD
 updateUI();
+
+/*
+Trigger Simulation:
+- Prevents invalid data such as negative stock
+- In the real system, this is enforced using SQL triggers
+*/
 
 </script>
 
