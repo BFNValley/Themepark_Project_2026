@@ -67,7 +67,7 @@ app.post("/login", (req, res) => {
 
 //  --- EMPLOYEE LOGIN ---
 
-app.get("/employee_login.html", async (req, res) => {
+app.post("/employee_login.html", async (req, res) => {
   //employee user authentication
     try {
       const input_username = document.getItemByID('username').value;
