@@ -395,6 +395,33 @@ app.get("/rides", async (req, res) => {
   }
 });
 
+// --- EMPLOYEE MANAGEMENT ---
+app.post("/employees", async (req, res) => {
+    const { first_name, last_name, middle_initial, username, password, ssn, pay_rate, hours_worked } = req.body;
+    if (!first_name || !last_name || !username || !password || !ssn || !pay_rate) {
+        return res.status(400).send("All required fields must be filled in.");
+    }
+    try {
+        await sql.connect(config);
+        const request = new sql.Request();
+        request.input("first_name", sql.VarChar(30), first_name);
+        request.input("last_name", sql.VarChar(30), last_name);
+        request.input("middle_initial", sql.Char(1), middle_initial || null);
+        request.input("username", sql.VarChar(30), username);
+        request.input("password", sql.VarChar(30), password);
+        request.input("ssn", sql.Char(9),      ssn);
+        request.input("pay_rate", sql.Decimal(10,2), pay_rate);
+        request.input("hours_worked", sql.Int, hours_worked || 0);
+        await request.query(`
+            INSERT INTO Employee (first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate, hours_worked)
+            VALUES (@first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate, @hours_worked)
+        `);
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
 app.listen(port, () => {
   console.log("Server running on port 4000");
 });
