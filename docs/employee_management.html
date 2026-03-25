@@ -235,6 +235,7 @@
 
         <script>
             let allEmployees = [];
+            let nextEmployeeId = 1;
 
             async function addEmployee() {
                 const first_name   = document.getElementById("add-firstname").value.trim();
@@ -261,17 +262,23 @@
                     return;
                 }
 
+                if (allEmployees.length) {
+                    const maxId = Math.max(...allEmployees.map(e => e.employee_id));
+                    if (nextEmployeeId <= maxId) nextEmployeeId = maxId + 1;
+                }
+
                 try {
                     const res = await fetch("/employees", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            first_name, last_name, middle_initial,
+                            employee_id: nextEmployeeId, first_name, last_name, middle_initial,
                             username, password, ssn, pay_rate
                         })
                     });
 
                     if (res.ok) {
+                        nextEmployeeId++;
                         msgEl.className = "msg success";
                         msgEl.textContent = "Employee added successfully.";
                         document.getElementById("add-firstname").value = "";
