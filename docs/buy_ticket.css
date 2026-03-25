@@ -1,0 +1,81 @@
+body {
+  background: #a9bbcf;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: sans-serif;
+}
+
+.ticket-card {
+    display: flex;
+    flex-direction: column;
+
+  background-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
+  border-radius: 20px;
+  padding-bottom: 10px;
+
+  min-height: 60%;
+  width: 70%;
+  /*border: 2px solid blue;*/
+}
+
+select {
+    border-radius: 4px; /*rounded corners*/
+    border: 1px solid #ccc; /*gray borders*/
+    height: 5%;
+    box-sizing: border-box;
+}
+
+input {
+    border-radius: 4px; /*rounded corners*/
+    border: 1px solid #ccc; /*gray borders*/
+    height: 5%;
+    box-sizing: border-box;
+}
+
+button {
+  background-color: #5f90d8;
+  color: white;
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+
+  width: 40%;
+  max-width: 120px;
+  height: 40px;
+
+  transition:
+    transform 0.4s ease,
+    background-color 0.4s ease,
+    box-shadow 0.28s ease;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+button:hover {
+  transform: scale(1.05);
+  background-color: #83abdf;
+  box-shadow: 0 10px 24px rgba(99, 132, 182, 0.18);
+}
+
+.cart-info{
+    margin: 10px;
+    /*border: 2px solid red;*/
+}
+
+/* Cart list */
+#cartList {
+  list-style: none;
+  padding: 0;
+}
+
+#cartList li {
+  background: rgba(255, 255, 255, 0.6);
+  margin: 5px 0;
+  padding: 8px;
+  border-radius: 8px;
+}
