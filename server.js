@@ -68,28 +68,6 @@ app.post("/login", (req, res) => {
 //  --- EMPLOYEE LOGIN ---
 
 app.get("/employee_login.html", async (req, res) => {
-    //test insertion
-  try{
-    await sql.connect(config);
-    const request = new sql.Request();
-    request.input("employee_id", sql.Int, 2);
-    request.input("first_name", sql.VarChar(30), 'John');
-    request.input("middle_initial", sql.Char(1), 'F');
-    request.input("last_name", sql.Varchar(30), 'Doe');
-    request.input("username", sql.Varchar(30), 'username');
-    request.input("employee_password", sql.Varchar(30), 'password');
-    request.input("ssn", sql.Char(10), '0123456789');
-    request.input("pay_rate", sql.Decimal(18,0), '40.00');
-
-    await request.query(`
-            INSERT INTO EMPLOYEE
-            VALUES (2, "John", 'F', 'Doe', 'username', 'password', '0123456789', 40.00, null)
-        `);
-    res.sendStatus(200);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-
   //employee user authentication
     try {
       const input_username = document.getItemByID('username').value;
