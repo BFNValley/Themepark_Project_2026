@@ -7,31 +7,26 @@
         <link rel="stylesheet" href="employee_login.css">
     </head>
     <body>
-        <div class="login-card">
+        <!--Create box for username and password-->
+        <form id="employee_login_form" class="login-form" action="/employee.html" method="POST"> 
+            <!--username text box-->
+            <div>
+                <label for="username">Username:</label>
+                <input type="username" id="username" name="username" class="username-textbox" maxlength="30" placeholder="username" required>
+            </div>
 
-            <!--Create box for username and password-->
-            <form id="employee_login_form" class="login-form" action="/employee.html" method="POST"> 
-                <!--username text box-->
-                <div>
-                    <label for="username">Username:</label>
-                    <input type="username" id="username" name="username" class="username-textbox" maxlength="30" placeholder="username" required>
-                </div>
-
-                <br>
-                <!--password text box-->
-                <div>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" class="password-textbox" minlength="8" maxlength="30" placeholder="password" required>
-                </div>
-                
-                <br>
-                <!--login button-->
-                <div>
-                    <button type="submit" class="login-button">Login</button>
-                </div>
-
-            </form>
-        </div>
-        
+            <br>
+            <!--password text box-->
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" class="password-textbox" minlength="8" maxlength="30" placeholder="password" required>
+            </div>
+            
+            <br>
+            <!--login button-->
+            <div>
+                <button type="submit" class="login-button">Login</button>
+            </div>
+        </form>
     </body>
 </html>

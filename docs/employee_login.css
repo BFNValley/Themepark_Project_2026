@@ -13,19 +13,10 @@ body {
     padding: 40px 50px;
     border-radius: 28px;
     text-align: center;
-    width: 350px;
+    width: 300px;
     max-width: 90vw;
-    background: rgba(255, 255, 255, 0.28);
-    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
-}
-
-.login-card {
-    background-color: rgba(255, 255, 255, 0.18);
-    padding: 40px 50px;
-    border-radius: 28px;
-    text-align: center;
-    width: 350px;
-    max-width: 90vw;
+    height: 300px;
+    max-height: 90vw;
     background: rgba(255, 255, 255, 0.28);
     box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
 }
