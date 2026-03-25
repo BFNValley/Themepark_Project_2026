@@ -31,6 +31,7 @@ body {
 .password-textbox {
     border-radius: 4px; /*rounded corners*/
     border: 1px solid #ccc; /*gray borders*/
+    height: 110%;
     box-sizing: border-box;
 }
 
@@ -54,7 +55,7 @@ body {
     box-shadow 0.28s ease;
 }
 
-.login_button:hover {
+.login-button:hover {
   transform: scale(1.05);
   background-color: #83abdf;
   box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
