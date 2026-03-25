@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Maintenance Form</title>
+    <link rel="stylesheet" href="maintenance_form.css" />
+  </head>
+  <body>
+    <div class="maintenance-card">
+      <h1>Create Maintenance</h1>
+      <form method="POST" action="/submit-maintenance">
+        <div class="maintenance-details">
+          <div class="selects">
+            <div class="select-label-group">
+              <label for="which-ride">Ride:</label>
+              <select name="ride" id="which-ride" required>
+                <option value="ride1">Ride1</option>
+                <option value="ride2">Ride2</option>
+                <option value="ride3">Ride3</option>
+                <option value="ride4">Ride4</option>
+              </select>
+            </div>
+            <div class="select-label-group">
+              <label for="maintenance-type">Maintenance Type:</label>
+              <select name="maintenance-type" id="maintenance-type" required>
+                <option value="routine">Routine</option>
+                <option value="failed-inspection">Failed-inspection</option>
+                <option value="ride-breakdown">Ride-breakdown</option>
+              </select>
+            </div>
+            <div class="select-label-group">
+              <label for="priority">Priority:</label>
+              <select id="priority" name="priority" required>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div class="select-label-group">
+              <label for="status">Status:</label>
+              <select id="status" name="status" required>
+                <option value="open">Open</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+          <div class="date-select">
+            <label for="date-opened">Date:</label>
+            <input
+              type="datetime-local"
+              id="date-opened"
+              name="date-opened"
+              required
+            />
+          </div>
+        </div>
+        <textarea
+          name="description"
+          id="description"
+          placeholder="Description of maintenance..."
+          required
+        ></textarea>
+      </form>
+      <button type="submit">Submit</button>
+    </div>
+  </body>
+</html>
