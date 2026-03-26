@@ -72,7 +72,7 @@ app.post("/employee_login.html", async (req, res) => {
     try {
       await sql.connect(config);
 
-      const {username, password} = req.body;
+      const {input_username, input_password} = req.body;
 
       console.log(input_username + ' ' + input_password);
 
@@ -80,13 +80,13 @@ app.post("/employee_login.html", async (req, res) => {
       request.input("input_username", sql.VarChar(30), input_username);
       request.input("input_password", sql.VarChar(30), input_password);
 
-      const db_username = await request.query(`
+      const result = await request.query(`
         SELECT Employee.username 
         FROM Employee 
         WHERE Employee.username = @input_username
         AND Employee.password = @inout_password`);
 
-      if(request.recordset.length === 0) {                //check if not found username and password
+      if(result.recordset.length === 0) {                //check if not found username and password
         res.json({ redirect: "/employee_login.html" });   //if wrong reload page
       }
       else {                                              
