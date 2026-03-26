@@ -227,7 +227,7 @@ app.get("/stats/maintenance-summary", async (req, res) => {
             LEFT JOIN Maintenance_Ticket mt ON r.ride_id = mt.ride_id
                 AND mt.date_opened BETWEEN @from AND @to
             LEFT JOIN Breakdown_Record br ON r.ride_id = br.ride_id
-                AND CAST(br.breakdown_timestamp AS DATE) BETWEEN @from AND @to
+                AND br.date BETWEEN @from AND @to
             GROUP BY r.ride_id, r.ride_name
             ORDER BY Maintenance_Tickets DESC
         `);
