@@ -8,12 +8,12 @@
     </head>
     <body>
         <!--Create box for username and password-->
-        <form id="employee_login_form" class="login-form" action="/employee_login.html" method="POST"> 
+        <form id="employee_login_form" class="login-form"> 
             <br><br>
             <!--username text box-->
             <div>
                 <label for="username">Username:</label>
-                <input type="username" id="username" name="username" class="username-textbox" maxlength="30" placeholder="username" required>
+                <input type="text" id="username" name="username" class="username-textbox" maxlength="30" placeholder="username" required>
             </div>
 
             <br>
@@ -31,23 +31,6 @@
         </form>
 
         <script>
-            async function verifyLogin(username, password) {
-
-
-
-                const response = await fetch("/employee_login.html", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({username: username, password: password}, new String("false")),
-                });
-
-                const data = await response.json();
-
-                window.location.href = data.redirect;
-            }
-
             employee_login_form.addEventListener("submit", function (event) {
                 event.preventDefault();
 
@@ -55,15 +38,23 @@
 
                 const usernameValue = document.getElementById('username').value;
                 const passwordValue = document.getElementById('password').value;
+                
+                try {
+                    const response = await fetch("/employee_login.html", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({username: username, password: password}, new String("false")),
+                    });
+                    
+                    const data = await response.json();
 
-                if(usernameValue === "username" && passwordValue === "password") {
-                    window.location.href="/employee.html";
+                    window.location.href = data.redirect;
+                } catch(err) {
+                    errorMsg.style.display = "block";
+                    errMsg.display = "Server Error. Please try again later.";
                 }
-                else {
-                    window.location.href="/employee_login.html";
-                }
-
-                //verifyLogin(usernameValue, passwordValue);
             });
         </script>
     </body>
