@@ -122,12 +122,12 @@
 
 <script>
 
-// REAL DATA FROM BACKEND
+// PRODUCTS FROM BACKEND
 let products = [];
 
-// LOAD PRODUCTS FROM API
+// LOAD PRODUCTS FROM DATABASE
 function loadProducts() {
-  fetch('/api/products')  // ⚠️ change if endpoint is different
+  fetch('/products')
     .then(res => res.json())
     .then(data => {
       products = data;
@@ -159,22 +159,8 @@ function updateUI() {
   });
 }
 
-// ADD PRODUCT (still frontend unless backend route exists)
+// ADD PRODUCT (still frontend only unless backend route added)
 function addProduct() {
-  const name = document.getElementById("newName").value;
-  const price = parseInt(document.getElementById("newPrice").value);
-  const stock = parseInt(document.getElementById("newStock").value);
-
-  if (!name || isNaN(price) || isNaN(stock)) {
-    alert("Please fill all fields correctly");
-    return;
-  }
-
-  if (stock < 0) {
-    alert("Stock cannot be negative");
-    return;
-  }
-
   alert("Backend POST not implemented yet");
 }
 
