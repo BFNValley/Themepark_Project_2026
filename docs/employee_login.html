@@ -26,14 +26,13 @@
             <br>
             <!--login button-->
             <div>
-                <button type="submit" onclick="verifyLogin(username, password)" id="login" class="login-button">Login</button>
+                <button type="submit" id="login" class="login-button">Login</button>
             </div>
         </form>
 
         <script>
             async function verifyLogin(username, password) {
-                const in_username = document.getElementByID('username').value;
-                const in_password = document.getElementByID('password').value;
+                console.log(username + ' ' + password);
 
                 const response = await fetch("/employee_login.html", {
                 method: "POST",
@@ -47,6 +46,14 @@
 
                 window.location.href = data.redirect;
             }
+
+            employee_login_form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const usernameValue = document.getElementByID('username').value;
+                const passwordValue = document.getElementByID('password').value;
+                verifyLogin(usernameValue, passwordValue);
+            });
         </script>
     </body>
 </html>
