@@ -413,11 +413,11 @@
           html += `<tr id="erow-${e.employee_id}">`;
           html += `<td>${e.employee_id}</td>`;
           html += `<td>${fullName}</td>`;
-          html += `<td id="erole-${e.employee_id}">${e.role_name || ""}</td>`;
+          html += `<td>${e.role_name || "-"}</td>`;
           html += `<td id="eusername-${e.employee_id}">${e.username}</td>`;
           html += `<td id="epay-${e.employee_id}">${e.pay_rate}</td>`;
           html += `<td>
-                        <button class="small secondary" onclick="editEmployee(${e.employee_id}, '${e.role_id}', '${e.username}', ${e.pay_rate})">&#9999;&#65039; Edit</button>
+                        <button class="small secondary" onclick="editEmployee(${e.employee_id}, '${e.username}', ${e.pay_rate})">&#9999;&#65039; Edit</button>
                         <button class="small danger" onclick="deleteEmployee(${e.employee_id})">&#128465;&#65039; Delete</button>
                     </td>`;
           html += "</tr>";
@@ -427,9 +427,7 @@
         document.getElementById("employeeTable").innerHTML = html;
       }
 
-      function editEmployee(id, role_id, username, pay_rate) {
-        document.getElementById(`erole-${id}`).innerHTML =
-          `<input class="inline-edit" id="edit-role-${id}" value="${role_id}">`;
+      function editEmployee(id, username, pay_rate) {
         document.getElementById(`eusername-${id}`).innerHTML =
           `<input class="inline-edit" id="edit-username-${id}" value="${username}">`;
         document.getElementById(`epay-${id}`).innerHTML =
@@ -443,7 +441,6 @@
       }
 
       async function saveEmployee(id) {
-        const role_id = document.getElementById(`edit-role-${id}`).value;
         const username = document
           .getElementById(`edit-username-${id}`)
           .value.trim();
@@ -460,7 +457,7 @@
           const res = await fetch(`/employees/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ role_id, username, pay_rate }),
+            body: JSON.stringify({ username, pay_rate }),
           });
 
           if (res.ok) {

@@ -481,7 +481,7 @@ app.post("/employees", async (req, res) => {
 });
 
 app.put("/employees/:id", async (req, res) => {
-  const { role_id, username, pay_rate } = req.body;
+  const { username, pay_rate } = req.body;
   const id = req.params.id;
   try {
     await sql.connect(config);
@@ -492,7 +492,7 @@ app.put("/employees/:id", async (req, res) => {
     request.input("pay_rate", sql.Decimal(10,2), pay_rate);
     await request.query(`
       UPDATE Employee
-      SET role_id = @role_id, username = @username, pay_rate = @pay_rate
+      SET username = @username, pay_rate = @pay_rate
       WHERE employee_id = @id
     `);
     res.sendStatus(200);
