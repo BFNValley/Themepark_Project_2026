@@ -71,17 +71,28 @@ app.post("/employee_login.html", async (req, res) => {
   //employee user authentication
     try {
       await sql.connect(config);
-      
-      const input_username = document.getItemByID('username').value;
-      const input_password = document.getElementById('password').value;
 
-      const db_username = await sql.query('SELECT Employee.username FROM Employee WHERE Employee.username = @input_username');
+      const input_username = req.body.username;
+      const input_password = req.body.password;
+
+      console.log(input_username + ' ' + input_password);
+
+      const request = new sql.Request();
+      request.input("input_username", sql.VarChar(30), input_username);
+
+      const db_username = await sql.query(`
+        SELECT Employee.username 
+        FROM Employee 
+        WHERE Employee.username = @input_username`);
 
       if(db_username !== input_username) {                //check if valid username
         res.json({ redirect: "/employee_login.html" });   //if wrong reload page
       }
       else {                                              //check if valid password
-        const db_password = await sql.query('SELECT Employee.employee_password FROM Employee WHERE Employee.username = @input_username');
+        const db_password = await sql.query(`
+          SELECT Employee.employee_password 
+          FROM Employee 
+          WHERE Employee.username = @input_username`);
         if(db_password !== input_password) {             
           res.json({ redirect: "/employee_login.html" }); //if wrong reload page
         }
