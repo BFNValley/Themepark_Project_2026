@@ -487,7 +487,6 @@ app.put("/employees/:id", async (req, res) => {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("id", sql.Int, id);
-    request.input("role_id", sql.Int, role_id);
     request.input("username", sql.VarChar(30), username);
     request.input("pay_rate", sql.Decimal(10,2), pay_rate);
     await request.query(`
