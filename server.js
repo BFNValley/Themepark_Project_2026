@@ -216,7 +216,7 @@ app.get("/stats/maintenance-summary", async (req, res) => {
             LEFT JOIN Maintenance_Ticket mt ON r.ride_id = mt.ride_id
                 AND mt.date_opened BETWEEN @from AND @to
             LEFT JOIN Breakdown_Record br ON r.ride_id = br.ride_id
-                AND CAST (br.breakdown_timestamp AS DATE) BETWEEN @from AND @to
+                AND CAST(br.breakdown_timestamp AS DATE) BETWEEN @from AND @to
             GROUP BY r.ride_id, r.ride_name
             ORDER BY Maintenance_Tickets DESC
         `);
@@ -427,31 +427,82 @@ app.get("/rides", async (req, res) => {
   }
 });
 
-// --- EMPLOYEE MANAGEMENT ---
+// --- EMPLOYEE ROUTEs ---
+app.get("/employees", async (req, res) => {
+  try {
+    await sql.connect(config);
+    const result = await sql.query(`
+      SELECT e.employee_id, e.first_name, e.middle_initial, e.last_name, e.role_id, r.role_name, e.username, e.pay_rate
+      FROM Employee e
+      LEFT JOIN Role r ON e.role_id=r.role_id
+      ORDER BY e.employee_id
+      `);
+      res.json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 app.post("/employees", async (req, res) => {
-    const { employee_id, first_name, last_name, middle_initial, username, password, ssn, pay_rate } = req.body;
-    if (!first_name || !last_name || !username || !password || !ssn || !pay_rate) {
-        return res.status(400).send("All required fields must be filled in.");
-    }
-    try {
-        await sql.connect(config);
-        const request = new sql.Request();
-        request.input("employee_id", sql.Int, employee_id);
-        request.input("first_name", sql.VarChar(30), first_name);
-        request.input("last_name", sql.VarChar(30), last_name);
-        request.input("middle_initial", sql.Char(1), middle_initial || null);
-        request.input("username", sql.VarChar(30), username);
-        request.input("password", sql.VarChar(30), password);
-        request.input("ssn", sql.Char(9),      ssn);
-        request.input("pay_rate", sql.Decimal(10,2), pay_rate);
-        await request.query(`
-            INSERT INTO Employee (employee_id, first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate)
-            VALUES (@employee_id, @first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate)
-        `);
-        res.sendStatus(200);
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
+  const { employee_id, first_name, last_name, middle_initial, username, password, ssn, pay_rate } = req.body;
+  if (!first_name || !last_name || !username || !password || !ssn || !pay_rate) {
+    return res.status(400).send("All required fields must be filled in.");
+  }
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("employee_id", sql.Int, employee_id);
+    request.input("first_name", sql.VarChar(30), first_name);
+    request.input("last_name", sql.VarChar(30), last_name);
+    request.input("middle_initial", sql.VarChar(1), middle_initial || null);
+    request.input("username", sql.VarChar(30), username);
+    request.input("password", sql.VarChar(30), password);
+    request.input("ssn", sql.VarChar(9), ssn);
+    request.input("pay_rate", sql.Decimal(10,2), pay_rate);
+    await request.query(`
+      INSERT INTO Employee (employee_id, first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate)
+      VALUES (@employee_id, @first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate)
+    `);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.put("/employees/:id", async (req, res) => {
+  const { role_id, username, pay_rate } = req.body;
+  const id = req.params.id;
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("id", sql.Int, id);
+    request.input("role_id", sql.Int, role_id);
+    request.input("username", sql.VarChar(30), username);
+    request.input("pay_rate", sql.Decimal(10,2), pay_rate);
+    await request.query(`
+      UPDATE Employee
+      SET role_id = @role_id, username = @username, pay_rate = @pay_rate
+      WHERE employee_id = @id
+    `);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.delete("/employees/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("id", sql.Int, id);
+    await request.query(`
+      DELETE FROM Employee WHERE employee_id = @id
+    `);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 app.listen(port, () => {
