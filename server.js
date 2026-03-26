@@ -71,9 +71,9 @@ app.post("/employee_login.html", async (req, res) => {
   //employee user authentication
     try {
       await sql.connect(config);
-      
-      const input_username = document.getItemByID('username').value;
-      const input_password = document.getElementById('password').value;
+
+      const input_username = req.body.username;
+      const input_password = req.body.password;
 
       const db_username = await sql.query('SELECT Employee.username FROM Employee WHERE Employee.username = @input_username');
 
