@@ -50,13 +50,13 @@
 
             employee_login_form.addEventListener("submit", function (event) {
                 event.preventDefault();
-                
+
                 //console.log('reached employee_login_form event listener');
 
                 const usernameValue = document.getElementById('username').value;
                 const passwordValue = document.getElementById('password').value;
 
-                if(userNameValue === "username" && passwordValue === "password") {
+                if(usernameValue === "username" && passwordValue === "password") {
                     window.location.href="/employee.html";
                 }
                 else {
