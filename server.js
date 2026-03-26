@@ -72,8 +72,7 @@ app.post("/employee_login.html", async (req, res) => {
     try {
       await sql.connect(config);
 
-      const input_username = req.body.username;
-      const input_password = req.body.password;
+      const {username, password} = req.body;
 
       console.log(input_username + ' ' + input_password);
 
