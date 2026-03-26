@@ -22,6 +22,8 @@
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" class="password-textbox" minlength="8" maxlength="30" placeholder="password" required>
             </div>
+            <br>
+            <div id="err-msg">Invalid username or password</div>
             
             <br>
             <!--login button-->
@@ -31,26 +33,30 @@
         </form>
 
         <script>
-            employee_login_form.addEventListener("submit", function (event) {
+            document.getElementById("employee_login_form").addEventListener("submit", async function (event) {
                 event.preventDefault();
 
-                //console.log('reached employee_login_form event listener');
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                const errorMsg = document.getElementById('err-msg');
+                errorMsg.style.display = "none";
 
-                const usernameValue = document.getElementById('username').value;
-                const passwordValue = document.getElementById('password').value;
-                
                 try {
                     const response = await fetch("/employee_login.html", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({username: username, password: password}, new String("false")),
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({username, password})
                     });
-                    
-                    const data = await response.json();
 
-                    window.location.href = data.redirect;
+                    const data = await response.json();
+                    if(data.success) {
+                        window.location.href = data.redirect;
+                    }
+                    else {
+                        errorMsg.style.display = "block";
+                    }
                 } catch(err) {
                     errorMsg.style.display = "block";
                     errMsg.display = "Server Error. Please try again later.";

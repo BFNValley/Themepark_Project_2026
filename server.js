@@ -79,26 +79,19 @@ app.post("/employee_login.html", async (req, res) => {
 
       const request = new sql.Request();
       request.input("input_username", sql.VarChar(30), input_username);
+      request.input("input_password", sql.VarChar(30), input_password);
 
-      const db_username = await sql.query(`
+      const db_username = await request.query(`
         SELECT Employee.username 
         FROM Employee 
-        WHERE Employee.username = @input_username`);
+        WHERE Employee.username = @input_username
+        AND Employee.password = @inout_password`);
 
-      if(db_username !== input_username) {                //check if valid username
+      if(request.recordset.length === 0) {                //check if not found username and password
         res.json({ redirect: "/employee_login.html" });   //if wrong reload page
       }
-      else {                                              //check if valid password
-        const db_password = await sql.query(`
-          SELECT Employee.employee_password 
-          FROM Employee 
-          WHERE Employee.username = @input_username`);
-        if(db_password !== input_password) {             
-          res.json({ redirect: "/employee_login.html" }); //if wrong reload page
-        }
-        else {
-          res.json({redirect: "/employee.html"});         //correct username and password
-        }
+      else {                                              
+        res.json({ redirect: "/employee.html" });         //else found username and password
       }
 
     } catch(err) {
@@ -196,6 +189,41 @@ app.get("/stats/customers-per-month", async (req, res) => {
             GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date)
             ORDER BY Month_Num
             `);
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+// --- STATS: MAINTENANCE SUMMARY ---
+
+app.get("/stats/maintenance-summary", async (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) {
+    return res.status(400).send("Please provide from and to dates.");
+  }
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("from", sql.Date, from);
+    request.input("to", sql.Date, to);
+    const result = await request.query(`
+            SELECT 
+                r.ride_name AS Ride,
+                COUNT(DISTINCT mt.maintenance_id) AS Maintenance_Tickets,
+                SUM(CASE WHEN mt.ride_status = 'major maintenance'
+                    THEN 1 ELSE 0 END) AS Major_Issues,
+                SUM(CASE WHEN mt.ride_status = 'minor maintenance'
+                    THEN 1 ELSE 0 END) AS Minor_Issues,
+                COUNT(DISTINCT br.breakdown_id) AS Total_Breakdowns
+            FROM Ride r
+            LEFT JOIN Maintenance_Ticket mt ON r.ride_id = mt.ride_id
+                AND mt.date_opened BETWEEN @from AND @to
+            LEFT JOIN Breakdown_Record br ON r.ride_id = br.ride_id
+                AND CAST(br.breakdown_timestamp AS DATE) BETWEEN @from AND @to
+            GROUP BY r.ride_id, r.ride_name
+            ORDER BY Maintenance_Tickets DESC
+        `);
     res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
@@ -446,17 +474,18 @@ app.post("/employees", async (req, res) => {
 });
 
 app.put("/employees/:id", async (req, res) => {
-  const { username, pay_rate } = req.body;
+  const { role_id, username, pay_rate } = req.body;
   const id = req.params.id;
   try {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("id", sql.Int, id);
+    request.input("role_id", sql.Int, role_id);
     request.input("username", sql.VarChar(30), username);
     request.input("pay_rate", sql.Decimal(10,2), pay_rate);
     await request.query(`
       UPDATE Employee
-      SET username = @username, pay_rate = @pay_rate
+      SET role_id = @role_id, username = @username, pay_rate = @pay_rate
       WHERE employee_id = @id
     `);
     res.sendStatus(200);
@@ -475,21 +504,6 @@ app.delete("/employees/:id", async (req, res) => {
       DELETE FROM Employee WHERE employee_id = @id
     `);
     res.sendStatus(200);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
-app.get("/products", async (req, res) => {
-  try {
-    await sql.connect(config);
-
-    const result = await sql.query(`
-      SELECT ProductID, Name, Price, Stock
-      FROM Product
-    `);
-
-    res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
   }
