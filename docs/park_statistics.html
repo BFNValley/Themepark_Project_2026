@@ -146,25 +146,7 @@
             </div>
         </div>
 
-        <!-- Report 2: Ride maintenance summary -->
-        <div class="card">
-            <div class="section-title">Ride Maintenance & Breakdown Summary</div>
-            <div class="filter-row">
-                <label>From:</label>
-                <input type="date" id="from2">
-                <label>To:</label>
-                <input type="date" id="to2">
-                <button onclick="loadMaintenanceStats()">Load Report</button>
-            </div>
-            <div class="msg" id="msg2"></div>
-            <div class="status-msg" id="status2"></div>
-            <div id="maintenanceTable"></div>
-            <div class="print-btn" id="printBtn2">
-                <button class="secondary" onclick="printReport('maintenanceTable')">&#128438; Print / Save PDF</button>
-            </div>
-        </div>
-
-        <!-- Report 3: Most popular rides per month-->
+        <!-- Report 2: Most popular rides per month-->
         <div class="card">
             <div class="section-title">Most Popular Rides per Period</div>
             <div class="filter-row">
@@ -182,7 +164,7 @@
             </div>
         </div>
 
-        <!-- Report 4: Weather Impact on Ticket Sales -->
+        <!-- Report 3: Weather Impact on Ticket Sales -->
          <div class="card">
             <div class="section-title">Weather Impact on Ticket Sales</div>
             <div class="filter-row">
@@ -253,25 +235,6 @@
                     document.getElementById("printBtn1").style.display = "block";
                 } catch (err) {
                     document.getElementById("status1").textContent = "Error loading data.";
-                }
-            }
-
-            async function loadMaintenanceStats() {
-                const dates = validateDates("from2", "to2", "msg2");
-                if (!dates) return;
-                document.getElementById("status2").textContent = "Loading...";
-                document.getElementById("maintenanceTable").innerHTML = "";
-                try {
-                    const res = await fetch(`/stats/maintenance-summary?from=${dates.from}&to=${dates.to}`);
-                    
-                    const text = await res.text();
-                    console.log("Raw response:", text)
-                    
-                    const data = await res.json();
-                    buildTable("maintenanceTable", "status2", data);
-                    document.getElementById("printBtn2").style.display = "block";
-                } catch (err) {
-                    document.getElementById("status2").textContent = "Error loading data.";
                 }
             }
 

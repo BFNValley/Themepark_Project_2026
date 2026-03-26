@@ -202,41 +202,6 @@ app.get("/stats/customers-per-month", async (req, res) => {
   }
 });
 
-// --- STATS: MAINTENANCE SUMMARY ---
-
-app.get("/stats/maintenance-summary", async (req, res) => {
-  const { from, to } = req.query;
-  if (!from || !to) {
-    return res.status(400).send("Please provide from and to dates.");
-  }
-  try {
-    await sql.connect(config);
-    const request = new sql.Request();
-    request.input("from", sql.Date, from);
-    request.input("to", sql.Date, to);
-    const result = await request.query(`
-            SELECT 
-                r.ride_name AS Ride,
-                COUNT(DISTINCT mt.maintenance_id) AS Maintenance_Tickets,
-                SUM(CASE WHEN mt.ride_status = 'major maintenance'
-                    THEN 1 ELSE 0 END) AS Major_Issues,
-                SUM(CASE WHEN mt.ride_status = 'minor maintenance'
-                    THEN 1 ELSE 0 END) AS Minor_Issues,
-                COUNT(DISTINCT br.breakdown_id) AS Total_Breakdowns
-            FROM Ride r
-            LEFT JOIN Maintenance_Ticket mt ON r.ride_id = mt.ride_id
-                AND mt.date_opened BETWEEN @from AND @to
-            LEFT JOIN Breakdown_Record br ON r.ride_id = br.ride_id
-                AND br.date BETWEEN @from AND @to
-            GROUP BY r.ride_id, r.ride_name
-            ORDER BY Maintenance_Tickets DESC
-        `);
-    res.json(result.recordset);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
 // --- MOST POPULAR RIDES PER PERIOD ---
 
 app.get("/stats/rides-per-month", async (req, res) => {
