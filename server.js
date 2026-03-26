@@ -75,6 +75,9 @@ app.post("/employee_login.html", async (req, res) => {
       const input_username = req.body.username;
       const input_password = req.body.password;
 
+      const request = new sql.Request();
+      request.input("input_username", sql.VarChar(30), input_username);
+
       const db_username = await sql.query('SELECT Employee.username FROM Employee WHERE Employee.username = @input_username');
 
       if(db_username !== input_username) {                //check if valid username
