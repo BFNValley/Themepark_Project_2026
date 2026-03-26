@@ -31,15 +31,16 @@
         </form>
 
         <script>
-            async function verifyLogin(userLogin) {
-                console.log(userLogin);
+            async function verifyLogin(username, password) {
+
+
 
                 const response = await fetch("/employee_login.html", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: userLogin,
+                body: JSON.stringify({username: username, password: password}, new String("false")),
                 });
 
                 const data = await response.json();
@@ -49,19 +50,20 @@
 
             employee_login_form.addEventListener("submit", function (event) {
                 event.preventDefault();
-
-                console.log('reached employee_login_form event listener');
+                
+                //console.log('reached employee_login_form event listener');
 
                 const usernameValue = document.getElementById('username').value;
                 const passwordValue = document.getElementById('password').value;
 
-                const userLogin = {
-                    "username": usernameValue,
-                    "password": passwordValue
+                if(userNameValue === "username" && passwordValue === "password") {
+                    window.location.href="/employee.html";
                 }
-                
-                const jsonUserLogin = JSON.stringify(userLogin);
-                verifyLogin(jsonUserLogin);
+                else {
+                    window.location.href="/employee_login.html";
+                }
+
+                //verifyLogin(usernameValue, passwordValue);
             });
         </script>
     </body>
