@@ -42,7 +42,7 @@
                 errMsg.style.display = "none";
 
                 try {
-                    const response = await fetch("/employee_login.html", {
+                    const response = await fetch("/employee_login", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -51,7 +51,7 @@
                     });
 
                     const data = await response.json();
-                    if(data.success) {
+                    if(data.redirect) {
                         window.location.href = data.redirect;
                     }
                     else {
