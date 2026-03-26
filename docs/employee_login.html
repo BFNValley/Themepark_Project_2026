@@ -26,18 +26,21 @@
             <br>
             <!--login button-->
             <div>
-                <button type="submit" onclick="verifyLogin(document.getElementByID('username').value, document.getElemenetByID('password').value)" id="login" class="login-button">Login</button>
+                <button type="submit" onclick="verifyLogin(username, password)" id="login" class="login-button">Login</button>
             </div>
         </form>
 
         <script>
             async function verifyLogin(username, password) {
+                const in_username = document.getElementByID('username').value;
+                const in_password = document.getElementByID('password').value;
+
                 const response = await fetch("/employee_login.html", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({username: username, password: password}),
+                body: JSON.stringify({username: in_username, password: in_password}),
                 });
 
                 const data = await response.json();
