@@ -263,6 +263,10 @@
                 document.getElementById("maintenanceTable").innerHTML = "";
                 try {
                     const res = await fetch(`/stats/maintenance-summary?from=${dates.from}&to=${dates.to}`);
+                    
+                    const text = await res.text();
+                    console.log("Raw response:", text)
+                    
                     const data = await res.json();
                     buildTable("maintenanceTable", "status2", data);
                     document.getElementById("printBtn2").style.display = "block";
