@@ -32,7 +32,7 @@
 
         <script>
             async function verifyLogin(username, password) {
-                console.log(username + ' ' + password);
+                console.log('input username: ' + username + ', input password: ' + password);
 
                 const response = await fetch("/employee_login.html", {
                 method: "POST",
@@ -50,8 +50,10 @@
             employee_login_form.addEventListener("submit", function (event) {
                 event.preventDefault();
 
-                const usernameValue = document.getElementByID('username').value;
-                const passwordValue = document.getElementByID('password').value;
+                console.log('reached employee_login_form event listener');
+
+                const usernameValue = document.getElementById('username').value;
+                const passwordValue = document.getElementById('password').value;
                 verifyLogin(usernameValue, passwordValue);
             });
         </script>
