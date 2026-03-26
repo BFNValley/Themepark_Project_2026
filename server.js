@@ -67,7 +67,7 @@ app.post("/login", (req, res) => {
 
 //  --- EMPLOYEE LOGIN ---
 
-app.post("/employee_login.html", async (req, res) => {
+app.post("/employee_login", async (req, res) => {
   //employee user authentication
     try {
       await sql.connect(config);
@@ -84,7 +84,7 @@ app.post("/employee_login.html", async (req, res) => {
         SELECT Employee.username 
         FROM Employee 
         WHERE Employee.username = @input_username
-        AND Employee.password = @inout_password`);
+        AND Employee.employee_password = @input_password`);
 
       if(result.recordset.length === 0) {                //check if not found username and password
         res.json({ redirect: "/employee_login.html" });   //if wrong reload page
