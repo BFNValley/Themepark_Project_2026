@@ -480,6 +480,21 @@ app.delete("/employees/:id", async (req, res) => {
   }
 });
 
+app.get("/products", async (req, res) => {
+  try {
+    await sql.connect(config);
+
+    const result = await sql.query(`
+      SELECT ProductID, Name, Price, Stock
+      FROM Product
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 app.listen(port, () => {
   console.log("Server running on port 4000");
 });
