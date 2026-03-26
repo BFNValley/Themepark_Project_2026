@@ -2,53 +2,141 @@
 <html>
 <head>
   <title>Gift Shop (Employee)</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #7f8c8d;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    h2 {
+      color: #34495e;
+      margin-top: 25px;
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      background-color: #1a252f;
+    }
+
+    hr {
+      margin: 30px 0;
+      border: none;
+      border-top: 1px solid #eee;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #ecf0f1;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>Gift Shop - Employee Management</h1>
+<div class="container">
+  <h1>Gift Shop</h1>
+  <p class="subtitle">Employee Inventory Management</p>
 
-<h2>Inventory Management</h2>
+  <h2>Inventory Management</h2>
 
-<label>Product Name:</label><br>
-<input id="newName" type="text">
+  <label>Product Name</label>
+  <input id="newName" type="text">
 
-<br><br>
+  <label>Price ($)</label>
+  <input id="newPrice" type="number">
 
-<label>Price:</label><br>
-<input id="newPrice" type="number">
+  <label>Stock</label>
+  <input id="newStock" type="number">
 
-<br><br>
+  <button onclick="addProduct()">Add Product</button>
 
-<label>Stock:</label><br>
-<input id="newStock" type="number">
+  <label>Remove Product</label>
+  <select id="removeItem"></select>
 
-<br><br>
+  <button onclick="removeProduct()">Remove Product</button>
 
-<button onclick="addProduct()">Add Product</button>
+  <hr>
 
-<br><br>
-
-<label>Remove Product:</label><br>
-<select id="removeItem"></select>
-
-<br><br>
-
-<button onclick="removeProduct()">Remove Product</button>
-
-<hr>
-
-<h2>Current Inventory</h2>
-<ul id="inventoryList"></ul>
+  <h2>Current Inventory</h2>
+  <ul id="inventoryList"></ul>
+</div>
 
 <script>
 
-// PRODUCT LIST (acts like database)
-let products = [
-  { name: "T-Shirt", price: 20, stock: 10 },
-  { name: "Hat", price: 15, stock: 8 },
-  { name: "Plush Toy", price: 25, stock: 5 }
-];
+// REAL DATA FROM BACKEND
+let products = [];
+
+// LOAD PRODUCTS FROM API
+function loadProducts() {
+  fetch('/api/products')  // ⚠️ change if endpoint is different
+    .then(res => res.json())
+    .then(data => {
+      products = data;
+      updateUI();
+    })
+    .catch(err => {
+      console.error("Error loading products:", err);
+    });
+}
 
 // UPDATE UI
 function updateUI() {
@@ -60,66 +148,43 @@ function updateUI() {
 
   products.forEach((product, index) => {
 
-    // Remove dropdown
     let option = document.createElement("option");
     option.value = index;
-    option.text = product.name;
+    option.text = product.Name;
     removeSelect.appendChild(option);
 
-    // Inventory display
     let li = document.createElement("li");
-    li.textContent = product.name + " | $" + product.price + " | Stock: " + product.stock;
+    li.textContent = product.Name + " | $" + product.Price + " | Stock: " + product.Stock;
     inventoryList.appendChild(li);
   });
 }
 
-// ADD PRODUCT (with trigger-like validation)
+// ADD PRODUCT (still frontend unless backend route exists)
 function addProduct() {
   const name = document.getElementById("newName").value;
   const price = parseInt(document.getElementById("newPrice").value);
   const stock = parseInt(document.getElementById("newStock").value);
 
-  // Basic validation
   if (!name || isNaN(price) || isNaN(stock)) {
     alert("Please fill all fields correctly");
     return;
   }
 
-  // 🔥 Trigger simulation: prevent negative stock
   if (stock < 0) {
-    alert("Stock cannot be negative (trigger enforced)");
+    alert("Stock cannot be negative");
     return;
   }
 
-  products.push({ name, price, stock });
-  alert("Product added!");
-
-  updateUI();
+  alert("Backend POST not implemented yet");
 }
 
 // REMOVE PRODUCT
 function removeProduct() {
-  const index = document.getElementById("removeItem").value;
-
-  if (products.length === 0) {
-    alert("No products to remove");
-    return;
-  }
-
-  products.splice(index, 1);
-
-  alert("Product removed!");
-  updateUI();
+  alert("Backend DELETE not implemented yet");
 }
 
 // INITIAL LOAD
-updateUI();
-
-/*
-Trigger Simulation:
-- Prevents invalid data such as negative stock
-- In the real system, this is enforced using SQL triggers
-*/
+loadProducts();
 
 </script>
 
