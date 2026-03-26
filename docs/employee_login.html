@@ -38,8 +38,8 @@
 
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value.trim();
-                const errorMsg = document.getElementById('err-msg');
-                errorMsg.style.display = "none";
+                const errMsg = document.getElementById('err-msg');
+                errMsg.style.display = "none";
 
                 try {
                     const response = await fetch("/employee_login.html", {
@@ -55,10 +55,10 @@
                         window.location.href = data.redirect;
                     }
                     else {
-                        errorMsg.style.display = "block";
+                        errMsg.style.display = "block";
                     }
                 } catch(err) {
-                    errorMsg.style.display = "block";
+                    errMsg.style.display = "block";
                     errMsg.display = "Server Error. Please try again later.";
                 }
             });
