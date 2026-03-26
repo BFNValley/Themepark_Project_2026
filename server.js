@@ -75,8 +75,10 @@ app.post("/employee_login.html", async (req, res) => {
       const input_username = req.body.username;
       const input_password = req.body.password;
 
+      console.log(input_username + ' ' + input_password);
+
       const request = new sql.Request();
-      request.input('input_username', sql.VarChar(30), input_username);
+      request.input("input_username", sql.VarChar(30), input_username);
 
       const db_username = await sql.query(`
         SELECT Employee.username 
