@@ -12,6 +12,10 @@ app.use(express.static("docs"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.get("employee_login.html", (req, res) => {
+  res.sendFile(__dirname + "/docs/employee_login.html");
+});
+
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
