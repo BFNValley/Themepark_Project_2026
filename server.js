@@ -233,7 +233,7 @@ app.get("/stats/maintenance-summary", async (req, res) => {
   }
 });
 
-// ---- MOST POPULAR RIDES PER PERIOD ----
+// --- MOST POPULAR RIDES PER PERIOD ---
 
 app.get("/stats/rides-per-month", async (req, res) => {
   const { from, to } = req.query;
