@@ -139,7 +139,7 @@ app.post("/weather", async (req, res) => {
   }
 });
 
-// --- WEATHER IMPACT ROUTE ---
+// -- WEATHER IMPACT ROUTE --
 
 app.get("/stats/weather-impact", async (req, res) => {
   const { from, to } = req.query;
