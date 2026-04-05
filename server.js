@@ -16,7 +16,7 @@ app.get("employee_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/employee_login.html");
 });
 
-app.get("/customer_login.html", (req, res) => {
+app.get("customer_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/customer_login.html");
 });
 
