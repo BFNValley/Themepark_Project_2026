@@ -16,7 +16,7 @@ app.get("employee_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/employee_login.html");
 });
 
-app.get("customer_login.html", (req, res) => {
+app.get("/customer_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/customer_login.html");
 });
 
@@ -65,7 +65,7 @@ app.post("/login", (req, res) => {
   const role = req.body.role;
 
   if (role === "customer") {
-    res.json({ redirect: "/customer.html" });
+    res.json({ redirect: "/customer_login.html" });
   } else if (role === "employee") {
     res.json({ redirect: "/employee_login.html" });
   } else {
