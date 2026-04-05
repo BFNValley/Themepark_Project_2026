@@ -123,7 +123,7 @@ app.post("/customer_login", async (req, res) => {
       request.input("input_password", sql.VarChar(30), password);
 
       const result = await request.query(`
-        SELECT Customers.email 
+        SELECT Customers.email_address
         FROM Customers 
         WHERE Customers.email_address = @input_username
         AND Customers.customer_password = @input_password`);  //note: update schema, insert password attribute into Customers table
