@@ -9,6 +9,8 @@ body {
   background: #a9bbcf;
   color: #1f2a37;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 header {
@@ -77,13 +79,18 @@ header-right span {
   opacity: 0.75;
 }
 
+main.dashboard {
+  flex: 1;
+}
+
 .dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, 220px);
   gap: 24px;
   padding: 48px 40px;
   max-width: 1100px;
   margin: 0 auto;
+  justify-content: center;
 }
 
 .card {
@@ -134,4 +141,5 @@ footer {
   padding: 24px 48px;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.4);
+  margin-top: auto;
 }
