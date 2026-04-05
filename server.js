@@ -12,11 +12,11 @@ app.use(express.static("docs"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("employee_login.html", (req, res) => {
+app.get("/employee_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/employee_login.html");
 });
 
-app.get("customer_login.html", (req, res) => {
+app.get("/customer_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/customer_login.html");
 });
 
@@ -125,7 +125,7 @@ app.post("/customer_login", async (req, res) => {
       const result = await request.query(`
         SELECT Customers.email 
         FROM Customers 
-        WHERE Customers.email = @input_username
+        WHERE Customers.email_address = @input_username
         AND Customers.customer_password = @input_password`);  //note: update schema, insert password attribute into Customers table
       
       if(result.recordset.length === 0) {                //check if not found username and password
