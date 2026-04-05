@@ -16,6 +16,10 @@ app.get("employee_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/employee_login.html");
 });
 
+app.get("customer_login.html", (req, res) => {
+  res.sendFile(__dirname + "/docs/customer_login.html");
+});
+
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
@@ -61,7 +65,7 @@ app.post("/login", (req, res) => {
   const role = req.body.role;
 
   if (role === "customer") {
-    res.json({ redirect: "/customer.html" });
+    res.json({ redirect: "/customer_login.html" });
   } else if (role === "employee") {
     res.json({ redirect: "/employee_login.html" });
   } else {
@@ -95,6 +99,40 @@ app.post("/employee_login", async (req, res) => {
       }
       else {                                              
         res.json({ redirect: "/employee.html" });         //else found username and password
+      }
+
+    } catch(err) {
+      res.status(500).send(err.message);
+    }
+});
+
+//  --- Customer LOGIN ---
+
+app.post("/customer_login", async (req, res) => {
+  //customer user authentication
+  //NOTE: customer username is email
+    try {
+      await sql.connect(config);
+
+      const {username, password} = req.body;
+
+      console.log('username: ' + username + ', password: ' + password); //used for debugging
+
+      const request = new sql.Request();
+      request.input("input_username", sql.VarChar(30), username);
+      request.input("input_password", sql.VarChar(30), password);
+
+      const result = await request.query(`
+        SELECT Customers.email 
+        FROM Customers 
+        WHERE Customers.email = @input_username
+        AND Customers.customer_password = @input_password`);  //note: update schema, insert password attribute into Customers table
+      
+      if(result.recordset.length === 0) {                //check if not found username and password
+        res.json({ redirect: "/customer_login.html" });  //if wrong reload page
+      }
+      else {                                              
+        res.json({ redirect: "/customer.html" });         //else found username and password
       }
 
     } catch(err) {
