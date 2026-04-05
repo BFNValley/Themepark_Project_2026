@@ -1,41 +1,73 @@
 <!doctype html>
 <html>
   <head>
-    <title>Employee Login Page</title>
+    <title>Astro Park | Employee Portal</title>
     <link rel="stylesheet" href="employee.css" />
   </head>
-
   <body>
-    <div class="login-card">
-      <h1>Employee Portal</h1>
 
-      <p>Welcome employee.</p>
+    <header>
+      <span class="logo">Astro Park</span>
+      <div class="header-right">
+        <span id="welcome-msg"></span>
+        <button class="sign-out-btn" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
 
-      <button onclick="window.location.href = 'index.html'">
-        View Customer List</button
-      ><br />
+    <section class="hero">
+        <h1>Employee Portal</h1>
+        <p>Select an option below to get started.</p>
+    </section>
 
-      <button onclick="window.location.href = 'employee_management.html'">
-        View Employee List</button
-      ><br />
+    <main class = "dashboard">
+      <div class="card" onclick="window.location.href = 'index.html'">
+        <h3>Customer List</h3>
+        <p>View and manage customers</p>
+      </div>
 
-      <button onclick="window.location.href = 'giftshop.html'">
-        Gift Shop</button
-      ><br />
+      <div class="card" onclick="window.location.href = 'employee_management.html'">
+        <h3>Employee List</h3>
+        <p>View and manage employees</p>
+      </div>
+      
+      <div class="card" onclick="window.location.href = 'giftshop.html'">
+        <h3>Gift Shop</h3>
+        <p>Manage inventory</p>
+      </div>
 
-      <button onclick="window.location.href = 'park_statistics.html'">
-        View Park Statistics</button
-      ><br />
+      <div class="card" onclick="window.location.href = 'park_statistics.html'">
+        <h3>Park Statistics</h3>
+        <p>View reports and data</p>
+      </div>
+      
+      <div class="card" onclick="window.location.href = 'weather_report_page.html'">
+        <h3>Weather Report</h3>
+        <p>Log daily weather</p>
+      </div>
 
-      <button onclick="window.location.href = 'weather_report_page.html'">
-        Input Weather Report</button
-      ><br />
+      <div class="card" onclick="window.location.href = 'maintenance_portal.html'">
+        <h3>Maintenance Report</h3>
+        <p>Inspections and tickets</p>
+      </div>
 
-      <button onclick="window.location.href = 'maintenance_portal.html'">
-        Maintenance Portal</button
-      ><br />
+    </main>
 
-      <button onclick="window.location.href = 'login.html'">Logout</button>
-    </div>
+    <footer>
+      <p>© 2026 Asto Park. All rights reserved.</p>
+    </footer>
+
+    <script>
+      const username = sessionStorage.getItem("username");
+
+      if (username) {
+        document.getElementById("welcome-msg").textContent = "Welcome, " + username;
+      }
+
+      function logout() {
+        sessionStorage.clear();
+        window.location.href = "/login.html";
+      }
+    </script>
+
   </body>
 </html>
