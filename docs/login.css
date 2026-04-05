@@ -283,11 +283,6 @@ button:hover {
   box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
 }
 
-.welcome-name {
-  font-weight: 700;
-  color: #5f90d8;
-}
-
 .sign-out-btn {
   background: transparent;
   color: #1f2a37;

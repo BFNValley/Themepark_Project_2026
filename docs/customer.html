@@ -14,7 +14,7 @@
         <a href="#about">About</a>
         <a href="#rides">Rides</a>
         <a href="#contact">Contact</a>
-        <span class="welcome-name" id="welcome-msg"></span>
+        <span>Welcome!</span>
         <button class="nav-btn" onclick="window.location.href='buy_tickets.html'">Buy Tickets</button>
         <button class="nav-btn" onclick="window.location.href='complaint_form.html'">File a Complaint</button>
         <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
@@ -23,7 +23,7 @@
 
     <main>
       <section class="hero">
-        <h1>Welcome back!</h1>
+        <h1>Welcome!</h1>
         <p>Ready for another adventure? <br> Buy tickets or browse our rides below.</p>
         <div class="hero-buttons">
           <button onclick="window.location.href='buy_tickets.html'">Buy Tickets</button>
@@ -69,7 +69,7 @@
         </div>
       </section>
 
-      <section class="features" id="about">
+      <section class="features" id="about-section">
         <div class="feature-card">
           <span></span>
           <h3>Thrilling Rides</h3>
@@ -89,7 +89,7 @@
         </div>
       </section>
 
-      <section class="about" id="about">
+      <section class="about">
         <div class="login-card">
           <h2>Why Visit Us?</h2>
           <p>Theme Park has been bringing joy to families for years. With thrilling rides, live entertainment, and world-class dining, there's something for everyone. Open 7 days a week.</p>
@@ -123,7 +123,10 @@
     </footer>
 
     <script>
-
+        function signOut() {
+            sessionStorage.clear();
+            window.location.href = "customer_login.html";
+        }
     </script>
   </body>
 </html>
