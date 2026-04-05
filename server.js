@@ -95,10 +95,10 @@ app.post("/employee_login", async (req, res) => {
         AND Employee.employee_password = @input_password`);
       
       if(result.recordset.length === 0) {                //check if not found username and password
-        res.json({ redirect: "/employee_login.html" });  //if wrong reload page
+        res.json({ success:false, redirect: "/employee_login.html" });  //if wrong reload page
       }
       else {                                              
-        res.json({ redirect: "/employee.html" });         //else found username and password
+        res.json({ success:true, redirect: "/employee.html", username: result.recordset[0].username, employee_id: result.recordset[0].employee_id });         //else found username and password
       }
 
     } catch(err) {

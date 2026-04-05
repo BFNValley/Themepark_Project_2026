@@ -51,7 +51,9 @@
                     });
 
                     const data = await response.json();
-                    if(data.redirect === "/employee.html") {
+                    if(data.success) {
+                        sessionStorage.setItem("username", data.username);
+                        sessionStorage.setItem("employee_id", data.employee_id);
                         window.location.href = data.redirect;
                     }
                     else {
