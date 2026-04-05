@@ -65,6 +65,7 @@ app.post("/login", (req, res) => {
   const role = req.body.role;
 
   if (role === "customer") {
+    console.log('redirecting to customer_login.html\n');
     res.json({ redirect: "/customer_login.html" });
   } else if (role === "employee") {
     res.json({ redirect: "/employee_login.html" });
