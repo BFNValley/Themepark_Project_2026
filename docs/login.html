@@ -1,17 +1,127 @@
 <!doctype html>
 <html>
   <head>
-    <title>Login</title>
+    <title>Theme Park</title>
     <link rel="stylesheet" href="login.css" />
   </head>
   <body>
-    <div class="login-card">
-      <h1>Theme Park Login Portal</h1>
-      <div class="button-container">
-        <button onclick="login('customer')">Login as Customer</button>
-        <button onclick="login('employee')">Login as Employee</button>
+
+    <header>
+      <div class="header-left">
+        <span class="logo">Theme Park</span>
       </div>
-    </div>
+      <nav class="header-right">
+        <a href="#about">About</a>
+        <a href="#rides">Rides</a>
+        <a href="#contact">Contact</a>
+        <a href="/employee_login.html">Staff</a>
+        <button class="nav-btn" onclick="window.location.href='customer_login.html'">Sign In</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Welcome to Theme Park</h1>
+        <p>Thrilling rides, amazing experiences, and memories for the whole family.</p>
+        <div class="hero-buttons">
+          <button onclick="window.location.href='customer_login.html'"> Sign In</button>
+          <button class="outline" onclick="window.location.href='customer_login.html'">Create Account</button>
+        </div>
+      </section>
+
+      <section class="features" id="rides">
+        <div class="login-card">
+          <h2>Rides</h2>
+
+          <div class="rides-container">
+
+            <div class="feature-card">
+              <h3>Roller Coaster</h3>
+              <p>High-speed thrill ride for adventure lovers.</p>
+              <p class="book-link" onclick="window.location.href='customer_login.html'">Login to Book</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Ferris Wheel</h3>
+              <p>Enjoy a relaxing ride with a scenic view.</p>
+              <p class="book-link" onclick="window.location.href='customer_login.html'">Login to Book</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Haunted House</h3>
+              <p>Spooky fun for those who love a scare.</p>
+              <p class="book-link" onclick="window.location.href='customer_login.html'">Login to Book</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Bumper Cars</h3>
+              <p>Fun collisions and laughter for everyone.</p>
+              <p class="book-link" onclick="window.location.href='customer_login.html'">Login to Book</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Water Slide</h3>
+              <p>Cool off with exciting water adventure</p>
+              <p class="book-link" onclick="window.location.href='customer_login.html'">Login to Book</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="features" id="about">
+        <div class="feature-card">
+          <span></span>
+          <h3>Thrilling Rides</h3>
+          <p>From family-friendly to extreme, we have rides for everyone.</p>
+        </div>
+
+        <div class="feature-card">
+          <span></span>
+          <h3>Easy Ticketing</h3>
+          <p>Buy tickets online and skip the line at the gate.</p>
+        </div>
+
+        <div class="feature-card">
+          <span></span>
+          <h3>Gift Shop</h3>
+          <p>Take home a piece of the magic with our exclusive merchandise.</p>
+        </div>
+      </section>
+
+      <section class="about" id="about">
+        <div class="login-card">
+          <h2>Why Visit Us?</h2>
+          <p>Theme Park has been bringing joy to families for years. With thrilling rides, live entertainment, and world-class dining, there's something for everyone. Open 7 days a week.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <footer id="contact">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4> Theme Park</h4>
+          <p>Houston, TX </p>
+          <p>Open daily 9am-6pm</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <a href="#rides">Rides</a>
+          <a href="#about">About</a>
+          <a href="complaint_form.html">File a Complaint</a>
+        </div>
+        <div class="footer-section">
+          <h4>Contact Us</h4>
+          <p>Phone: (123) 456-7890</p>
+          <p>Email: info@themepark.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Theme Park. All rights reserved.</p>
+        <a href="/employee_login.html" class="employee-link">Employee Portal</a>
+      </div>
+    </footer>
+
     <script>
       async function login(role) {
         const response = await fetch("/login", {

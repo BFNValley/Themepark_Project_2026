@@ -1,15 +1,245 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   background: #a9bbcf;
-  height: 100vh;
+  font-family: sans-serif;
+  color: #1f2a37;
+  min-height: 100vh;
+}
 
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 48px;
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(6px);
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2a37;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header-right a {
+  text-decoration: none;
+  color: #1f2a37;
+  font-weight: 500;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+
+.header-right a:hover {
+  color: #5f90d8;
+}
+
+.nav-btn {
+  margin: 0;
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.hero {
+  text-align: center;
+  padding: 100px 48px;
+}
+
+.hero h1 {
+  font-size: 52px;
+  font-weight: 700;
+  color: #1f2a37;
+  margin-bottom: 16px;
+}
+
+.hero p {
+  font-size: 18px;
+  color: #1f2a37;
+  max-width: 600px;
+  margin: 0 auto 36px auto;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.hero-buttons button {
+  margin: 0;
+  padding: 14px 32px;
+  font-size: 16px;
+}
+
+.hero-buttons button.outline {
+  background: transparent;
+  color: #1f2a37;
+  border: 2px solid #1f2a37;
+}
+
+.hero-buttons button.outline:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.features {
+  display: flex;
+  gap: 24px;
+  padding: 64px 48px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  border-radius: 28px;
+  padding: 36px 32px;
+  text-align: center;
+  width: 260px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translate(-4px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+}
+
+.feature-card span {
+  font-size: 40px;
+}
+
+.feature-card h3 {
+  margin: 12px 0 8px;
+  font-size: 18px;
+  color: #1f2a37;
+  font-weight: 700;
+}
+
+.feature-card p {
+  font-size: 14px;
+  color: #1f2a37;
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+.rides-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.rides-container .feature-card {
+  width: 220px;
+}
+
+.book-link {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #5f90d8;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.book-link:hover {
+  color: #83abdf;
+}
+.about {
+  padding: 32px 48px 64px;
   display: flex;
   justify-content: center;
-  align-items: center;
+}
+
+.about .login-card h2 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  color: #1f2a37;
+}
+
+.about .login-card p {
+  font-size: 15px;
+  color: #1f2a37;
+  opacity: 0.85;
+  line-height: 1.8;
+}
+
+footer {
+  background: rgba(31, 42, 55, 0.9);
+  color: white;
+  padding: 48px 48px 24px;
+}
+
+.footer-content {
+  display: flex;
+  gap: 48px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.footer-section h4 {
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: #a9bbcf;
+}
+
+.footer-section p,
+.footer-section a {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  display: block;
+  margin-bottom: 6px;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   font-family: sans-serif;
 }
 
+.footer-section a:hover {
+  color: white;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.employee-link {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.25);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.employee-link:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
 h1 {
-  margin: 0 0 30px 0;
   font-size: 48px;
   font-weight: 700;
   line-height: 1.1;
@@ -51,4 +281,22 @@ button:hover {
   transform: scale(1.05);
   background-color: #83abdf;
   box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
+}
+
+.welcome-name {
+  font-weight: 700;
+  color: #5f90d8;
+}
+
+.sign-out-btn {
+  background: transparent;
+  color: #1f2a37;
+  border: 2px solid #1f2a37;
+  padding: 10px 20px;
+  font-size: 14px;
+  margin: 0;
+}
+
+.sign-out-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
 }

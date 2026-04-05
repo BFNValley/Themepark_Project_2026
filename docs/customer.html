@@ -1,24 +1,129 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <title>Customer Portal</title>
-        <link rel="stylesheet" href="employee.css" />
-    </head>
+  <head>
+    <title>Theme Park</title>
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body>
 
-    <body>
-        <div class="login-card">
-            <h1> Customer Portal</h1>
+    <header>
+      <div class="header-left">
+        <span class="logo">Theme Park</span>
+      </div>
+      <nav class="header-right">
+        <a href="#about">About</a>
+        <a href="#rides">Rides</a>
+        <a href="#contact">Contact</a>
+        <span class="welcome-name" id="welcome-msg"></span>
+        <button class="nav-btn" onclick="window.location.href='buy_tickets.html'">Buy Tickets</button>
+        <button class="nav-btn" onclick="window.location.href='complaint_form.html'">File a Complaint</button>
+        <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+      </nav>
+    </header>
 
-
-            <p>Welcome customer!</p>
-
-            <button onclick="window.location.href='buy_tickets.html'">Buy Tickets</button><br />
-
-            <button onclick="window.location.href='giftshop.html'">Giftshop</button><br />
-            
-            <button onclick="window.location.href='complaint_form.html'">File a Complaint</button></button><br />
-
-            <button onclick="window.location.href='login.html'">Logout</button>    
+    <main>
+      <section class="hero">
+        <h1>Welcome back!</h1>
+        <p>Ready for another adventure? <br> Buy tickets or browse our rides below.</p>
+        <div class="hero-buttons">
+          <button onclick="window.location.href='buy_tickets.html'">Buy Tickets</button>
         </div>
-    </body>
+      </section>
+
+      <section class="features" id="rides">
+        <div class="login-card">
+          <h2>Rides</h2>
+
+          <div class="rides-container">
+
+            <div class="feature-card">
+              <h3>Roller Coaster</h3>
+              <p>High-speed thrill ride for adventure lovers.</p>
+              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Ferris Wheel</h3>
+              <p>Enjoy a relaxing ride with a scenic view.</p>
+              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Haunted House</h3>
+              <p>Spooky fun for those who love a scare.</p>
+              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Bumper Cars</h3>
+              <p>Fun collisions and laughter for everyone.</p>
+              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Water Slide</h3>
+              <p>Cool off with exciting water adventure</p>
+              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="features" id="about">
+        <div class="feature-card">
+          <span></span>
+          <h3>Thrilling Rides</h3>
+          <p>From family-friendly to extreme, we have rides for everyone.</p>
+        </div>
+
+        <div class="feature-card">
+          <span></span>
+          <h3>Easy Ticketing</h3>
+          <p>Buy tickets online and skip the line at the gate.</p>
+        </div>
+
+        <div class="feature-card">
+          <span></span>
+          <h3>Gift Shop</h3>
+          <p>Take home a piece of the magic with our exclusive merchandise.</p>
+        </div>
+      </section>
+
+      <section class="about" id="about">
+        <div class="login-card">
+          <h2>Why Visit Us?</h2>
+          <p>Theme Park has been bringing joy to families for years. With thrilling rides, live entertainment, and world-class dining, there's something for everyone. Open 7 days a week.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <footer id="contact">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4> Theme Park</h4>
+          <p>Houston, TX </p>
+          <p>Open daily 9am-6pm</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <a href="#rides">Rides</a>
+          <a href="#about">About</a>
+          <a href="complaint_form.html">File a Complaint</a>
+        </div>
+        <div class="footer-section">
+          <h4>Contact Us</h4>
+          <p>Phone: (123) 456-7890</p>
+          <p>Email: info@themepark.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Theme Park. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+
+    </script>
+  </body>
 </html>
