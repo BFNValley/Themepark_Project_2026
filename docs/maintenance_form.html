@@ -7,7 +7,8 @@
   <body>
     <div class="maintenance-card">
       <h1>Create Maintenance</h1>
-      <form method="POST" action="/submit-maintenance">
+      <form method="POST" action="/submit-maintenance" id="maintenance_form">
+        <input type="hidden" name="employee_id" id="employee_id" />
         <div class="maintenance-details">
           <div class="selects">
             <div class="select-label-group">
@@ -62,5 +63,6 @@
       </form>
       <button type="submit">Submit</button>
     </div>
+    <script src="maintenance_form.js"></script>
   </body>
 </html>

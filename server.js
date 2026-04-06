@@ -609,3 +609,37 @@ app.post("/submit-complaint", async (req, res) => {
     res.status(500).send("Database error.");
   }
 });
+
+app.post("/submit-maintenance", async (req, res) => {
+  try {
+    const employeeId = req.body.employee_id;
+    const ride = req.body.ride;
+    const maintenanceType = req.body["maintenance-type"];
+    const priority = req.body.priority;
+    const status = req.body.status;
+    const dateOpened = req.body["date-opened"];
+    const description = req.body.description;
+
+    await sql.connect(config);
+
+    const request = new sql.Request();
+    request.input("employee_id", sql.Int, employeeId);
+    request.input("ride", sql.VarChar(50), ride);
+    request.input("maintenance_type", sql.VarChar(50), maintenanceType);
+    request.input("priority", sql.VarChar(20), priority);
+    request.input("status", sql.VarChar(20), status);
+    request.input("date_opened", sql.DateTime, dateOpened);
+    request.input("description", sql.VarChar(sql.MAX), description);
+
+    await request.query(`
+      INSERT INTO Maintenance_Ticket
+      (employee_id, ride, maintenance_type, priority, status, date_opened, description)
+      VALUES
+      (@employee_id, @ride, @maintenance_type, @priority, @status, @date_opened, @description)
+    `);
+
+    res.redirect("/maintenance_portal.html");
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
