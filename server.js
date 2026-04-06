@@ -77,33 +77,37 @@ app.post("/login", (req, res) => {
 
 app.post("/employee_login", async (req, res) => {
   //employee user authentication
-    try {
-      await sql.connect(config);
+  try {
+    await sql.connect(config);
 
-      const {username, password} = req.body;
+    const { username, password } = req.body;
 
-      console.log(username + ' ' + password);
+    console.log(username + " " + password);
 
-      const request = new sql.Request();
-      request.input("input_username", sql.VarChar(30), username);
-      request.input("input_password", sql.VarChar(30), password);
+    const request = new sql.Request();
+    request.input("input_username", sql.VarChar(30), username);
+    request.input("input_password", sql.VarChar(30), password);
 
-      const result = await request.query(`
-        SELECT Employee.username 
+    const result = await request.query(`
+        SELECT Employee.username, Employee.employee_id
         FROM Employee 
         WHERE Employee.username = @input_username
         AND Employee.employee_password = @input_password`);
-      
-      if(result.recordset.length === 0) {                //check if not found username and password
-        res.json({ success:false, redirect: "/employee_login.html" });  //if wrong reload page
-      }
-      else {                                              
-        res.json({ success:true, redirect: "/employee.html", username: result.recordset[0].username, employee_id: result.recordset[0].employee_id });         //else found username and password
-      }
 
-    } catch(err) {
-      res.status(500).send(err.message);
+    if (result.recordset.length === 0) {
+      //check if not found username and password
+      res.json({ success: false, redirect: "/employee_login.html" }); //if wrong reload page
+    } else {
+      res.json({
+        success: true,
+        redirect: "/employee.html",
+        username: result.recordset[0].username,
+        employee_id: result.recordset[0].employee_id,
+      }); //else found username and password
     }
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 //  --- Customer LOGIN ---
@@ -111,33 +115,32 @@ app.post("/employee_login", async (req, res) => {
 app.post("/customer_login", async (req, res) => {
   //customer user authentication
   //NOTE: customer username is email
-    try {
-      await sql.connect(config);
+  try {
+    await sql.connect(config);
 
-      const {username, password} = req.body;
+    const { username, password } = req.body;
 
-      console.log('username: ' + username + ', password: ' + password); //used for debugging
+    console.log("username: " + username + ", password: " + password); //used for debugging
 
-      const request = new sql.Request();
-      request.input("input_username", sql.VarChar(30), username);
-      request.input("input_password", sql.VarChar(30), password);
+    const request = new sql.Request();
+    request.input("input_username", sql.VarChar(30), username);
+    request.input("input_password", sql.VarChar(30), password);
 
-      const result = await request.query(`
+    const result = await request.query(`
         SELECT Customers.email_address
         FROM Customers 
         WHERE Customers.email_address = @input_username
-        AND Customers.customer_password = @input_password`);  //note: update schema, insert password attribute into Customers table
-      
-      if(result.recordset.length === 0) {                //check if not found username and password
-        res.json({ redirect: "/customer_login.html" });  //if wrong reload page
-      }
-      else {                                              
-        res.json({ redirect: "/customer.html" });         //else found username and password
-      }
+        AND Customers.customer_password = @input_password`); //note: update schema, insert password attribute into Customers table
 
-    } catch(err) {
-      res.status(500).send(err.message);
+    if (result.recordset.length === 0) {
+      //check if not found username and password
+      res.json({ redirect: "/customer_login.html" }); //if wrong reload page
+    } else {
+      res.json({ redirect: "/customer.html" }); //else found username and password
     }
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 // --- WEATHER ROUTES ---
@@ -482,15 +485,31 @@ app.get("/employees", async (req, res) => {
       LEFT JOIN Role r ON e.role_id=r.role_id
       ORDER BY e.employee_id
       `);
-      res.json(result.recordset);
+    res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
 app.post("/employees", async (req, res) => {
-  const { employee_id, first_name, last_name, middle_initial, username, password, ssn, pay_rate } = req.body;
-  if (!first_name || !last_name || !username || !password || !ssn || !pay_rate) {
+  const {
+    employee_id,
+    first_name,
+    last_name,
+    middle_initial,
+    username,
+    password,
+    ssn,
+    pay_rate,
+  } = req.body;
+  if (
+    !first_name ||
+    !last_name ||
+    !username ||
+    !password ||
+    !ssn ||
+    !pay_rate
+  ) {
     return res.status(400).send("All required fields must be filled in.");
   }
   try {
@@ -503,7 +522,7 @@ app.post("/employees", async (req, res) => {
     request.input("username", sql.VarChar(30), username);
     request.input("password", sql.VarChar(30), password);
     request.input("ssn", sql.VarChar(9), ssn);
-    request.input("pay_rate", sql.Decimal(10,2), pay_rate);
+    request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
     await request.query(`
       INSERT INTO Employee (employee_id, first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate)
       VALUES (@employee_id, @first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate)
@@ -523,7 +542,7 @@ app.put("/employees/:id", async (req, res) => {
     request.input("id", sql.Int, id);
     request.input("role_id", sql.Int, role_id);
     request.input("username", sql.VarChar(30), username);
-    request.input("pay_rate", sql.Decimal(10,2), pay_rate);
+    request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
     await request.query(`
       UPDATE Employee
       SET role_id = @role_id, username = @username, pay_rate = @pay_rate
