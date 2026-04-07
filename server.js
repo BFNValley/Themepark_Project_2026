@@ -573,6 +573,8 @@ app.listen(port, () => {
   console.log("Server running on port 4000");
 });
 
+// customer complaint route
+
 app.post("/submit-complaint", async (req, res) => {
   console.log("Incoming complaint:", req.body);
 
@@ -609,6 +611,8 @@ app.post("/submit-complaint", async (req, res) => {
     res.status(500).send("Database error.");
   }
 });
+
+// maintenance ticket route
 
 app.post("/submit-maintenance", async (req, res) => {
   try {
