@@ -127,7 +127,7 @@ app.post("/customer_login", async (req, res) => {
     request.input("input_password", sql.VarChar(30), password);
 
     const result = await request.query(`
-        SELECT Customers.email_address
+        SELECT Customers.email_address, Customers.customer_id
         FROM Customers 
         WHERE Customers.email_address = @input_username
         AND Customers.customer_password = @input_password`); //note: update schema, insert password attribute into Customers table
@@ -136,7 +136,13 @@ app.post("/customer_login", async (req, res) => {
       //check if not found username and password
       res.json({ redirect: "/customer_login.html" }); //if wrong reload page
     } else {
-      res.json({ redirect: "/customer.html" }); //else found username and password
+      const customer = result.recordset[0];
+      res.json({
+        success: true,
+        redirect: "/customer.html",
+        customer_id: customer.customer_id,
+        username: customer.email_address,
+      }); //else found username and password, sends redirect and user info
     }
   } catch (err) {
     res.status(500).send(err.message);
