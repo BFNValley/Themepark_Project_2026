@@ -127,16 +127,16 @@ app.post("/customer_login", async (req, res) => {
     request.input("input_password", sql.VarChar(30), password);
 
     const result = await request.query(`
-        SELECT Customers.email_address
+        SELECT Customers.email_address, Customers.customer_id
         FROM Customers 
         WHERE Customers.email_address = @input_username
         AND Customers.customer_password = @input_password`); //note: update schema, insert password attribute into Customers table
 
     if (result.recordset.length === 0) {
       //check if not found username and password
-      res.json({ redirect: "/customer_login.html" }); //if wrong reload page
+      res.json({ success: false, redirect: "/customer_login.html" }); //if wrong reload page
     } else {
-      res.json({ redirect: "/customer.html" }); //else found username and password
+      res.json({ success: true, redirect: "/customer.html", customer_id: result.recordset[0].customer_id, username: result.recordset[0].email_address }); //else found username and password
     }
   } catch (err) {
     res.status(500).send(err.message);
@@ -358,7 +358,7 @@ app.post("/buy-ticket", async (req, res) => {
 
   // ✅ Basic validation
   if (!customer_id) {
-    return res.status(400).send("Customer ID is required.");
+    return res.status(400).send("Customer ID must be valid.");
   }
 
   if (!cart || cart.length === 0) {

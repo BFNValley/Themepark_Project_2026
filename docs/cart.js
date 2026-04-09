@@ -83,10 +83,10 @@ async function loadRides(){
 window.onload = loadRides;
 
 async function checkout(){
-    const customer_id = document.getElementById("customerID").value;
+    const customer_id = localStorage.getItem("customer_id");
 
     if(!customer_id){
-        alert("Please enter your customer ID.");
+        alert("Must be logged in.");
         return;
     }
 
@@ -106,6 +106,9 @@ async function checkout(){
     const result = await response.text();
     alert(result);
 
-    cart = [];
-    renderCart();
+    if(response.ok){
+        cart = [];
+        renderCart();
+    }
+    
 }
