@@ -73,8 +73,8 @@
 
             const data = await response.json();
             if (data.success) {
-              localStorage.setItem("customer_id", data.customer_id);
-              localStorage.setItem("username", data.username);
+              sessionStorage.setItem("customer_id", data.customer_id);
+              sessionStorage.setItem("username", data.username);
               window.location.href = data.redirect;
             } else {
               errMsg.style.display = "block";
