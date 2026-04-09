@@ -83,7 +83,7 @@ async function loadRides(){
 window.onload = loadRides;
 
 async function checkout(){
-    const customer_id = localStorage.getItem("customer_id");
+    const customer_id = sessionStorage.getItem("customer_id");
 
     if(!customer_id){
         alert("Must be logged in.");
