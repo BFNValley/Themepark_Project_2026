@@ -48,7 +48,7 @@ function calculateTotal(){
     cart.forEach(item => {
         let price = item.ride_price;
 
-        if (item.ticket_type === "child") {
+        if (item.ticket_type === "Child") {
             price *= 0.5;
         }
 
