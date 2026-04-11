@@ -27,7 +27,7 @@ function renderCart(){
 
     cart.forEach((item, index) => {
         const li = document.createElement("li");
-        li.textContent = `${item.ride_name} - ${item.ticket_type} x ${item.quantity}    `;
+        li.textContent = `${item.ride_name} ($${item.ride_price.toFixed(2)}) - ${item.ticket_type} x ${item.quantity}    `;
 
         const removeButton = document.createElement("button");
         removeButton.textContent = "Remove";
