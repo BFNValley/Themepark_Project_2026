@@ -68,7 +68,7 @@ async function loadRides(){
         rides.forEach(ride => {
             const option = document.createElement("option");
             option.value = ride.ride_id;
-            option.textContent = `${ride.ride_name} ($${ride.ride_price})`;
+            option.textContent = `${ride.ride_name}`;
 
             option.dataset.price = ride.ride_price;
             option.dataset.name = ride.ride_name;
