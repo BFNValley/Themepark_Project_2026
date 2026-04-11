@@ -6,7 +6,7 @@ function addToCart(){
     const quantity = parseInt(document.getElementById("ticketQuantity").value);
 
    
-    if (quantity < 1)
+    if (!quantity ||quantity < 1)
     {
         alert("Quantity must be at least 1.");
         return;
