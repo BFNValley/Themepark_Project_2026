@@ -28,7 +28,7 @@ function renderCart(){
     cart.forEach((item, index) => {
         const li = document.createElement("li");
 
-        const price = item.ride_price;
+        let price = item.ride_price;
         if (item.ticket_type === "Child") {
             price *= 0.5;
         }
