@@ -73,6 +73,22 @@ app.post("/login", (req, res) => {
   }
 });
 
+// --- Check befor Employee Login --- 
+function checkRoles(allowedRoles) {
+  return (req, res, next) => {
+    const role_id = Number(req.headers["role_id"]);
+
+    if (!role_id) {
+      return res.status(403).send("Access denied");
+    }
+
+    if(!allowedRoles.includes(role_id)) {
+      return res.status(403).send("Access denied");
+    }
+    next();
+  };
+}
+
 //  --- EMPLOYEE LOGIN ---
 
 app.post("/employee_login", async (req, res) => {
@@ -89,8 +105,9 @@ app.post("/employee_login", async (req, res) => {
     request.input("input_password", sql.VarChar(30), password);
 
     const result = await request.query(`
-        SELECT Employee.username, Employee.employee_id
+        SELECT Employee.username, Employee.employee_id, Employee.role_id, Role.role_name
         FROM Employee 
+        LEFT JOIN Role ON Employee.role_id = Role.role_id
         WHERE Employee.username = @input_username
         AND Employee.employee_password = @input_password`);
 
@@ -103,6 +120,8 @@ app.post("/employee_login", async (req, res) => {
         redirect: "/employee.html",
         username: result.recordset[0].username,
         employee_id: result.recordset[0].employee_id,
+        role_id: result.recordset[0].role_id,
+        role_name: result.recordset[0].role_name
       }); //else found username and password
     }
   } catch (err) {
@@ -476,13 +495,14 @@ app.get("/rides", async (req, res) => {
 });
 
 // --- EMPLOYEE ROUTEs ---
-app.get("/employees", async (req, res) => {
+app.get("/employees", checkRoles([1]), async (req, res) => {
   try {
     await sql.connect(config);
     const result = await sql.query(`
       SELECT e.employee_id, e.first_name, e.middle_initial, e.last_name, e.role_id, r.role_name, e.username, e.pay_rate
       FROM Employee e
       LEFT JOIN Role r ON e.role_id=r.role_id
+      WHERE e.role_id !=4 OR e.role_id IS NULL
       ORDER BY e.employee_id
       `);
     res.json(result.recordset);
@@ -491,9 +511,8 @@ app.get("/employees", async (req, res) => {
   }
 });
 
-app.post("/employees", async (req, res) => {
+app.post("/employees", checkRoles([1]), async (req, res) => {
   const {
-    employee_id,
     first_name,
     last_name,
     middle_initial,
@@ -501,6 +520,7 @@ app.post("/employees", async (req, res) => {
     password,
     ssn,
     pay_rate,
+    role_id
   } = req.body;
   if (
     !first_name ||
@@ -515,7 +535,6 @@ app.post("/employees", async (req, res) => {
   try {
     await sql.connect(config);
     const request = new sql.Request();
-    request.input("employee_id", sql.Int, employee_id);
     request.input("first_name", sql.VarChar(30), first_name);
     request.input("last_name", sql.VarChar(30), last_name);
     request.input("middle_initial", sql.VarChar(1), middle_initial || null);
@@ -523,9 +542,10 @@ app.post("/employees", async (req, res) => {
     request.input("password", sql.VarChar(30), password);
     request.input("ssn", sql.VarChar(9), ssn);
     request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
+    request.input("role_id", sql.Int, role_id || null)
     await request.query(`
-      INSERT INTO Employee (employee_id, first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate)
-      VALUES (@employee_id, @first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate)
+      INSERT INTO Employee (first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate, role_id)
+      VALUES (@first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate, @role_id)
     `);
     res.sendStatus(200);
   } catch (err) {
@@ -533,44 +553,27 @@ app.post("/employees", async (req, res) => {
   }
 });
 
-app.put("/employees/:id", async (req, res) => {
-  const { role_id, username, pay_rate } = req.body;
+app.put("/employees/:id", checkRoles([1]), async (req, res) => {
+  const { role_id, username, pay_rate, first_name, last_name } = req.body;
   const id = req.params.id;
   try {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("id", sql.Int, id);
-    request.input("role_id", sql.Int, role_id);
+    request.input("role_id", sql.Int, role_id != null && role_id !== "" ? parseInt(role_id): null);
     request.input("username", sql.VarChar(30), username);
     request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
+    request.input("first_name", sql.VarChar(30), first_name);
+    request.input("last_name", sql.VarChar(30), last_name);
     await request.query(`
       UPDATE Employee
-      SET role_id = @role_id, username = @username, pay_rate = @pay_rate
+      SET role_id = @role_id, username = @username, pay_rate = @pay_rate, first_name = @first_name, last_name = @last_name
       WHERE employee_id = @id
     `);
     res.sendStatus(200);
   } catch (err) {
     res.status(500).send(err.message);
   }
-});
-
-app.delete("/employees/:id", async (req, res) => {
-  const id = req.params.id;
-  try {
-    await sql.connect(config);
-    const request = new sql.Request();
-    request.input("id", sql.Int, id);
-    await request.query(`
-      DELETE FROM Employee WHERE employee_id = @id
-    `);
-    res.sendStatus(200);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
-app.listen(port, () => {
-  console.log("Server running on port 4000");
 });
 
 // customer complaint route
@@ -646,4 +649,8 @@ app.post("/submit-maintenance", async (req, res) => {
   } catch (err) {
     res.status(500).send(err.message);
   }
+});
+
+app.listen(port, () => {
+  console.log("Server running on port 4000");
 });
