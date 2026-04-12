@@ -73,7 +73,7 @@ app.post("/login", (req, res) => {
   }
 });
 
-// --- Roles Check ---
+// --- Roles Check --- 
 function checkRoles(allowedRoles) {
   return (req, res, next) => {
     const role_id = Number(req.headers["role_id"]);
@@ -121,7 +121,7 @@ app.post("/employee_login", async (req, res) => {
         username: result.recordset[0].username,
         employee_id: result.recordset[0].employee_id,
         role_id: result.recordset[0].role_id,
-        role_name: result.recordset[0].role_name,
+        role_name: result.recordset[0].role_name
       }); //else found username and password
     }
   } catch (err) {
@@ -155,12 +155,7 @@ app.post("/customer_login", async (req, res) => {
       //check if not found username and password
       res.json({ success: false, redirect: "/customer_login.html" }); //if wrong reload page
     } else {
-      res.json({
-        success: true,
-        redirect: "/customer.html",
-        customer_id: result.recordset[0].customer_id,
-        username: result.recordset[0].email_address,
-      }); //else found username and password
+      res.json({ success: true, redirect: "/customer.html", customer_id: result.recordset[0].customer_id, username: result.recordset[0].email_address }); //else found username and password
     }
   } catch (err) {
     res.status(500).send(err.message);
@@ -208,8 +203,7 @@ app.post("/weather", async (req, res) => {
 
 app.get("/stats/customers-ticket-history", async (req, res) => {
   const { from, to } = req.query;
-  if (!from || !to)
-    return res.status(400).send("Please provide from and to dates.");
+  if (!from || !to) return res.status(400).send("Please provide from and to dates.");
   try {
     await sql.connect(config);
     const request = new sql.Request();
@@ -219,7 +213,7 @@ app.get("/stats/customers-ticket-history", async (req, res) => {
             SELECT 
                 c.first_name + ' ' + c.last_name AS Customer,
                 COUNT(t.ticket_id) AS Total_Tickets,
-                MAX(t.visiting_date) AS Last_Visit,
+                CONVERT(DATE, MAX(t.visiting_date)) AS Last_Visit,
                 r.ride_name AS Favourite_Ride
             FROM Customers c
             JOIN Ticket t ON c.customer_id = t.customer_id
@@ -264,7 +258,7 @@ app.get("/stats/rides-per-month", async (req, res) => {
   }
 });
 
-// ---STATS: Waether Impact on Ticket Sales ---
+// ---STATS: Weather Impact on Ticket Sales ---
 
 app.get("/stats/weather-impact", async (req, res) => {
   const { from, to } = req.query;
@@ -296,25 +290,26 @@ app.get("/stats/weather-impact", async (req, res) => {
   }
 });
 
-// --- Employee Maintenance Workload ---
+// ---STATS: Employee Maintenance Workload ---
 
 app.get("/stats/employee-workload", async (req, res) => {
-  const { from, to } = req.query;
-  if (!from || !to)
-    return res.status(400).send("Please provide from and to dates.");
-  try {
-    await sql.connect(config);
-    const request = new sql.Request();
-    request.input("from", sql.Date, from);
-    request.input("to", sql.Date, to);
-    const result = await request.query(`
+    const { from, to } = req.query;
+    if (!from || !to) return res.status(400).send("Please provide from and to dates.");
+    try {
+        await sql.connect(config);
+        const request = new sql.Request();
+        request.input("from", sql.Date, from);
+        request.input("to", sql.Date, to);
+        const result = await request.query(`
             SELECT
-                e.first_name + ' ' + e.last_name            AS Employee,
-                COUNT(mt.maintenance_id)                     AS Total_Maintenance_Tickets,
-                SUM(CASE WHEN mt.ride_status = 'major maintenance'
-                    THEN 1 ELSE 0 END)                       AS Major_Issues,
-                SUM(CASE WHEN mt.ride_status = 'minor maintenance'
-                    THEN 1 ELSE 0 END)                       AS Minor_Issues
+                e.first_name + ' ' + e.last_name AS Employee,
+                COUNT(mt.ticket_id) AS Total_Maintenance_Tickets,
+                SUM(CASE WHEN mt.maintenance_priority = 'high'
+                    THEN 1 ELSE 0 END) AS High_Priority,
+                SUM(CASE WHEN mt.maintenance_priority = 'medium'
+                    THEN 1 ELSE 0 END) AS Medium_Priority,
+                SUM(CASE WHEN mt.maintenance_priority = 'low'
+                    THEN 1 ELSE 0 END) AS Low_Priority
             FROM Employee e
             LEFT JOIN Maintenance_Ticket mt ON e.employee_id = mt.employee_id
                 AND mt.date_opened BETWEEN @from AND @to
@@ -322,10 +317,10 @@ app.get("/stats/employee-workload", async (req, res) => {
             GROUP BY e.employee_id, e.first_name, e.last_name
             ORDER BY Total_Maintenance_Tickets DESC
         `);
-    res.json(result.recordset);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
 });
 
 // --- CUSTOMER UPDATE & DELETE ---
@@ -525,7 +520,7 @@ app.post("/employees", checkRoles([1]), async (req, res) => {
     password,
     ssn,
     pay_rate,
-    role_id,
+    role_id
   } = req.body;
   if (
     !first_name ||
@@ -547,7 +542,7 @@ app.post("/employees", checkRoles([1]), async (req, res) => {
     request.input("password", sql.VarChar(30), password);
     request.input("ssn", sql.VarChar(9), ssn);
     request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
-    request.input("role_id", sql.Int, role_id || null);
+    request.input("role_id", sql.Int, role_id || null)
     await request.query(`
       INSERT INTO Employee (first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate, role_id)
       VALUES (@first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate, @role_id)
@@ -565,11 +560,7 @@ app.put("/employees/:id", checkRoles([1]), async (req, res) => {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("id", sql.Int, id);
-    request.input(
-      "role_id",
-      sql.Int,
-      role_id != null && role_id !== "" ? parseInt(role_id) : null,
-    );
+    request.input("role_id", sql.Int, role_id != null && role_id !== "" ? parseInt(role_id): null);
     request.input("username", sql.VarChar(30), username);
     request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
     request.input("first_name", sql.VarChar(30), first_name);
@@ -662,20 +653,4 @@ app.post("/submit-maintenance", async (req, res) => {
 
 app.listen(port, () => {
   console.log("Server running on port 4000");
-});
-
-app.get("/maintenance-tickets", async (req, res) => {
-  try {
-    await sql.connect(config);
-
-    const result = await sql.query(`
-      SELECT ticket_id, ride_id, employee_id, maintenance_type, maintenance_status, description, date_created
-      FROM Maintenance_Ticket
-      ORDER BY ticket_id
-    `);
-
-    res.json(result.recordset);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
 });
