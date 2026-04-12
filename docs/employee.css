@@ -32,16 +32,16 @@ header {
   color: #1f2a37;
 }
 
-header-right {
+.header-right {
   display: flex;
   align-items: center;
   gap: 24px;
 }
 
-header-right span {
+.header-right span {
   font-size: 14px;
-  opacity: 500;
-  margin: 0.75;
+  font-weight: 500;
+  opacity: 0.75;
 }
 
 .sign-out-btn {
@@ -74,7 +74,7 @@ header-right span {
   margin-bottom: 8px;
 }
 
-,hero p {
+.hero p {
   font-size: 16px;
   opacity: 0.75;
 }
