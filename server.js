@@ -213,7 +213,7 @@ app.get("/stats/customers-ticket-history", async (req, res) => {
             SELECT
                 c.first_name + ' ' + c.last_name AS Customer,
                 COUNT(t.ticket_id) AS Total_Tickets,
-                CONVERT(VARCHAR(10), MAX(t.visiting_date), 120) AS Last_Visit,
+                CONVERT(VARCHAR(10), MAX(t.visiting_date), 120) AS Last_Visit
             FROM Customers c
             JOIN Ticket t ON c.customer_id = t.customer_id
             WHERE t.visiting_date BETWEEN @from AND @to
