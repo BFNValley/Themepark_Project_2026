@@ -247,7 +247,7 @@ app.get("/stats/rides-per-month", async (req, res) => {
             JOIN Ride r ON t.ride = r.ride_id
             WHERE t.visiting_date BETWEEN @from AND @to
             GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date), r.ride_name
-            ORDER BY Month_Num, Tickets_Sold DESC
+            ORDER BY MONTH(t.visiting_date), Tickets_Sold DESC
         `);
     res.json(result.recordset);
   } catch (err) {
