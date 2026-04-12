@@ -210,16 +210,14 @@ app.get("/stats/customers-ticket-history", async (req, res) => {
     request.input("from", sql.Date, from);
     request.input("to", sql.Date, to);
     const result = await request.query(`
-            SELECT 
+            SELECT
                 c.first_name + ' ' + c.last_name AS Customer,
                 COUNT(t.ticket_id) AS Total_Tickets,
-                CONVERT(DATE, MAX(t.visiting_date)) AS Last_Visit,
-                r.ride_name AS Favourite_Ride
+                CONVERT(VARCHAR(10), MAX(t.visiting_date), 120) AS Last_Visit,
             FROM Customers c
             JOIN Ticket t ON c.customer_id = t.customer_id
-            JOIN Ride r ON t.ride = r.ride_id
             WHERE t.visiting_date BETWEEN @from AND @to
-            GROUP BY c.customer_id, c.first_name, c.last_name, r.ride_name
+            GROUP BY c.customer_id, c.first_name, c.last_name
             ORDER BY Total_Tickets DESC
             `);
     res.json(result.recordset);
@@ -243,7 +241,6 @@ app.get("/stats/rides-per-month", async (req, res) => {
     const result = await request.query(`
             SELECT
               DATENAME(MONTH, t.visiting_date) AS Month,
-              MONTH(t.visiting_date) AS Month_Num,
               r.ride_name AS Ride,
               COUNT(t.ticket_id) AS Tickets_Sold
             FROM Ticket t
