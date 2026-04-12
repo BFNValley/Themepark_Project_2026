@@ -128,9 +128,9 @@
             </div>
         </div>
 
-        <!-- REPORT 1: Customers per period -->
+        <!-- REPORT 1: Customers Ticket History -->
         <div class="card">
-            <div class="section-title">Customer Tickets per Period</div>
+            <div class="section-title">Customer Tickets History</div>
             <div class="filter-row">
                 <label>From:</label>
                 <input type="date" id="from1">
@@ -146,41 +146,59 @@
             </div>
         </div>
 
-        <!-- Report 2: Most popular rides per month-->
+        <!-- Report 2: Most popular rides-->
         <div class="card">
-            <div class="section-title">Most Popular Rides per Period</div>
+            <div class="section-title">Most Popular Rides</div>
             <div class="filter-row">
                 <label>From:</label>
-                <input type="date" id="from3">
+                <input type="date" id="from2">
                 <label>To:</label>
-                <input type="date" id="to3">
+                <input type="date" id="to2">
                 <button onclick="loadRideStats()">Load Report</button>
             </div>
-            <div class="msg" id="msg3"></div>
-            <div class="status-msg" id="status3"></div>
+            <div class="msg" id="msg2"></div>
+            <div class="status-msg" id="status2"></div>
             <div id="rideTable"></div>
-            <div class="print-btn" id="printBtn3">
+            <div class="print-btn" id="printBtn2">
                 <button class="secondary" onclick="printReport('rideTable')">&#128438; Print / Save PDF</button>
             </div>
         </div>
 
         <!-- Report 3: Weather Impact on Ticket Sales -->
-         <div class="card">
+        <div class="card">
             <div class="section-title">Weather Impact on Ticket Sales</div>
+            <div class="filter-row">
+                <label>From:</label>
+                <input type="date" id="from3">
+                <label>To:</label>
+                <input type="date" id="to3">
+                <button onclick="loadWeatherStats()">Load Report</button>
+            </div>
+            <div class="msg" id="msg3"></div>
+            <div class="status-msg" id="status3"></div>
+            <div id="weatherStatsTable"></div>
+            <div class="print-btn" id="printBtn3">
+                <button class="secondary" onclick="printReport('weatherStatsTable')">&#128438; Print / Save PDF</button>
+            </div>
+        </div>
+
+        <!-- Report 4: Employee Maintenance Workload -->
+        <div class="card">
+            <div class="section-title">Employee Maintenance Workload</div>
             <div class="filter-row">
                 <label>From:</label>
                 <input type="date" id="from4">
                 <label>To:</label>
                 <input type="date" id="to4">
-                <button onclick="loadWeatherStats()">Load Report</button>
+                <button onclick="loadEmployeeStats()">Load Report</button>
             </div>
             <div class="msg" id="msg4"></div>
             <div class="status-msg" id="status4"></div>
-            <div id="weatherStatsTable"></div>
+            <div id="employeeTable"></div>
             <div class="print-btn" id="printBtn4">
-                <button class="secondary" onclick="printReport('weatherStatsTable')">&#128438; Print / Save PDF</button>
+                <button class="secondary" onclick="printReport('employeeTable')">&#128438; Print / Save PDF</button>
             </div>
-         </div>
+        </div>
 
         <script>
             function buildTable(containerId, statusId, data) {
@@ -229,7 +247,7 @@
                 document.getElementById("status1").textContent = "Loading...";
                 document.getElementById("customerTable").innerHTML = "";
                 try {
-                    const res = await fetch(`/stats/customers-per-month?from=${dates.from}&to=${dates.to}`);
+                    const res = await fetch(`/stats/customers-ticket-history?from=${dates.from}&to=${dates.to}`);
                     const data = await res.json();
                     buildTable("customerTable", "status1", data);
                     document.getElementById("printBtn1").style.display = "block";
@@ -239,29 +257,44 @@
             }
 
             async function loadRideStats() {
-                const dates = validateDates("from3", "to3", "msg3");
+                const dates = validateDates("from2", "to2", "msg2");
                 if (!dates) return;
-                document.getElementById("status3").textContent = "Loading...";
+                document.getElementById("status2").textContent = "Loading...";
                 document.getElementById("rideTable").innerHTML = "";
                 try {
                     const res = await fetch(`/stats/rides-per-month?from=${dates.from}&to=${dates.to}`);
                     const data = await res.json();
-                    buildTable("rideTable", "status3", data);
+                    buildTable("rideTable", "status2", data);
+                    document.getElementById("printBtn2").style.display = "block";
+                } catch (err) {
+                    document.getElementById("status2").textContent = "Error loading data.";
+                }
+            }
+
+            async function loadWeatherStats() {
+                const dates = validateDates("from3", "to3", "msg3");
+                if (!dates) return;
+                document.getElementById("status3").textContent = "Loading...";
+                document.getElementById("weatherStatsTable").innerHTML = "";
+                try {
+                    const res = await fetch(`/stats/weather-impact?from=${dates.from}&to=${dates.to}`);
+                    const data = await res.json();
+                    buildTable("weatherStatsTable", "status3", data);
                     document.getElementById("printBtn3").style.display = "block";
                 } catch (err) {
                     document.getElementById("status3").textContent = "Error loading data.";
                 }
             }
 
-            async function loadWeatherStats() {
+            async function loadEmployeeStats() {
                 const dates = validateDates("from4", "to4", "msg4");
                 if (!dates) return;
                 document.getElementById("status4").textContent = "Loading...";
-                document.getElementById("weatherStatsTable").innerHTML = "";
+                document.getElementById("employeeTable").innerHTML = "";
                 try {
-                    const res = await fetch(`/stats/weather-impact?from=${dates.from}&to=${dates.to}`);
+                    const res = await fetch(`/stats/employee-workload?from=${dates.from}&to=${dates.to}`);
                     const data = await res.json();
-                    buildTable("weatherStatsTable", "status4", data);
+                    buildTable("employeeTable", "status4", data);
                     document.getElementById("printBtn4").style.display = "block";
                 } catch (err) {
                     document.getElementById("status4").textContent = "Error loading data.";
