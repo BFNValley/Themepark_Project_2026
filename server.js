@@ -73,7 +73,7 @@ app.post("/login", (req, res) => {
   }
 });
 
-// --- Check befor Employee Login --- 
+// --- Check befor Employee Login ---
 function checkRoles(allowedRoles) {
   return (req, res, next) => {
     const role_id = Number(req.headers["role_id"]);
@@ -82,7 +82,7 @@ function checkRoles(allowedRoles) {
       return res.status(403).send("Access denied");
     }
 
-    if(!allowedRoles.includes(role_id)) {
+    if (!allowedRoles.includes(role_id)) {
       return res.status(403).send("Access denied");
     }
     next();
@@ -121,7 +121,7 @@ app.post("/employee_login", async (req, res) => {
         username: result.recordset[0].username,
         employee_id: result.recordset[0].employee_id,
         role_id: result.recordset[0].role_id,
-        role_name: result.recordset[0].role_name
+        role_name: result.recordset[0].role_name,
       }); //else found username and password
     }
   } catch (err) {
@@ -155,7 +155,12 @@ app.post("/customer_login", async (req, res) => {
       //check if not found username and password
       res.json({ success: false, redirect: "/customer_login.html" }); //if wrong reload page
     } else {
-      res.json({ success: true, redirect: "/customer.html", customer_id: result.recordset[0].customer_id, username: result.recordset[0].email_address }); //else found username and password
+      res.json({
+        success: true,
+        redirect: "/customer.html",
+        customer_id: result.recordset[0].customer_id,
+        username: result.recordset[0].email_address,
+      }); //else found username and password
     }
   } catch (err) {
     res.status(500).send(err.message);
@@ -520,7 +525,7 @@ app.post("/employees", checkRoles([1]), async (req, res) => {
     password,
     ssn,
     pay_rate,
-    role_id
+    role_id,
   } = req.body;
   if (
     !first_name ||
@@ -542,7 +547,7 @@ app.post("/employees", checkRoles([1]), async (req, res) => {
     request.input("password", sql.VarChar(30), password);
     request.input("ssn", sql.VarChar(9), ssn);
     request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
-    request.input("role_id", sql.Int, role_id || null)
+    request.input("role_id", sql.Int, role_id || null);
     await request.query(`
       INSERT INTO Employee (first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate, role_id)
       VALUES (@first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate, @role_id)
@@ -560,7 +565,11 @@ app.put("/employees/:id", checkRoles([1]), async (req, res) => {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("id", sql.Int, id);
-    request.input("role_id", sql.Int, role_id != null && role_id !== "" ? parseInt(role_id): null);
+    request.input(
+      "role_id",
+      sql.Int,
+      role_id != null && role_id !== "" ? parseInt(role_id) : null,
+    );
     request.input("username", sql.VarChar(30), username);
     request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
     request.input("first_name", sql.VarChar(30), first_name);
@@ -653,4 +662,20 @@ app.post("/submit-maintenance", async (req, res) => {
 
 app.listen(port, () => {
   console.log("Server running on port 4000");
+});
+
+app.get("/maintenance-tickets", async (req, res) => {
+  try {
+    await sql.connect(config);
+
+    const result = await sql.query(`
+      SELECT ticket_id, ride_id, employee_id, maintenance_type, maintenance_status, description, date_created
+      FROM Maintenance_Ticket
+      ORDER BY ticket_id
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
