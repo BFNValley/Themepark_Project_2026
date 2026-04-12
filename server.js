@@ -649,7 +649,7 @@ app.post("/submit-maintenance", async (req, res) => {
 
     await request.query(`
       INSERT INTO Maintenance_Ticket
-      (employee_id, ride, maintenance_type, priority, status, date_opened, description)
+      (employee_id, ride, maintenance_type, priority, status, date_opened, maintenance_description)
       VALUES
       (@employee_id, @ride, @maintenance_type, @priority, @status, @date_opened, @description)
     `);
