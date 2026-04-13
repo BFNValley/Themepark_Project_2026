@@ -167,7 +167,7 @@ app.post("/customer_login", async (req, res) => {
   }
 });
 
-// --- CUSTOMER ACCOUNT CREATION ---
+// create customer accounts
 
 app.post("/create_customer_account", async (req, res) => {
   try {
