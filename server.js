@@ -629,8 +629,8 @@ app.post("/submit-complaint", async (req, res) => {
 app.post("/submit-maintenance", async (req, res) => {
   try {
     const employeeId = req.body.employee_id;
-    const ride = req.body.ride;
-    const maintenanceType = req.body["maintenance-type"];
+    const rideId = req.body.ride;
+    const issueType = req.body["maintenance-type"];
     const priority = req.body.priority;
     const status = req.body.status;
     const dateOpened = req.body["date-opened"];
@@ -640,18 +640,34 @@ app.post("/submit-maintenance", async (req, res) => {
 
     const request = new sql.Request();
     request.input("employee_id", sql.Int, employeeId);
-    request.input("ride", sql.VarChar(50), ride);
-    request.input("maintenance_type", sql.VarChar(50), maintenanceType);
-    request.input("priority", sql.VarChar(20), priority); // check back on this later and see if it matches column name
+    request.input("ride_id", sql.Int, rideId);
+    request.input("issue_type", sql.VarChar(50), issueType);
+    request.input("maintenance_priority", sql.VarChar(20), priority);
     request.input("maintenance_status", sql.VarChar(20), status);
     request.input("date_opened", sql.DateTime, dateOpened);
     request.input("maintenance_description", sql.VarChar(sql.MAX), description);
 
     await request.query(`
       INSERT INTO Maintenance_Ticket
-      (employee_id, ride, maintenance_type, priority, maintenance_status, date_opened, maintenance_description)
+      (
+        ride_id,
+        employee_id,
+        date_opened,
+        issue_type,
+        maintenance_description,
+        maintenance_priority,
+        maintenance_status
+      )
       VALUES
-      (@employee_id, @ride, @maintenance_type, @priority, @status, @date_opened, @description)
+      (
+        @ride_id,
+        @employee_id,
+        @date_opened,
+        @issue_type,
+        @maintenance_description,
+        @maintenance_priority,
+        @maintenance_status
+      )
     `);
 
     res.redirect("/maintenance_portal.html");
@@ -669,7 +685,7 @@ app.get("/maintenance-tickets", async (req, res) => {
     await sql.connect(config);
 
     const result = await sql.query(`
-      SELECT ticket_id, ride_id, employee_id, maintenance_type, maintenance_status, description, date_created
+      SELECT ticket_id, ride_id, employee_id, date_opened, issue_type, maintenance_description, maintenance_priority, maintenance_status
       FROM Maintenance_Ticket
       ORDER BY ticket_id
     `);
