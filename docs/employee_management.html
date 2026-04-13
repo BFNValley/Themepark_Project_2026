@@ -399,6 +399,7 @@
         html += "<th>Role</th>";
         html += "<th>Username</th>";
         html += "<th>Pay Rate</th>";
+        html += "<th>Status</th>";
         html += "<th>Actions</th>";
         html += "</tr></thead><tbody>";
 
@@ -412,8 +413,10 @@
           html += `<td id ="erole-${e.employee_id}">${e.role_name || "-"}</td>`;
           html += `<td id="eusername-${e.employee_id}">${e.username}</td>`;
           html += `<td id="epay-${e.employee_id}">${e.pay_rate}</td>`;
+          html += `<td>${e.is_active == 1 ? "Active" : "Inactive"}</td>`;
           html += `<td>
                         <button class="small secondary" onclick="editEmployee(${e.employee_id}, '${e.username}', ${e.pay_rate}, ${e.role_id ?? 'null'}, '${e.first_name}', '${e.last_name}')">&#9999;&#65039; Edit</button>
+                        <button class="small danger" onclick="deactivateEmployee(${e.employee_id})">Deactivate</button>
                     </td>`;
           html += "</tr>";
         });
@@ -426,8 +429,7 @@
         const roles = [
           {id: 1, name: "Park Manager" },
           {id: 2, name: "Ride Operator"},
-          {id: 3, name: "Gift Shop Worker"},
-          {id: 4, name: "Deactivated"}
+          {id: 3, name: "Gift Shop Worker"}
         ];
 
         let roleOptions = `<option value="">-- No Role --</option>`;
@@ -489,6 +491,25 @@
         } catch (err) {
           msgEl.className = "msg error";
           msgEl.textContent = "Failed to connect to server.";
+        }
+      }
+
+      async function deactivateEmployee(id) {
+        try {
+          const res = await fetch(`/employees/deactivate/${id}`, {
+            method: "PUT",
+            headers: {
+              "role_id": sessionStorage.getItem("role_id")
+            }
+          });
+
+          if (res.ok) {
+            loadEmployees();
+          } else {
+            alert("Failed to deactivate employee");
+          }
+        } catch (err) {
+          alert("Server error");
         }
       }
 
