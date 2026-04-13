@@ -317,7 +317,7 @@ app.get("/stats/employee-workload", async (req, res) => {
             FROM Employee e
             LEFT JOIN Maintenance_Ticket mt ON e.employee_id = mt.employee_id
                 AND mt.date_opened BETWEEN @from AND @to
-            WHERE e.role_id != 4 OR e.role_id IS NULL
+            WHERE e.is_active = 1
             GROUP BY e.employee_id, e.first_name, e.last_name
             ORDER BY Total_Maintenance_Tickets DESC
         `);
@@ -503,10 +503,10 @@ app.get("/employees", checkRoles([1]), async (req, res) => {
   try {
     await sql.connect(config);
     const result = await sql.query(`
-      SELECT e.employee_id, e.first_name, e.middle_initial, e.last_name, e.role_id, r.role_name, e.username, e.pay_rate
+      SELECT e.employee_id, e.first_name, e.middle_initial, e.last_name, e.role_id, r.role_name, e.username, e.pay_rate, e.is_active
       FROM Employee e
       LEFT JOIN Role r ON e.role_id=r.role_id
-      WHERE e.role_id !=4 OR e.role_id IS NULL
+      WHERE e.is_active = 1
       ORDER BY e.employee_id
       `);
     res.json(result.recordset);
@@ -548,8 +548,8 @@ app.post("/employees", checkRoles([1]), async (req, res) => {
     request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
     request.input("role_id", sql.Int, role_id || null);
     await request.query(`
-      INSERT INTO Employee (first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate, role_id)
-      VALUES (@first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate, @role_id)
+      INSERT INTO Employee (first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate, role_id, is_active)
+      VALUES (@first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate, @role_id, 1)
     `);
     res.sendStatus(200);
   } catch (err) {
@@ -576,6 +576,24 @@ app.put("/employees/:id", checkRoles([1]), async (req, res) => {
     await request.query(`
       UPDATE Employee
       SET role_id = @role_id, username = @username, pay_rate = @pay_rate, first_name = @first_name, last_name = @last_name
+      WHERE employee_id = @id
+    `);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.put("/employees/deactivate/:id", checkRoles([1]), async (req, res) => {
+  const id = req.params.id;
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("id", sql.Int, id);
+
+    await request.query(`
+      UPDATE Employee
+      SET is_active = 0
       WHERE employee_id = @id
     `);
     res.sendStatus(200);
