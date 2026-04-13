@@ -14,8 +14,10 @@ async function loadTickets() {
       <td>${ticket.employee_id}</td>
       <td>${ticket.maintenance_type}</td>
       <td>${ticket.maintenance_status}</td>
-      <td>${ticket.description}</td>
-      <td>${ticket.date_created}</td>
+      <td>${ticket.issue_type}</td>
+      <td>${ticket.maintenance_priority}</td>
+      <td>${ticket.maintenance_description}</td>
+      <td>${ticket.date_opened}</td>
       <td>
         <button onclick="editTicket(${ticket.ticket_id})">Edit</button>
       </td>

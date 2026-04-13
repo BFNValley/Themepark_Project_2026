@@ -671,6 +671,7 @@ app.post("/submit-maintenance", async (req, res) => {
 
     res.redirect("/maintenance_portal.html");
   } catch (err) {
+    console.log("ERROR:", err.message);
     res.status(500).send(err.message);
   }
 });
