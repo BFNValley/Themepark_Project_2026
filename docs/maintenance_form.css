@@ -22,16 +22,19 @@ body {
   height: 60%;
   width: 60%;
   min-width: max-content;
-  min-height: 400px;
+  min-height: 500px;
   max-width: max-content;
 }
 
 form {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
   align-items: stretch;
   justify-content: center;
-  height: 50%;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
   width: 90%;
   gap: 16px;
 }
@@ -45,11 +48,37 @@ form {
 
 textarea {
   resize: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .maintenance-details {
   padding-right: 10px;
   border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.maintenance-details {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#description {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 180px;
+}
+
+form button[type="submit"] {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: center;
+  align-self: end;
+  width: auto;
+  min-width: 140px;
+  height: auto;
+  padding: 10px 22px;
+  margin-top: 8px;
+  margin-bottom: 16px;
 }
 
 h1 {
@@ -96,4 +125,13 @@ input {
   background: rgba(255, 255, 255, 0.75);
   font-size: 14px;
   box-sizing: border-box;
+}
+
+.back-button {
+  width: fit-content;
+  height: auto;
+  padding: 8px 16px;
+  top: 10px;
+  left: 10px;
+  position: absolute;
 }

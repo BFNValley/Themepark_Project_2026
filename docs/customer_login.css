@@ -9,30 +9,30 @@ body {
 }
 
 .login-form {
-    background-color: rgba(255, 255, 255, 0.18);
-    padding: 40px 50px;
-    border-radius: 28px;
-    text-align: center;
-    width: 300px;
-    max-width: 90vw;
-    height: 300px;
-    max-height: 90vw;
-    background: rgba(255, 255, 255, 0.28);
-    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
+  background-color: rgba(255, 255, 255, 0.18);
+  padding: 40px 50px;
+  border-radius: 28px;
+  text-align: center;
+  width: 300px;
+  max-width: 90vw;
+  height: 300px;
+  max-height: 90vw;
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
 }
 
 .username-textbox {
-    border-radius: 4px; /*rounded corners*/
-    border: 1px solid #ccc; /*gray borders*/
-    height: 110%;
-    box-sizing: border-box;
+  border-radius: 4px; /*rounded corners*/
+  border: 1px solid #ccc; /*gray borders*/
+  height: 110%;
+  box-sizing: border-box;
 }
 
 .password-textbox {
-    border-radius: 4px; /*rounded corners*/
-    border: 1px solid #ccc; /*gray borders*/
-    height: 110%;
-    box-sizing: border-box;
+  border-radius: 4px; /*rounded corners*/
+  border: 1px solid #ccc; /*gray borders*/
+  height: 110%;
+  box-sizing: border-box;
 }
 
 .login-button {
@@ -56,6 +56,29 @@ body {
 }
 
 .login-button:hover {
+  transform: scale(1.05);
+  background-color: #83abdf;
+  box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
+}
+
+.back-button {
+  background-color: #5f90d8;
+  color: white;
+  border-radius: 15px;
+  border: none;
+  width: fit-content;
+  height: auto;
+  padding: 12px 24px;
+  margin: 0 10px 10px 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  top: 10px;
+  left: 10px;
+  position: absolute;
+}
+
+.back-button:hover {
   transform: scale(1.05);
   background-color: #83abdf;
   box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);

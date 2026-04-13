@@ -15,7 +15,7 @@ body {
   align-items: center;
 
   box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
-  height: 70vh;
+  height: 40vh;
   width: 50vw;
   min-width: fit-content;
   min-height: 400px;
@@ -60,4 +60,13 @@ button:hover {
   transform: scale(1.05);
   background-color: #83abdf;
   box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
+}
+
+.back-button {
+  width: fit-content;
+  height: auto;
+  padding: 8px 16px;
+  top: 10px;
+  left: 10px;
+  position: absolute;
 }

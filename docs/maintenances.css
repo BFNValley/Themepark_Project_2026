@@ -2,9 +2,11 @@ body {
   background: #a9bbcf;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding-top: 24px;
   font-family: sans-serif;
 }
 
@@ -16,8 +18,7 @@ button {
   font-weight: 600;
   border: none;
 
-  width: 40%;
-  max-width: max-content + 20px;
+  width: 70px;
   height: 10%;
 
   transition:
@@ -30,22 +31,22 @@ button {
 
 button:hover {
   transform: scale(1.05);
-  background-color: #83abdf;
+  background-color: #80a9dd;
   box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 30px;
+  margin: 0 0 16px 0;
   font-weight: 700;
 }
 
 .table-container {
   width: 90%;
-  margin: auto;
-  background: white;
+  margin: 0 auto;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
-  padding: 20px;
+  border: 1px solid red;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
@@ -92,4 +93,13 @@ td,
 th {
   padding-left: 18px;
   padding-right: 18px;
+}
+
+.back-button {
+  width: fit-content;
+  height: auto;
+  padding: 8px 16px;
+  top: 10px;
+  left: 10px;
+  position: absolute;
 }

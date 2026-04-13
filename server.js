@@ -634,10 +634,33 @@ app.post("/submit-complaint", async (req, res) => {
             (@first_name, @last_name, @email, @complaint_type, @reason_if_other, @complaint_description, @incident_date)
         `);
 
-    res.send("Complaint submitted successfully.");
+    res.redirect("/customer.html");
   } catch (err) {
     console.error("Complaint insert error:", err);
     res.status(500).send("Database error.");
+  }
+});
+
+app.get("/complaints", async (req, res) => {
+  try {
+    await sql.connect(config);
+
+    const result = await sql.query(`
+      SELECT
+        first_name,
+        last_name,
+        email,
+        complaint_type,
+        reason_if_other,
+        complaint_description,
+        incident_date
+      FROM Complaint
+      ORDER BY incident_date DESC
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
   }
 });
 
@@ -709,6 +732,75 @@ app.get("/maintenance-tickets", async (req, res) => {
     `);
 
     res.json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.put("/update-maintenance/:ticket_id", async (req, res) => {
+  try {
+    const ticketId = req.params.ticket_id;
+    const {
+      issue_type,
+      maintenance_description,
+      maintenance_priority,
+      maintenance_status,
+    } = req.body;
+
+    await sql.connect(config);
+
+    const request = new sql.Request();
+    request.input("ticket_id", sql.Int, ticketId);
+    request.input("issue_type", sql.VarChar(50), issue_type);
+    request.input(
+      "maintenance_description",
+      sql.VarChar(sql.MAX),
+      maintenance_description,
+    );
+    request.input(
+      "maintenance_priority",
+      sql.VarChar(20),
+      maintenance_priority,
+    );
+    request.input("maintenance_status", sql.VarChar(20), maintenance_status);
+
+    await request.query(`
+      UPDATE Maintenance_Ticket
+      SET
+        issue_type = @issue_type,
+        maintenance_description = @maintenance_description,
+        maintenance_priority = @maintenance_priority,
+        maintenance_status = @maintenance_status
+      WHERE ticket_id = @ticket_id
+    `);
+
+    res.json({ success: true, message: "Ticket updated successfully" });
+  } catch (err) {
+    console.log("ERROR:", err.message);
+    res.status(500).send(err.message);
+  }
+});
+
+app.get("/maintenance-tickets/:ticket_id", async (req, res) => {
+  try {
+    const ticketId = req.params.ticket_id;
+
+    await sql.connect(config);
+
+    const request = new sql.Request();
+    request.input("ticket_id", sql.Int, ticketId);
+
+    const result = await request.query(`
+      SELECT ticket_id, ride_id, employee_id, date_opened, issue_type, maintenance_description, maintenance_priority, maintenance_status
+      FROM Maintenance_Ticket
+      WHERE ticket_id = @ticket_id
+    `);
+
+    if (result.recordset.length === 0) {
+      res.status(404).send("Ticket not found");
+    } else {
+      res.json(result.recordset[0]);
+    }
   } catch (err) {
     res.status(500).send(err.message);
   }
