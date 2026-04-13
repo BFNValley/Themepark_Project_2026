@@ -167,6 +167,100 @@ app.post("/customer_login", async (req, res) => {
   }
 });
 
+// --- CUSTOMER ACCOUNT CREATION ---
+
+app.post("/create_customer_account", async (req, res) => {
+  try {
+    await sql.connect(config);
+
+    const {
+      first_name,
+      middle_initial,
+      last_name,
+      date_of_birth,
+      phone_number,
+      email_address,
+      password,
+      retype_password,
+    } = req.body;
+
+    if (
+      !first_name ||
+      !last_name ||
+      !date_of_birth ||
+      !phone_number ||
+      !email_address ||
+      !password ||
+      !retype_password
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "All required fields must be filled.",
+      });
+    }
+
+    if (password !== retype_password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Passwords do not match." });
+    }
+
+    const normalizedPhone = String(phone_number).replace(/\D/g, "");
+    if (normalizedPhone.length !== 10) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number must be exactly 10 digits.",
+      });
+    }
+
+    const trimmedMiddleInitial = (middle_initial || "").trim();
+    if (trimmedMiddleInitial.length > 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Middle initial must be 1 character or blank.",
+      });
+    }
+
+    const request = new sql.Request();
+    request.input("first_name", sql.VarChar(30), first_name.trim());
+    request.input(
+      "middle_initial",
+      sql.Char(1),
+      trimmedMiddleInitial ? trimmedMiddleInitial.toUpperCase() : null,
+    );
+    request.input("last_name", sql.VarChar(30), last_name.trim());
+    request.input("date_of_birth", sql.Date, date_of_birth);
+    request.input("phone_number", sql.Char(10), normalizedPhone);
+    request.input("email_address", sql.VarChar(255), email_address.trim());
+    request.input("customer_password", sql.VarChar(30), password);
+
+    await request.query(`
+      INSERT INTO Customers
+      (first_name, middle_initial, last_name, date_of_birth, phone_number, email_address, customer_password)
+      VALUES
+      (@first_name, @middle_initial, @last_name, @date_of_birth, @phone_number, @email_address, @customer_password)
+    `);
+
+    return res.json({
+      success: true,
+      redirect: "/customer_login.html",
+      message: "Account created successfully.",
+    });
+  } catch (err) {
+    if (err.number === 2627 || err.number === 2601) {
+      return res.status(409).json({
+        success: false,
+        message: "An account with that email already exists.",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Database error while creating account.",
+    });
+  }
+});
+
 // --- WEATHER ROUTES ---
 
 app.get("/weather", async (req, res) => {
