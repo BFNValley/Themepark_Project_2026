@@ -642,14 +642,14 @@ app.post("/submit-maintenance", async (req, res) => {
     request.input("employee_id", sql.Int, employeeId);
     request.input("ride", sql.VarChar(50), ride);
     request.input("maintenance_type", sql.VarChar(50), maintenanceType);
-    request.input("priority", sql.VarChar(20), priority);
-    request.input("status", sql.VarChar(20), status);
+    request.input("priority", sql.VarChar(20), priority); // check back on this later and see if it matches column name
+    request.input("maintenance_status", sql.VarChar(20), status);
     request.input("date_opened", sql.DateTime, dateOpened);
-    request.input("description", sql.VarChar(sql.MAX), description);
+    request.input("maintenance_description", sql.VarChar(sql.MAX), description);
 
     await request.query(`
       INSERT INTO Maintenance_Ticket
-      (employee_id, ride, maintenance_type, priority, status, date_opened, maintenance_description)
+      (employee_id, ride, maintenance_type, priority, maintenance_status, date_opened, maintenance_description)
       VALUES
       (@employee_id, @ride, @maintenance_type, @priority, @status, @date_opened, @description)
     `);
