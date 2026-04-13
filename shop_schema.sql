@@ -1,12 +1,12 @@
 CREATE TABLE Product (
-  ProductID INT PRIMARY KEY,
+  ProductID INT IDENTITY(1,1) PRIMARY KEY,
   Name VARCHAR(50),
   Price DECIMAL(5,2),
   Stock INT
 );
 
 CREATE TABLE Orders (
-  OrderID INT PRIMARY KEY,
+  OrderID INT IDENTITY(1,1) PRIMARY KEY,
   CustomerID INT,
   OrderDate DATE
 );
@@ -19,18 +19,30 @@ CREATE TABLE OrderItem (
   FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
   FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
+GO
 
-DELIMITER //
-
--- Trigger: prevent negative stock (matches frontend validation)
 CREATE TRIGGER prevent_negative_stock
-BEFORE UPDATE ON Product
-FOR EACH ROW
+ON Product
+INSTEAD OF UPDATE
+AS
 BEGIN
-  IF NEW.Stock < 0 THEN
-    SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'Stock cannot be negative';
-  END IF;
-END//
+  IF EXISTS (
+    SELECT 1
+    FROM inserted
+    WHERE Stock < 0
+  )
+  BEGIN
+    RAISERROR ('Stock cannot be negative', 16, 1);
+    RETURN;
+  END
 
-DELIMITER ;
+  UPDATE Product
+  SET
+    Name = inserted.Name,
+    Price = inserted.Price,
+    Stock = inserted.Stock
+  FROM Product
+  INNER JOIN inserted
+    ON Product.ProductID = inserted.ProductID;
+END;
+GO
