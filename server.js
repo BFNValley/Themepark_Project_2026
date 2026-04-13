@@ -216,16 +216,14 @@ app.get("/stats/customers-ticket-history", async (req, res) => {
     request.input("from", sql.Date, from);
     request.input("to", sql.Date, to);
     const result = await request.query(`
-            SELECT 
+            SELECT
                 c.first_name + ' ' + c.last_name AS Customer,
                 COUNT(t.ticket_id) AS Total_Tickets,
-                MAX(t.visiting_date) AS Last_Visit,
-                r.ride_name AS Favourite_Ride
+                CONVERT(VARCHAR(10), MAX(t.visiting_date), 120) AS Last_Visit
             FROM Customers c
             JOIN Ticket t ON c.customer_id = t.customer_id
-            JOIN Ride r ON t.ride = r.ride_id
             WHERE t.visiting_date BETWEEN @from AND @to
-            GROUP BY c.customer_id, c.first_name, c.last_name, r.ride_name
+            GROUP BY c.customer_id, c.first_name, c.last_name
             ORDER BY Total_Tickets DESC
             `);
     res.json(result.recordset);
@@ -249,14 +247,13 @@ app.get("/stats/rides-per-month", async (req, res) => {
     const result = await request.query(`
             SELECT
               DATENAME(MONTH, t.visiting_date) AS Month,
-              MONTH(t.visiting_date) AS Month_Num,
               r.ride_name AS Ride,
               COUNT(t.ticket_id) AS Tickets_Sold
             FROM Ticket t
             JOIN Ride r ON t.ride = r.ride_id
             WHERE t.visiting_date BETWEEN @from AND @to
             GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date), r.ride_name
-            ORDER BY Month_Num, Tickets_Sold DESC
+            ORDER BY MONTH(t.visiting_date), Tickets_Sold DESC
         `);
     res.json(result.recordset);
   } catch (err) {
@@ -264,7 +261,7 @@ app.get("/stats/rides-per-month", async (req, res) => {
   }
 });
 
-// ---STATS: Waether Impact on Ticket Sales ---
+// ---STATS: Weather Impact on Ticket Sales ---
 
 app.get("/stats/weather-impact", async (req, res) => {
   const { from, to } = req.query;
@@ -296,7 +293,7 @@ app.get("/stats/weather-impact", async (req, res) => {
   }
 });
 
-// --- Employee Maintenance Workload ---
+// ---STATS: Employee Maintenance Workload ---
 
 app.get("/stats/employee-workload", async (req, res) => {
   const { from, to } = req.query;
@@ -309,12 +306,14 @@ app.get("/stats/employee-workload", async (req, res) => {
     request.input("to", sql.Date, to);
     const result = await request.query(`
             SELECT
-                e.first_name + ' ' + e.last_name            AS Employee,
-                COUNT(mt.maintenance_id)                     AS Total_Maintenance_Tickets,
-                SUM(CASE WHEN mt.ride_status = 'major maintenance'
-                    THEN 1 ELSE 0 END)                       AS Major_Issues,
-                SUM(CASE WHEN mt.ride_status = 'minor maintenance'
-                    THEN 1 ELSE 0 END)                       AS Minor_Issues
+                e.first_name + ' ' + e.last_name AS Employee,
+                COUNT(mt.ticket_id) AS Total_Maintenance_Tickets,
+                SUM(CASE WHEN mt.maintenance_priority = 'high'
+                    THEN 1 ELSE 0 END) AS High_Priority,
+                SUM(CASE WHEN mt.maintenance_priority = 'medium'
+                    THEN 1 ELSE 0 END) AS Medium_Priority,
+                SUM(CASE WHEN mt.maintenance_priority = 'low'
+                    THEN 1 ELSE 0 END) AS Low_Priority
             FROM Employee e
             LEFT JOIN Maintenance_Ticket mt ON e.employee_id = mt.employee_id
                 AND mt.date_opened BETWEEN @from AND @to
