@@ -6,7 +6,7 @@ function addToCart(){
     const quantity = parseInt(document.getElementById("ticketQuantity").value);
 
    
-    if (quantity < 1)
+    if (!quantity ||quantity < 1)
     {
         alert("Quantity must be at least 1.");
         return;
@@ -27,7 +27,13 @@ function renderCart(){
 
     cart.forEach((item, index) => {
         const li = document.createElement("li");
-        li.textContent = `Ride ${item.ride_id} - ${item.ticket_type} x ${item.quantity}    `;
+
+        let price = item.ride_price;
+        if (item.ticket_type === "Child") {
+            price *= 0.5;
+        }
+
+        li.textContent = `${item.ride_name} ($${price.toFixed(2)}) - ${item.ticket_type} x ${item.quantity}    `;
 
         const removeButton = document.createElement("button");
         removeButton.textContent = "Remove";
@@ -48,7 +54,7 @@ function calculateTotal(){
     cart.forEach(item => {
         let price = item.ride_price;
 
-        if (item.ticket_type === "child") {
+        if (item.ticket_type === "Child") {
             price *= 0.5;
         }
 
@@ -68,7 +74,7 @@ async function loadRides(){
         rides.forEach(ride => {
             const option = document.createElement("option");
             option.value = ride.ride_id;
-            option.textContent = `${ride.ride_name} ($${ride.ride_price})`;
+            option.textContent = `${ride.ride_name}`;
 
             option.dataset.price = ride.ride_price;
             option.dataset.name = ride.ride_name;
@@ -83,10 +89,10 @@ async function loadRides(){
 window.onload = loadRides;
 
 async function checkout(){
-    const customer_id = document.getElementById("customerID").value;
+    const customer_id = sessionStorage.getItem("customer_id");
 
     if(!customer_id){
-        alert("Please enter your customer ID.");
+        alert("Must be logged in.");
         return;
     }
 
@@ -106,6 +112,9 @@ async function checkout(){
     const result = await response.text();
     alert(result);
 
-    cart = [];
-    renderCart();
+    if(response.ok){
+        cart = [];
+        renderCart();
+    }
+    
 }

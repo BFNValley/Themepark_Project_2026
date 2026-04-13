@@ -7,16 +7,18 @@
   <body>
     <div class="maintenance-card">
       <h1>Create Maintenance</h1>
-      <form method="POST" action="/submit-maintenance">
+      <form method="POST" action="/submit-maintenance" id="maintenance_form">
+        <input type="hidden" name="employee_id" id="employee_id" />
         <div class="maintenance-details">
           <div class="selects">
             <div class="select-label-group">
               <label for="which-ride">Ride:</label>
               <select name="ride" id="which-ride" required>
-                <option value="ride1">Ride1</option>
-                <option value="ride2">Ride2</option>
-                <option value="ride3">Ride3</option>
-                <option value="ride4">Ride4</option>
+                <option value="1">Roller Coaster</option>
+                <option value="2">Ferris Wheel</option>
+                <option value="3">Haunted House</option>
+                <option value="4">Bumper Cars</option>
+                <option value="5">Water Slide</option>
               </select>
             </div>
             <div class="select-label-group">
@@ -59,8 +61,9 @@
           placeholder="Description of maintenance..."
           required
         ></textarea>
+        <button type="submit">Submit</button>
       </form>
-      <button type="submit">Submit</button>
     </div>
+    <script src="maintenance_form.js"></script>
   </body>
 </html>

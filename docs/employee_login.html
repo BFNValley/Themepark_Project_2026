@@ -51,7 +51,11 @@
                     });
 
                     const data = await response.json();
-                    if(data.redirect === "/employee.html") {
+                    if(data.success) {
+                        sessionStorage.setItem("username", data.username);
+                        sessionStorage.setItem("employee_id", data.employee_id);
+                        sessionStorage.setItem("role_id", data.role_id);
+                        sessionStorage.setItem("role_name", data.role_name);
                         window.location.href = data.redirect;
                     }
                     else {
@@ -59,7 +63,7 @@
                     }
                 } catch(err) {
                     errMsg.style.display = "block";
-                    errMsg.display = "Server Error. Please try again later.";
+                    errMsg.textContent = "Server Error. Please try again later.";
                 }
 
                 

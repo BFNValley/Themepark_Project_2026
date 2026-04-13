@@ -73,37 +73,60 @@ app.post("/login", (req, res) => {
   }
 });
 
+// --- Roles Check --- 
+function checkRoles(allowedRoles) {
+  return (req, res, next) => {
+    const role_id = Number(req.headers["role_id"]);
+
+    if (!role_id) {
+      return res.status(403).send("Access denied");
+    }
+
+    if (!allowedRoles.includes(role_id)) {
+      return res.status(403).send("Access denied");
+    }
+    next();
+  };
+}
+
 //  --- EMPLOYEE LOGIN ---
 
 app.post("/employee_login", async (req, res) => {
   //employee user authentication
-    try {
-      await sql.connect(config);
+  try {
+    await sql.connect(config);
 
-      const {username, password} = req.body;
+    const { username, password } = req.body;
 
-      console.log(username + ' ' + password);
+    console.log(username + " " + password);
 
-      const request = new sql.Request();
-      request.input("input_username", sql.VarChar(30), username);
-      request.input("input_password", sql.VarChar(30), password);
+    const request = new sql.Request();
+    request.input("input_username", sql.VarChar(30), username);
+    request.input("input_password", sql.VarChar(30), password);
 
-      const result = await request.query(`
-        SELECT Employee.username 
+    const result = await request.query(`
+        SELECT Employee.username, Employee.employee_id, Employee.role_id, Role.role_name
         FROM Employee 
+        LEFT JOIN Role ON Employee.role_id = Role.role_id
         WHERE Employee.username = @input_username
         AND Employee.employee_password = @input_password`);
-      
-      if(result.recordset.length === 0) {                //check if not found username and password
-        res.json({ redirect: "/employee_login.html" });  //if wrong reload page
-      }
-      else {                                              
-        res.json({ redirect: "/employee.html" });         //else found username and password
-      }
 
-    } catch(err) {
-      res.status(500).send(err.message);
+    if (result.recordset.length === 0) {
+      //check if not found username and password
+      res.json({ success: false, redirect: "/employee_login.html" }); //if wrong reload page
+    } else {
+      res.json({
+        success: true,
+        redirect: "/employee.html",
+        username: result.recordset[0].username,
+        employee_id: result.recordset[0].employee_id,
+        role_id: result.recordset[0].role_id,
+        role_name: result.recordset[0].role_name
+      }); //else found username and password
     }
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 //  --- Customer LOGIN ---
@@ -111,33 +134,32 @@ app.post("/employee_login", async (req, res) => {
 app.post("/customer_login", async (req, res) => {
   //customer user authentication
   //NOTE: customer username is email
-    try {
-      await sql.connect(config);
+  try {
+    await sql.connect(config);
 
-      const {username, password} = req.body;
+    const { username, password } = req.body;
 
-      console.log('username: ' + username + ', password: ' + password); //used for debugging
+    console.log("username: " + username + ", password: " + password); //used for debugging
 
-      const request = new sql.Request();
-      request.input("input_username", sql.VarChar(30), username);
-      request.input("input_password", sql.VarChar(30), password);
+    const request = new sql.Request();
+    request.input("input_username", sql.VarChar(30), username);
+    request.input("input_password", sql.VarChar(30), password);
 
-      const result = await request.query(`
-        SELECT Customers.email_address
+    const result = await request.query(`
+        SELECT Customers.email_address, Customers.customer_id
         FROM Customers 
         WHERE Customers.email_address = @input_username
-        AND Customers.customer_password = @input_password`);  //note: update schema, insert password attribute into Customers table
-      
-      if(result.recordset.length === 0) {                //check if not found username and password
-        res.json({ redirect: "/customer_login.html" });  //if wrong reload page
-      }
-      else {                                              
-        res.json({ redirect: "/customer.html" });         //else found username and password
-      }
+        AND Customers.customer_password = @input_password`); //note: update schema, insert password attribute into Customers table
 
-    } catch(err) {
-      res.status(500).send(err.message);
+    if (result.recordset.length === 0) {
+      //check if not found username and password
+      res.json({ success: false, redirect: "/customer_login.html" }); //if wrong reload page
+    } else {
+      res.json({ success: true, redirect: "/customer.html", customer_id: result.recordset[0].customer_id, username: result.recordset[0].email_address }); //else found username and password
     }
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
 });
 
 // --- WEATHER ROUTES ---
@@ -177,58 +199,26 @@ app.post("/weather", async (req, res) => {
   }
 });
 
-// -- WEATHER IMPACT ROUTE --
+// --- STATS: CUSTOMER Ticket History ---
 
-app.get("/stats/weather-impact", async (req, res) => {
+app.get("/stats/customers-ticket-history", async (req, res) => {
   const { from, to } = req.query;
-  if (!from || !to) {
-    return res.status(400).send("Please provide from and to dates.");
-  }
+  if (!from || !to) return res.status(400).send("Please provide from and to dates.");
   try {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("from", sql.Date, from);
     request.input("to", sql.Date, to);
     const result = await request.query(`
-            SELECT 
-                wr.condition                        AS Weather_Condition,
-                SUM(CASE WHEN wr.rainout_flag = 1
-                    THEN 1 ELSE 0 END)              AS Park_Operations_Affected,
-                COUNT(t.ticket_id)                  AS Total_Tickets_Sold
-            FROM Weather_Record wr
-            LEFT JOIN Ticket t ON t.visiting_date = wr.record_date
-            WHERE wr.record_date BETWEEN @from AND @to
-            GROUP BY wr.condition
-            ORDER BY Total_Tickets_Sold DESC
-        `);
-    res.json(result.recordset);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
-// --- STATS: CUSTOMER PER PERIOD ---
-
-app.get("/stats/customers-per-month", async (req, res) => {
-  const { from, to } = req.query;
-  if (!from || !to) {
-    return res.status(400).send("Please provide from and to dates.");
-  }
-  try {
-    await sql.connect(config);
-    const request = new sql.Request();
-    request.input("from", sql.Date, from);
-    request.input("to", sql.Date, to);
-    const result = await request.query(`
-            SELECT 
-                DATENAME(MONTH, t.visiting_date)  AS Month,
-                MONTH(t.visiting_date) AS Month_Num,
-                COUNT(DISTINCT t.customer_id) AS Unique_Customers,
-                COUNT(t.ticket_id) AS Total_Tickets
-            FROM Ticket t
+            SELECT
+                c.first_name + ' ' + c.last_name AS Customer,
+                COUNT(t.ticket_id) AS Total_Tickets,
+                CONVERT(VARCHAR(10), MAX(t.visiting_date), 120) AS Last_Visit
+            FROM Customers c
+            JOIN Ticket t ON c.customer_id = t.customer_id
             WHERE t.visiting_date BETWEEN @from AND @to
-            GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date)
-            ORDER BY Month_Num
+            GROUP BY c.customer_id, c.first_name, c.last_name
+            ORDER BY Total_Tickets DESC
             `);
     res.json(result.recordset);
   } catch (err) {
@@ -236,42 +226,7 @@ app.get("/stats/customers-per-month", async (req, res) => {
   }
 });
 
-// --- STATS: MAINTENANCE SUMMARY ---
-
-app.get("/stats/maintenance-summary", async (req, res) => {
-  const { from, to } = req.query;
-  if (!from || !to) {
-    return res.status(400).send("Please provide from and to dates.");
-  }
-  try {
-    await sql.connect(config);
-    const request = new sql.Request();
-    request.input("from", sql.Date, from);
-    request.input("to", sql.Date, to);
-    const result = await request.query(`
-            SELECT 
-                r.ride_name AS Ride,
-                COUNT(DISTINCT mt.maintenance_id) AS Maintenance_Tickets,
-                SUM(CASE WHEN mt.ride_status = 'major maintenance'
-                    THEN 1 ELSE 0 END) AS Major_Issues,
-                SUM(CASE WHEN mt.ride_status = 'minor maintenance'
-                    THEN 1 ELSE 0 END) AS Minor_Issues,
-                COUNT(DISTINCT br.breakdown_id) AS Total_Breakdowns
-            FROM Ride r
-            LEFT JOIN Maintenance_Ticket mt ON r.ride_id = mt.ride_id
-                AND mt.date_opened BETWEEN @from AND @to
-            LEFT JOIN Breakdown_Record br ON r.ride_id = br.ride_id
-                AND CAST(br.breakdown_timestamp AS DATE) BETWEEN @from AND @to
-            GROUP BY r.ride_id, r.ride_name
-            ORDER BY Maintenance_Tickets DESC
-        `);
-    res.json(result.recordset);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
-// --- MOST POPULAR RIDES PER PERIOD ---
+// --- STATS: Popular Rides Per Month ---
 
 app.get("/stats/rides-per-month", async (req, res) => {
   const { from, to } = req.query;
@@ -285,20 +240,84 @@ app.get("/stats/rides-per-month", async (req, res) => {
     request.input("to", sql.Date, to);
     const result = await request.query(`
             SELECT
-                DATENAME(MONTH, t.visiting_date) AS Month,
-                MONTH(t.visiting_date) AS Month_Num,
-                r.ride_name AS Ride,
-                COUNT(t.ticket_id) AS Tickets_Sold
+              DATENAME(MONTH, t.visiting_date) AS Month,
+              r.ride_name AS Ride,
+              COUNT(t.ticket_id) AS Tickets_Sold
             FROM Ticket t
             JOIN Ride r ON t.ride = r.ride_id
             WHERE t.visiting_date BETWEEN @from AND @to
             GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date), r.ride_name
-            ORDER BY Month_Num, Tickets_Sold DESC
+            ORDER BY MONTH(t.visiting_date), Tickets_Sold DESC
+        `);
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+// ---STATS: Weather Impact on Ticket Sales ---
+
+app.get("/stats/weather-impact", async (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) {
+    return res.status(400).send("Please provide from and to dates.");
+  }
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("from", sql.Date, from);
+    request.input("to", sql.Date, to);
+    const result = await request.query(`
+            SELECT
+              wr.condition AS Weather_Condition,
+              SUM(CASE WHEN wr.rainout_flag = 1
+                  THEN 1 ELSE 0 END) AS Park_Operations_Affected,
+              COUNT(t.ticket_id) AS Total_Tickets_Sold,
+              COUNT(DISTINCT t.customer_id) AS Unique_Customers
+            FROM Weather_Record wr
+            LEFT JOIN Ticket t ON t.visiting_date = wr.record_date
+            LEFT JOIN Customers c ON t.customer_id = c.customer_id
+            WHERE wr.record_date BETWEEN @from AND @to
+            GROUP BY wr.condition
+            ORDER BY Total_Tickets_Sold DESC
             `);
     res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
   }
+});
+
+// ---STATS: Employee Maintenance Workload ---
+
+app.get("/stats/employee-workload", async (req, res) => {
+    const { from, to } = req.query;
+    if (!from || !to) return res.status(400).send("Please provide from and to dates.");
+    try {
+        await sql.connect(config);
+        const request = new sql.Request();
+        request.input("from", sql.Date, from);
+        request.input("to", sql.Date, to);
+        const result = await request.query(`
+            SELECT
+                e.first_name + ' ' + e.last_name AS Employee,
+                COUNT(mt.ticket_id) AS Total_Maintenance_Tickets,
+                SUM(CASE WHEN mt.maintenance_priority = 'high'
+                    THEN 1 ELSE 0 END) AS High_Priority,
+                SUM(CASE WHEN mt.maintenance_priority = 'medium'
+                    THEN 1 ELSE 0 END) AS Medium_Priority,
+                SUM(CASE WHEN mt.maintenance_priority = 'low'
+                    THEN 1 ELSE 0 END) AS Low_Priority
+            FROM Employee e
+            LEFT JOIN Maintenance_Ticket mt ON e.employee_id = mt.employee_id
+                AND mt.date_opened BETWEEN @from AND @to
+            WHERE e.role_id != 4 OR e.role_id IS NULL
+            GROUP BY e.employee_id, e.first_name, e.last_name
+            ORDER BY Total_Maintenance_Tickets DESC
+        `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
 });
 
 // --- CUSTOMER UPDATE & DELETE ---
@@ -355,7 +374,7 @@ app.post("/buy-ticket", async (req, res) => {
 
   // ✅ Basic validation
   if (!customer_id) {
-    return res.status(400).send("Customer ID is required.");
+    return res.status(400).send("Customer ID must be valid.");
   }
 
   if (!cart || cart.length === 0) {
@@ -473,40 +492,57 @@ app.get("/rides", async (req, res) => {
 });
 
 // --- EMPLOYEE ROUTEs ---
-app.get("/employees", async (req, res) => {
+app.get("/employees", checkRoles([1]), async (req, res) => {
   try {
     await sql.connect(config);
     const result = await sql.query(`
       SELECT e.employee_id, e.first_name, e.middle_initial, e.last_name, e.role_id, r.role_name, e.username, e.pay_rate
       FROM Employee e
       LEFT JOIN Role r ON e.role_id=r.role_id
+      WHERE e.role_id !=4 OR e.role_id IS NULL
       ORDER BY e.employee_id
       `);
-      res.json(result.recordset);
+    res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
-app.post("/employees", async (req, res) => {
-  const { employee_id, first_name, last_name, middle_initial, username, password, ssn, pay_rate } = req.body;
-  if (!first_name || !last_name || !username || !password || !ssn || !pay_rate) {
+app.post("/employees", checkRoles([1]), async (req, res) => {
+  const {
+    first_name,
+    last_name,
+    middle_initial,
+    username,
+    password,
+    ssn,
+    pay_rate,
+    role_id
+  } = req.body;
+  if (
+    !first_name ||
+    !last_name ||
+    !username ||
+    !password ||
+    !ssn ||
+    !pay_rate
+  ) {
     return res.status(400).send("All required fields must be filled in.");
   }
   try {
     await sql.connect(config);
     const request = new sql.Request();
-    request.input("employee_id", sql.Int, employee_id);
     request.input("first_name", sql.VarChar(30), first_name);
     request.input("last_name", sql.VarChar(30), last_name);
     request.input("middle_initial", sql.VarChar(1), middle_initial || null);
     request.input("username", sql.VarChar(30), username);
     request.input("password", sql.VarChar(30), password);
     request.input("ssn", sql.VarChar(9), ssn);
-    request.input("pay_rate", sql.Decimal(10,2), pay_rate);
+    request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
+    request.input("role_id", sql.Int, role_id || null)
     await request.query(`
-      INSERT INTO Employee (employee_id, first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate)
-      VALUES (@employee_id, @first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate)
+      INSERT INTO Employee (first_name, middle_initial, last_name, username, employee_password, ssn, pay_rate, role_id)
+      VALUES (@first_name, @middle_initial, @last_name, @username, @password, @ssn, @pay_rate, @role_id)
     `);
     res.sendStatus(200);
   } catch (err) {
@@ -514,19 +550,21 @@ app.post("/employees", async (req, res) => {
   }
 });
 
-app.put("/employees/:id", async (req, res) => {
-  const { role_id, username, pay_rate } = req.body;
+app.put("/employees/:id", checkRoles([1]), async (req, res) => {
+  const { role_id, username, pay_rate, first_name, last_name } = req.body;
   const id = req.params.id;
   try {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("id", sql.Int, id);
-    request.input("role_id", sql.Int, role_id);
+    request.input("role_id", sql.Int, role_id != null && role_id !== "" ? parseInt(role_id): null);
     request.input("username", sql.VarChar(30), username);
-    request.input("pay_rate", sql.Decimal(10,2), pay_rate);
+    request.input("pay_rate", sql.Decimal(10, 2), pay_rate);
+    request.input("first_name", sql.VarChar(30), first_name);
+    request.input("last_name", sql.VarChar(30), last_name);
     await request.query(`
       UPDATE Employee
-      SET role_id = @role_id, username = @username, pay_rate = @pay_rate
+      SET role_id = @role_id, username = @username, pay_rate = @pay_rate, first_name = @first_name, last_name = @last_name
       WHERE employee_id = @id
     `);
     res.sendStatus(200);
@@ -535,24 +573,7 @@ app.put("/employees/:id", async (req, res) => {
   }
 });
 
-app.delete("/employees/:id", async (req, res) => {
-  const id = req.params.id;
-  try {
-    await sql.connect(config);
-    const request = new sql.Request();
-    request.input("id", sql.Int, id);
-    await request.query(`
-      DELETE FROM Employee WHERE employee_id = @id
-    `);
-    res.sendStatus(200);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
-app.listen(port, () => {
-  console.log("Server running on port 4000");
-});
+// customer complaint route
 
 app.post("/submit-complaint", async (req, res) => {
   console.log("Incoming complaint:", req.body);
@@ -589,4 +610,44 @@ app.post("/submit-complaint", async (req, res) => {
     console.error("Complaint insert error:", err);
     res.status(500).send("Database error.");
   }
+});
+
+// maintenance ticket route
+
+app.post("/submit-maintenance", async (req, res) => {
+  try {
+    const employeeId = req.body.employee_id;
+    const ride = req.body.ride;
+    const maintenanceType = req.body["maintenance-type"];
+    const priority = req.body.priority;
+    const status = req.body.status;
+    const dateOpened = req.body["date-opened"];
+    const description = req.body.description;
+
+    await sql.connect(config);
+
+    const request = new sql.Request();
+    request.input("employee_id", sql.Int, employeeId);
+    request.input("ride", sql.VarChar(50), ride);
+    request.input("maintenance_type", sql.VarChar(50), maintenanceType);
+    request.input("priority", sql.VarChar(20), priority);
+    request.input("status", sql.VarChar(20), status);
+    request.input("date_opened", sql.DateTime, dateOpened);
+    request.input("description", sql.VarChar(sql.MAX), description);
+
+    await request.query(`
+      INSERT INTO Maintenance_Ticket
+      (employee_id, ride, maintenance_type, priority, status, date_opened, maintenance_description)
+      VALUES
+      (@employee_id, @ride, @maintenance_type, @priority, @status, @date_opened, @description)
+    `);
+
+    res.redirect("/maintenance_portal.html");
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.listen(port, () => {
+  console.log("Server running on port 4000");
 });
