@@ -38,7 +38,7 @@
             }
 
             try {
-                const response = await fetch(`/my-tickets/${customer_id}`);
+                const response = await fetch("/my-tickets");
                 const tickets = await response.json();
 
                 const tbody = document.querySelector("#ticketsTable tbody");
