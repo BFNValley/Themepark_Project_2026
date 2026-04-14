@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="login.css" />
   </head>
   <body>
-
     <header>
       <div class="header-left">
         <span class="logo">Astro Park</span>
@@ -14,9 +13,6 @@
         <a href="#about">About</a>
         <a href="#rides">Rides</a>
         <a href="#contact">Contact</a>
-        <button class="nav-btn" onclick="window.location.href='buy_tickets.html'">Buy Tickets</button>
-        <button class="nav-btn" onclick="window.location.href='complaint_form.html'">File a Complaint</button>
-        <button onclick="window.location.href='my_tickets.html'">View My Tickets</button>
         <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
       </nav>
     </header>
@@ -24,9 +20,23 @@
     <main>
       <section class="hero">
         <h1>Welcome!</h1>
-        <p>Ready for another adventure? <br> Buy tickets or browse our rides below.</p>
+        <p>
+          Ready for another adventure? <br />
+          Buy tickets or browse our rides below.
+        </p>
         <div class="hero-buttons">
-          <button onclick="window.location.href='buy_tickets.html'">Buy Tickets</button>
+          <button onclick="window.location.href = 'buy_tickets.html'">
+            Buy Tickets
+          </button>
+          <button onclick="window.location.href = 'customer_giftshop.html'">
+            Gift Shop
+          </button>
+          <button onclick="window.location.href = 'complaint_form.html'">
+            File a Complaint
+          </button>
+          <button onclick="window.location.href = 'my_tickets.html'">
+            View My Tickets
+          </button>
         </div>
       </section>
 
@@ -35,35 +45,70 @@
           <h2>Rides</h2>
 
           <div class="rides-container">
-
             <div class="feature-card">
               <h3>Roller Coaster</h3>
               <p>High-speed thrill ride for adventure lovers.</p>
-              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+              <p
+                class="book-link"
+                onclick="window.location.href = 'buy_tickets.html'"
+              >
+                Book Now
+              </p>
             </div>
 
             <div class="feature-card">
               <h3>Ferris Wheel</h3>
               <p>Enjoy a relaxing ride with a scenic view.</p>
-              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+              <p
+                class="book-link"
+                onclick="window.location.href = 'buy_tickets.html'"
+              >
+                Book Now
+              </p>
             </div>
 
             <div class="feature-card">
               <h3>Haunted House</h3>
               <p>Spooky fun for those who love a scare.</p>
-              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+              <p
+                class="book-link"
+                onclick="window.location.href = 'buy_tickets.html'"
+              >
+                Book Now
+              </p>
             </div>
 
             <div class="feature-card">
               <h3>Bumper Cars</h3>
               <p>Fun collisions and laughter for everyone.</p>
-              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+              <p
+                class="book-link"
+                onclick="window.location.href = 'buy_tickets.html'"
+              >
+                Book Now
+              </p>
             </div>
 
             <div class="feature-card">
               <h3>Water Slide</h3>
               <p>Cool off with exciting water adventure</p>
-              <p class="book-link" onclick="window.location.href='buy_tickets.html'">Book Now</p>
+              <p
+                class="book-link"
+                onclick="window.location.href = 'buy_tickets.html'"
+              >
+                Book Now
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Gift Shop</h3>
+              <p>Browse souvenirs and park merch.</p>
+              <p
+                class="book-link"
+                onclick="window.location.href = 'customer_giftshop.html'"
+              >
+                Shop Now
+              </p>
             </div>
           </div>
         </div>
@@ -89,17 +134,20 @@
       <section class="about">
         <div class="login-card">
           <h2>Why Visit Us?</h2>
-          <p>Astro Park has been bringing joy to families for years. With thrilling rides, live entertainment, and world-class dining, there's something for everyone. Open 7 days a week.</p>
+          <p>
+            Astro Park has been bringing joy to families for years. With
+            thrilling rides, live entertainment, and world-class dining, there's
+            something for everyone. Open 7 days a week.
+          </p>
         </div>
       </section>
-
     </main>
 
     <footer id="contact">
       <div class="footer-content">
         <div class="footer-section">
-          <h4> Astro Park</h4>
-          <p>Houston, TX </p>
+          <h4>Astro Park</h4>
+          <p>Houston, TX</p>
           <p>Open daily 9am-6pm</p>
         </div>
         <div class="footer-section">
@@ -120,10 +168,10 @@
     </footer>
 
     <script>
-        function signOut() {
-            sessionStorage.clear();
-            window.location.href = "login.html";
-        }
+      function signOut() {
+        sessionStorage.clear();
+        window.location.href = "login.html";
+      }
     </script>
   </body>
 </html>

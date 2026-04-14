@@ -167,6 +167,100 @@ app.post("/customer_login", async (req, res) => {
   }
 });
 
+// create customer accounts
+
+app.post("/create_customer_account", async (req, res) => {
+  try {
+    await sql.connect(config);
+
+    const {
+      first_name,
+      middle_initial,
+      last_name,
+      date_of_birth,
+      phone_number,
+      email_address,
+      password,
+      retype_password,
+    } = req.body;
+
+    if (
+      !first_name ||
+      !last_name ||
+      !date_of_birth ||
+      !phone_number ||
+      !email_address ||
+      !password ||
+      !retype_password
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "All required fields must be filled.",
+      });
+    }
+
+    if (password !== retype_password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Passwords do not match." });
+    }
+
+    const normalizedPhone = String(phone_number).replace(/\D/g, "");
+    if (normalizedPhone.length !== 10) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number must be exactly 10 digits.",
+      });
+    }
+
+    const trimmedMiddleInitial = (middle_initial || "").trim();
+    if (trimmedMiddleInitial.length > 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Middle initial must be 1 character or blank.",
+      });
+    }
+
+    const request = new sql.Request();
+    request.input("first_name", sql.VarChar(30), first_name.trim());
+    request.input(
+      "middle_initial",
+      sql.Char(1),
+      trimmedMiddleInitial ? trimmedMiddleInitial.toUpperCase() : null,
+    );
+    request.input("last_name", sql.VarChar(30), last_name.trim());
+    request.input("date_of_birth", sql.Date, date_of_birth);
+    request.input("phone_number", sql.Char(10), normalizedPhone);
+    request.input("email_address", sql.VarChar(255), email_address.trim());
+    request.input("customer_password", sql.VarChar(30), password);
+
+    await request.query(`
+      INSERT INTO Customers
+      (first_name, middle_initial, last_name, date_of_birth, phone_number, email_address, customer_password)
+      VALUES
+      (@first_name, @middle_initial, @last_name, @date_of_birth, @phone_number, @email_address, @customer_password)
+    `);
+
+    return res.json({
+      success: true,
+      redirect: "/customer_login.html",
+      message: "Account created successfully.",
+    });
+  } catch (err) {
+    if (err.number === 2627 || err.number === 2601) {
+      return res.status(409).json({
+        success: false,
+        message: "An account with that email already exists.",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Database error while creating account.",
+    });
+  }
+});
+
 // --- WEATHER ROUTES ---
 
 app.get("/weather", async (req, res) => {
@@ -634,6 +728,163 @@ app.put("/employees/deactivate/:id", checkRoles([1]), async (req, res) => {
   }
 });
 
+// --- GIFT SHOP INVENTORY ROUTES ---
+
+app.get("/gift-shop/products", checkRoles([1, 3]), async (req, res) => {
+  try {
+    await sql.connect(config);
+    const result = await sql.query(`
+      SELECT product_id, product_name, product_price, stock
+      FROM Gift_Shop
+      ORDER BY product_name
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get("/gift-shop/catalog", async (req, res) => {
+  try {
+    await sql.connect(config);
+    const result = await sql.query(`
+      SELECT product_id, product_name, product_price, stock
+      FROM Gift_Shop
+      WHERE stock > 0
+      ORDER BY product_name
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post("/gift-shop/products", checkRoles([1, 3]), async (req, res) => {
+  const { product_name, product_price, stock } = req.body;
+
+  if (!product_name || product_price == null || stock == null) {
+    return res
+      .status(400)
+      .json({ message: "Missing required product fields." });
+  }
+
+  const parsedPrice = Number(product_price);
+  const parsedStock = Number(stock);
+
+  if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+    return res
+      .status(400)
+      .json({ message: "Product price must be greater than 0." });
+  }
+
+  if (!Number.isInteger(parsedStock) || parsedStock < 0) {
+    return res
+      .status(400)
+      .json({ message: "Stock must be a non-negative integer." });
+  }
+
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("product_name", sql.VarChar(100), product_name.trim());
+    request.input("product_price", sql.Decimal(10, 2), parsedPrice);
+    request.input("stock", sql.Int, parsedStock);
+
+    await request.query(`
+      INSERT INTO Gift_Shop (product_name, product_price, stock)
+      VALUES (@product_name, @product_price, @stock)
+    `);
+
+    res.json({ success: true, message: "Product added successfully." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put("/gift-shop/products/:id", checkRoles([1, 3]), async (req, res) => {
+  const productId = Number(req.params.id);
+  const { product_name, product_price, stock } = req.body;
+
+  if (!Number.isInteger(productId) || productId <= 0) {
+    return res.status(400).json({ message: "Invalid product id." });
+  }
+
+  if (!product_name || product_price == null || stock == null) {
+    return res
+      .status(400)
+      .json({ message: "Missing required product fields." });
+  }
+
+  const parsedPrice = Number(product_price);
+  const parsedStock = Number(stock);
+
+  if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+    return res
+      .status(400)
+      .json({ message: "Product price must be greater than 0." });
+  }
+
+  if (!Number.isInteger(parsedStock) || parsedStock < 0) {
+    return res
+      .status(400)
+      .json({ message: "Stock must be a non-negative integer." });
+  }
+
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("product_id", sql.Int, productId);
+    request.input("product_name", sql.VarChar(100), product_name.trim());
+    request.input("product_price", sql.Decimal(10, 2), parsedPrice);
+    request.input("stock", sql.Int, parsedStock);
+
+    const result = await request.query(`
+      UPDATE Gift_Shop
+      SET product_name = @product_name,
+          product_price = @product_price,
+          stock = @stock
+      WHERE product_id = @product_id
+    `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    res.json({ success: true, message: "Product updated successfully." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.delete("/gift-shop/products/:id", checkRoles([1, 3]), async (req, res) => {
+  const productId = Number(req.params.id);
+
+  if (!Number.isInteger(productId) || productId <= 0) {
+    return res.status(400).json({ message: "Invalid product id." });
+  }
+
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("product_id", sql.Int, productId);
+
+    const result = await request.query(`
+      DELETE FROM Gift_Shop
+      WHERE product_id = @product_id
+    `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    res.json({ success: true, message: "Product deleted successfully." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // customer complaint route
 
 app.post("/submit-complaint", async (req, res) => {
@@ -837,3 +1088,5 @@ app.get("/maintenance-tickets/:ticket_id", async (req, res) => {
     res.status(500).send(err.message);
   }
 });
+
+// gift shop stuff
