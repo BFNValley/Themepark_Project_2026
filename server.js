@@ -731,6 +731,163 @@ app.put("/employees/deactivate/:id", checkRoles([1]), async (req, res) => {
   }
 });
 
+// --- GIFT SHOP INVENTORY ROUTES ---
+
+app.get("/gift-shop/products", checkRoles([1, 3]), async (req, res) => {
+  try {
+    await sql.connect(config);
+    const result = await sql.query(`
+      SELECT product_id, product_name, product_price, stock
+      FROM Gift_Shop
+      ORDER BY product_name
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get("/gift-shop/catalog", async (req, res) => {
+  try {
+    await sql.connect(config);
+    const result = await sql.query(`
+      SELECT product_id, product_name, product_price, stock
+      FROM Gift_Shop
+      WHERE stock > 0
+      ORDER BY product_name
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post("/gift-shop/products", checkRoles([1, 3]), async (req, res) => {
+  const { product_name, product_price, stock } = req.body;
+
+  if (!product_name || product_price == null || stock == null) {
+    return res
+      .status(400)
+      .json({ message: "Missing required product fields." });
+  }
+
+  const parsedPrice = Number(product_price);
+  const parsedStock = Number(stock);
+
+  if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+    return res
+      .status(400)
+      .json({ message: "Product price must be greater than 0." });
+  }
+
+  if (!Number.isInteger(parsedStock) || parsedStock < 0) {
+    return res
+      .status(400)
+      .json({ message: "Stock must be a non-negative integer." });
+  }
+
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("product_name", sql.VarChar(100), product_name.trim());
+    request.input("product_price", sql.Decimal(10, 2), parsedPrice);
+    request.input("stock", sql.Int, parsedStock);
+
+    await request.query(`
+      INSERT INTO Gift_Shop (product_name, product_price, stock)
+      VALUES (@product_name, @product_price, @stock)
+    `);
+
+    res.json({ success: true, message: "Product added successfully." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put("/gift-shop/products/:id", checkRoles([1, 3]), async (req, res) => {
+  const productId = Number(req.params.id);
+  const { product_name, product_price, stock } = req.body;
+
+  if (!Number.isInteger(productId) || productId <= 0) {
+    return res.status(400).json({ message: "Invalid product id." });
+  }
+
+  if (!product_name || product_price == null || stock == null) {
+    return res
+      .status(400)
+      .json({ message: "Missing required product fields." });
+  }
+
+  const parsedPrice = Number(product_price);
+  const parsedStock = Number(stock);
+
+  if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+    return res
+      .status(400)
+      .json({ message: "Product price must be greater than 0." });
+  }
+
+  if (!Number.isInteger(parsedStock) || parsedStock < 0) {
+    return res
+      .status(400)
+      .json({ message: "Stock must be a non-negative integer." });
+  }
+
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("product_id", sql.Int, productId);
+    request.input("product_name", sql.VarChar(100), product_name.trim());
+    request.input("product_price", sql.Decimal(10, 2), parsedPrice);
+    request.input("stock", sql.Int, parsedStock);
+
+    const result = await request.query(`
+      UPDATE Gift_Shop
+      SET product_name = @product_name,
+          product_price = @product_price,
+          stock = @stock
+      WHERE product_id = @product_id
+    `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    res.json({ success: true, message: "Product updated successfully." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.delete("/gift-shop/products/:id", checkRoles([1, 3]), async (req, res) => {
+  const productId = Number(req.params.id);
+
+  if (!Number.isInteger(productId) || productId <= 0) {
+    return res.status(400).json({ message: "Invalid product id." });
+  }
+
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("product_id", sql.Int, productId);
+
+    const result = await request.query(`
+      DELETE FROM Gift_Shop
+      WHERE product_id = @product_id
+    `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    res.json({ success: true, message: "Product deleted successfully." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // customer complaint route
 
 app.post("/submit-complaint", async (req, res) => {
@@ -934,3 +1091,5 @@ app.get("/maintenance-tickets/:ticket_id", async (req, res) => {
     res.status(500).send(err.message);
   }
 });
+
+// gift shop stuff
