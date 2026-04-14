@@ -467,7 +467,6 @@ app.post("/buy-ticket", async (req, res) => {
 
   const { customer_id, cart } = req.body;
 
-  // ✅ Basic validation
   if (!customer_id) {
     return res.status(400).send("Customer ID must be valid.");
   }
@@ -479,130 +478,129 @@ app.post("/buy-ticket", async (req, res) => {
   try {
     await sql.connect(config);
 
-    //Check if customer exists
+    // Check if customer exists
     const checkRequest = new sql.Request();
-    checkRequest.input("customer_id", sql.Int, parseInt(customer_id));
+    checkRequest.input("customer_id", sql.Int, parseInt(customer_id, 10));
 
     const customerCheck = await checkRequest.query(
-      "SELECT 1 FROM Customers WHERE customer_id = @customer_id",
+      "SELECT 1 FROM Customers WHERE customer_id = @customer_id"
     );
 
     if (customerCheck.recordset.length === 0) {
       return res.status(400).send("Invalid customer ID.");
     }
 
-    //Start transaction
+    // Start transaction
     const transaction = new sql.Transaction();
     await transaction.begin();
 
     try {
-      //Calculate total price
       let totalPrice = 0;
 
+      const issueDate = new Date();
+      const expirationDate = new Date();
+      expirationDate.setDate(issueDate.getDate() + 30);
+
+      // Calculate total price with child discount
       for (const item of cart) {
         const priceRequest = new sql.Request(transaction);
-        priceRequest.input("ride_id", sql.Int, item.ride_id);
+        priceRequest.input("ride_id", sql.Int, parseInt(item.ride_id, 10));
 
         const priceResult = await priceRequest.query(`
-                    SELECT ride_price FROM Ride WHERE ride_id = @ride_id
-                `);
+          SELECT ride_price
+          FROM Ride
+          WHERE ride_id = @ride_id
+        `);
 
         if (priceResult.recordset.length === 0) {
           throw new Error("Invalid ride ID in cart.");
         }
 
-        const ridePrice = priceResult.recordset[0].ride_price;
+        let ticketPrice = parseFloat(priceResult.recordset[0].ride_price);
 
-        totalPrice += ridePrice * item.quantity;
+        if (item.ticket_type && item.ticket_type.toLowerCase() === "child") {
+          ticketPrice *= 0.5;
+        }
+
+        totalPrice += ticketPrice * parseInt(item.quantity, 10);
       }
 
-      const issueDate = new Date();
-
-      const expirationDate = new Date();
-      expirationDate.setDate(issueDate.getDate() + 30);
-
-      //Insert payment
+      // Insert payment
       const paymentRequest = new sql.Request(transaction);
-
-      paymentRequest.input("customer_id", sql.Int, customer_id);
-      paymentRequest.input("price", sql.Int, totalPrice);
+      paymentRequest.input("customer_id", sql.Int, parseInt(customer_id, 10));
+      paymentRequest.input("price", sql.Decimal(10, 2), totalPrice);
       paymentRequest.input("purchase_date", sql.DateTime, issueDate);
 
       const paymentResult = await paymentRequest.query(`
-                INSERT INTO Ticket_Payment (customer_id, price, purchase_date)
-                OUTPUT INSERTED.payment_id
-                VALUES (@customer_id, @price, @purchase_date)
-            `);
+        INSERT INTO Ticket_Payment (customer_id, price, purchase_date)
+        OUTPUT INSERTED.payment_id
+        VALUES (@customer_id, @price, @purchase_date)
+      `);
 
       const payment_id = paymentResult.recordset[0].payment_id;
 
-      //Insert tickets
+      // Insert tickets
       for (const item of cart) {
-        for (let i = 0; i < item.quantity; i++) {
+        const priceRequest = new sql.Request(transaction);
+        priceRequest.input("ride_id", sql.Int, parseInt(item.ride_id, 10));
+
+        const priceResult = await priceRequest.query(`
+          SELECT ride_price
+          FROM Ride
+          WHERE ride_id = @ride_id
+        `);
+
+        if (priceResult.recordset.length === 0) {
+          throw new Error("Invalid ride ID in cart.");
+        }
+
+        let ticketPrice = parseFloat(priceResult.recordset[0].ride_price);
+
+        if (item.ticket_type && item.ticket_type.toLowerCase() === "child") {
+          ticketPrice *= 0.5;
+        }
+
+        for (let i = 0; i < parseInt(item.quantity, 10); i++) {
           const ticketRequest = new sql.Request(transaction);
 
-          ticketRequest.input("customer_id", sql.Int, customer_id);
+          ticketRequest.input("customer_id", sql.Int, parseInt(customer_id, 10));
           ticketRequest.input("visit_date", sql.DateTime, issueDate);
           ticketRequest.input("exp_date", sql.DateTime, expirationDate);
-          ticketRequest.input("ride", sql.Int, item.ride_id);
+          ticketRequest.input("ride", sql.Int, parseInt(item.ride_id, 10));
           ticketRequest.input("ticket_type", sql.VarChar(20), item.ticket_type);
           ticketRequest.input("ticket_price", sql.Decimal(10, 2), ticketPrice);
 
           await ticketRequest.query(`
-                        INSERT INTO Ticket (customer_id, visiting_date, expiration_date, ride, ticket_type, ticket_price)
-                        VALUES (@customer_id, @visit_date, @exp_date, @ride, @ticket_type, @ticket_price)
-                    `);
+            INSERT INTO Ticket (
+              customer_id,
+              visiting_date,
+              expiration_date,
+              ride,
+              ticket_type,
+              ticket_price
+            )
+            VALUES (
+              @customer_id,
+              @visit_date,
+              @exp_date,
+              @ride,
+              @ticket_type,
+              @ticket_price
+            )
+          `);
         }
       }
 
-      // Commit transaction
       await transaction.commit();
-
       res.send("Tickets purchased successfully!");
     } catch (err) {
       await transaction.rollback();
       console.error("Transaction Error:", err);
-      res.status(500).send("Transaction failed.");
+      res.status(500).send("Transaction failed: " + err.message);
     }
   } catch (err) {
     console.error("Connection Error:", err);
-    res.status(500).send("Database connection failed.");
-  }
-});
-
-app.get("/my-tickets/:customer_id", async (req, res) => {
-  try {
-    await sql.connect(config);
-
-    const customer_id = parseInt(req.params.customer_id, 10);
-
-    if (!customer_id) {
-      return res.status(400).send("Invalid customer ID.");
-    }
-
-    const request = new sql.Request();
-    request.input("customer_id", sql.Int, customer_id);
-
-    const result = await request.query(`
-  SELECT
-    t.ticket_id,
-    t.customer_id,
-    t.visiting_date,
-    t.expiration_date,
-    t.ride,
-    t.ticket_type,
-    t.ticket_price,
-    r.ride_name
-    FROM Ticket t
-    LEFT JOIN Ride r ON t.ride = r.ride_id
-    WHERE t.customer_id = @customer_id
-    ORDER BY t.visiting_date DESC, t.ticket_id DESC
-  `);
-
-    res.json(result.recordset);
-  } catch (err) {
-    console.error("Error loading tickets:", err);
-    res.status(500).send("Failed to load tickets.");
+    res.status(500).send("Database connection failed: " + err.message);
   }
 });
 
