@@ -38,14 +38,22 @@
             }
 
             try {
-                const response = await fetch("/my-tickets");
-                const tickets = await response.json();
+                const response = await fetch(`/my-tickets/${customer_id}`);
 
+                if (!response.ok) {
+                    throw new Error("Failed to load tickets.");
+                }
+
+                const tickets = await response.json();
                 const tbody = document.querySelector("#ticketsTable tbody");
                 tbody.innerHTML = "";
 
-                if (!tickets.length) {
-                    tbody.innerHTML = `<tr><td colspan="5">No tickets purchased yet.</td></tr>`;
+                if (tickets.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5">No tickets purchased yet.</td>
+                        </tr>
+                    `;
                     return;
                 }
 
@@ -63,8 +71,8 @@
                     tbody.appendChild(row);
                 });
             } catch (err) {
-                console.error(err);
-                alert("Failed to load tickets.");
+                console.error("Error:", err);
+                alert("Could not load tickets.");
             }
         }
 

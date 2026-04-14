@@ -480,33 +480,37 @@ app.post("/buy-ticket", async (req, res) => {
   }
 });
 
-app.get("/my-tickets", async (req, res) => {
+app.get("/my-tickets/:customer_id", async (req, res) => {
   try {
-    if (!req.session.customer || !req.session.customer.customer_id) {
-      return res.status(401).send("Not logged in.");
-    }
-
     await sql.connect(config);
 
+    const customer_id = parseInt(req.params.customer_id, 10);
+
+    if (!customer_id) {
+      return res.status(400).send("Invalid customer ID.");
+    }
+
     const request = new sql.Request();
-    request.input("customer_id", sql.Int, req.session.customer.customer_id);
+    request.input("customer_id", sql.Int, customer_id);
 
     const result = await request.query(`
-      SELECT 
-        r.ride_name,
+      SELECT
+        t.ticket_id,
+        t.customer_id,
         t.visiting_date,
         t.expiration_date,
-        COUNT(*) AS quantity
+        t.ride,
+        r.ride_name,
+        r.ride_price
       FROM Ticket t
       LEFT JOIN Ride r ON t.ride = r.ride_id
       WHERE t.customer_id = @customer_id
-      GROUP BY r.ride_name, t.visiting_date, t.expiration_date
-      ORDER BY t.visiting_date DESC
+      ORDER BY t.visiting_date DESC, t.ticket_id DESC
     `);
 
     res.json(result.recordset);
   } catch (err) {
-    console.error(err);
+    console.error("Error loading tickets:", err);
     res.status(500).send("Failed to load tickets.");
   }
 });
