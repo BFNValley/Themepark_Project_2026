@@ -380,12 +380,20 @@
         tableEl.innerHTML = "";
 
         try {
-          const response = await fetch("/complaints");
-          const data = await response.json();
+          const complaintsResponse = await fetch("/complaints");
+          const complaintsData = await complaintsResponse.json();
+
+          const ridesResponse = await fetch("/rides");
+          const ridesData = await ridesResponse.json();
+
+          const rideMap = {};
+          ridesData.forEach((ride) => {
+            rideMap[ride.ride_id] = ride.ride_name;
+          });
 
           statusEl.textContent = "";
 
-          if (!data || data.length === 0) {
+          if (!complaintsData || complaintsData.length === 0) {
             tableEl.innerHTML =
               "<p style='color:#555;'>No complaints found.</p>";
             return;
@@ -400,17 +408,28 @@
           html += "<th>Incident Date</th>";
           html += "</tr></thead><tbody>";
 
-          data.forEach((c) => {
+          complaintsData.forEach((c) => {
             const fullName =
               `${c.first_name || ""} ${c.last_name || ""}`.trim();
             const incidentDate = c.incident_date
               ? c.incident_date.split("T")[0]
               : "";
 
+            let complaintType = c.complaint_type || "";
+            if (!isNaN(complaintType) && complaintType !== "") {
+              complaintType =
+                rideMap[complaintType] || `Ride #${complaintType}`;
+            } else if (complaintType === "giftshop") {
+              complaintType = "Gift Shop";
+            } else if (complaintType) {
+              complaintType =
+                complaintType.charAt(0).toUpperCase() + complaintType.slice(1);
+            }
+
             html += "<tr>";
             html += `<td>${fullName}</td>`;
             html += `<td>${c.email || ""}</td>`;
-            html += `<td>${c.complaint_type || ""}</td>`;
+            html += `<td>${complaintType}</td>`;
             html += `<td>${c.reason_if_other || "-"}</td>`;
             html += `<td>${c.complaint_description || ""}</td>`;
             html += `<td>${incidentDate}</td>`;

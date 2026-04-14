@@ -20,11 +20,19 @@ app.get("/customer_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/customer_login.html");
 });
 
-const config = {
+/*const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   server: process.env.DB_SERVER,
   database: process.env.DB_NAME,
+  options: { encrypt: true },
+};*/
+
+const config = {
+  user: "BFNValley",
+  password: "ThemeparkProject3!",
+  server: "themepark-db-server.database.windows.net",
+  database: "themepark-database",
   options: { encrypt: true },
 };
 
@@ -483,7 +491,7 @@ app.post("/buy-ticket", async (req, res) => {
     checkRequest.input("customer_id", sql.Int, parseInt(customer_id, 10));
 
     const customerCheck = await checkRequest.query(
-      "SELECT 1 FROM Customers WHERE customer_id = @customer_id"
+      "SELECT 1 FROM Customers WHERE customer_id = @customer_id",
     );
 
     if (customerCheck.recordset.length === 0) {
@@ -563,7 +571,11 @@ app.post("/buy-ticket", async (req, res) => {
         for (let i = 0; i < parseInt(item.quantity, 10); i++) {
           const ticketRequest = new sql.Request(transaction);
 
-          ticketRequest.input("customer_id", sql.Int, parseInt(customer_id, 10));
+          ticketRequest.input(
+            "customer_id",
+            sql.Int,
+            parseInt(customer_id, 10),
+          );
           ticketRequest.input("visit_date", sql.DateTime, issueDate);
           ticketRequest.input("exp_date", sql.DateTime, expirationDate);
           ticketRequest.input("ride", sql.Int, parseInt(item.ride_id, 10));
@@ -650,7 +662,7 @@ app.get("/rides", async (req, res) => {
     await sql.connect(config);
 
     const result = await sql.query(`
-            SELECT ride_id, ride_name, ride_price, height_requirement
+          SELECT ride_id, ride_name, ride_price, ride_status
             FROM Ride
         `);
 
@@ -658,6 +670,95 @@ app.get("/rides", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Error retrieving rides.");
+  }
+});
+
+app.post("/rides", checkRoles([1, 2]), async (req, res) => {
+  const { ride_name, ride_price, ride_status } = req.body;
+
+  if (!ride_name || ride_price == null || ride_status == null) {
+    return res.status(400).send("All required fields must be filled in.");
+  }
+
+  const parsedPrice = Number(ride_price);
+  const parsedStatus = Number(ride_status);
+
+  if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+    return res.status(400).send("Ride price must be greater than 0.");
+  }
+
+  if (![0, 1].includes(parsedStatus)) {
+    return res
+      .status(400)
+      .send("Ride status must be 0 (active) or 1 (closed).");
+  }
+
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("ride_name", sql.VarChar(50), ride_name.trim());
+    request.input("ride_price", sql.Decimal(10, 2), parsedPrice);
+    request.input("ride_status", sql.Int, parsedStatus);
+
+    await request.query(`
+      INSERT INTO Ride (ride_name, ride_price, ride_status)
+      VALUES (@ride_name, @ride_price, @ride_status)
+    `);
+
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.put("/rides/:id", checkRoles([1, 2]), async (req, res) => {
+  const rideId = Number(req.params.id);
+  const { ride_name, ride_price, ride_status } = req.body;
+
+  if (!Number.isInteger(rideId) || rideId <= 0) {
+    return res.status(400).send("Invalid ride id.");
+  }
+
+  if (!ride_name || ride_price == null || ride_status == null) {
+    return res.status(400).send("All required fields must be filled in.");
+  }
+
+  const parsedPrice = Number(ride_price);
+  const parsedStatus = Number(ride_status);
+
+  if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+    return res.status(400).send("Ride price must be greater than 0.");
+  }
+
+  if (![0, 1].includes(parsedStatus)) {
+    return res
+      .status(400)
+      .send("Ride status must be 0 (active) or 1 (closed).");
+  }
+
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("ride_id", sql.Int, rideId);
+    request.input("ride_name", sql.VarChar(50), ride_name.trim());
+    request.input("ride_price", sql.Decimal(10, 2), parsedPrice);
+    request.input("ride_status", sql.Int, parsedStatus);
+
+    const result = await request.query(`
+      UPDATE Ride
+      SET ride_name = @ride_name,
+          ride_price = @ride_price,
+          ride_status = @ride_status
+      WHERE ride_id = @ride_id
+    `);
+
+    if (!result.rowsAffected[0]) {
+      return res.status(404).send("Ride not found.");
+    }
+
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
   }
 });
 

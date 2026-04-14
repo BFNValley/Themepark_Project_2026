@@ -25,8 +25,7 @@ CREATE TABLE Ride (
     ride_id int PRIMARY KEY,
     ride_name VARCHAR(50),
     ride_price DECIMAL CHECK (ride_price > 0),
-    ride_status INT,
-    height_requirement INT
+    ride_status INT
 );
 
 CREATE TABLE Employee (

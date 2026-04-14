@@ -14,19 +14,17 @@
             <div class="select-label-group">
               <label for="which-ride">Ride:</label>
               <select name="ride" id="which-ride" required>
-                <option value="1">Roller Coaster</option>
-                <option value="2">Ferris Wheel</option>
-                <option value="3">Haunted House</option>
-                <option value="4">Bumper Cars</option>
-                <option value="5">Water Slide</option>
+                <option value="" disabled selected>Loading rides...</option>
               </select>
             </div>
             <div class="select-label-group">
               <label for="maintenance-type">Maintenance Type:</label>
               <select name="maintenance-type" id="maintenance-type" required>
                 <option value="routine">Routine</option>
-                <option value="failed-inspection">Failed-inspection</option>
+                <option value="monthly deep-dive">Monthly Deep-Dive</option>
+                <option value="emergency stop">Emergency Stop</option>
                 <option value="ride-breakdown">Ride-breakdown</option>
+                <option value="multiple-complaints">Multiple Complaints</option>
               </select>
             </div>
             <div class="select-label-group">
@@ -41,6 +39,7 @@
               <label for="status">Status:</label>
               <select id="status" name="status" required>
                 <option value="open">Open</option>
+                <option value="in-progress">In Progress</option>
                 <option value="resolved">Resolved</option>
               </select>
             </div>
