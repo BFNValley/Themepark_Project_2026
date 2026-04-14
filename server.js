@@ -368,12 +368,6 @@ app.delete("/customers/:id", async (req, res) => {
 
 // --- TICKET BUYING ROUTE ---
 
-/*
-app.post("/buy-ticket", (req, res) => {
-  console.log("Incoming body: ", req.body);
-  res.send("Route works");
-});
-*/
 app.post("/buy-ticket", async (req, res) => {
   console.log("Incoming body:", req.body);
 
@@ -457,10 +451,12 @@ app.post("/buy-ticket", async (req, res) => {
           ticketRequest.input("visit_date", sql.DateTime, issueDate);
           ticketRequest.input("exp_date", sql.DateTime, expirationDate);
           ticketRequest.input("ride", sql.Int, item.ride_id);
+          ticketRequest.input("ticket_type", sql.VarChar(20), item.ticket_type);
+          ticketRequest.input("ticket_price", sql.Decimal(10, 2), ticketPrice);
 
           await ticketRequest.query(`
-                        INSERT INTO Ticket (customer_id, visiting_date, expiration_date, ride)
-                        VALUES (@customer_id, @visit_date, @exp_date, @ride)
+                        INSERT INTO Ticket (customer_id, visiting_date, expiration_date, ride, ticket_type, ticket_price)
+                        VALUES (@customer_id, @visit_date, @exp_date, @ride, @ticket_type, @ticket_price)
                     `);
         }
       }
@@ -494,19 +490,20 @@ app.get("/my-tickets/:customer_id", async (req, res) => {
     request.input("customer_id", sql.Int, customer_id);
 
     const result = await request.query(`
-      SELECT
-        t.ticket_id,
-        t.customer_id,
-        t.visiting_date,
-        t.expiration_date,
-        t.ride,
-        r.ride_name,
-        r.ride_price
-      FROM Ticket t
-      LEFT JOIN Ride r ON t.ride = r.ride_id
-      WHERE t.customer_id = @customer_id
-      ORDER BY t.visiting_date DESC, t.ticket_id DESC
-    `);
+  SELECT
+    t.ticket_id,
+    t.customer_id,
+    t.visiting_date,
+    t.expiration_date,
+    t.ride,
+    t.ticket_type,
+    t.ticket_price,
+    r.ride_name
+    FROM Ticket t
+    LEFT JOIN Ride r ON t.ride = r.ride_id
+    WHERE t.customer_id = @customer_id
+    ORDER BY t.visiting_date DESC, t.ticket_id DESC
+  `);
 
     res.json(result.recordset);
   } catch (err) {

@@ -14,9 +14,10 @@
                     <tr>
                         <th>Ticket ID</th>
                         <th>Ride</th>
+                        <th>Ticket Type</th>
                         <th>Visit Date</th>
                         <th>Expiration Date</th>
-                        <th>Base Price</th>
+                        <th>Price</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -63,9 +64,10 @@
                     row.innerHTML = `
                         <td>${ticket.ticket_id}</td>
                         <td>${ticket.ride_name || ticket.ride}</td>
+                        <td>${ticket.ticket_type || "Not recorded"}</td>
                         <td>${new Date(ticket.visiting_date).toLocaleDateString()}</td>
                         <td>${new Date(ticket.expiration_date).toLocaleDateString()}</td>
-                        <td>$${Number(ticket.ride_price).toFixed(2)}</td>
+                        <td>${ticket.ticket_price != null ? `$${Number(ticket.ticket_price).toFixed(2)}` : "Not recorded"}</td>
                     `;
 
                     tbody.appendChild(row);
