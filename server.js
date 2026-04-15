@@ -123,7 +123,8 @@ app.post("/employee_login", async (req, res) => {
         FROM Employee 
         LEFT JOIN Role ON Employee.role_id = Role.role_id
         WHERE Employee.username = @input_username
-        AND Employee.employee_password = @input_password`);
+        AND Employee.employee_password = @input_password
+        AND Employee.is_active = 1`);
 
     if (result.recordset.length === 0) {
       //check if not found username and password
@@ -164,7 +165,7 @@ app.post("/customer_login", async (req, res) => {
         FROM Customers 
         WHERE Customers.email_address = @input_username
       AND Customers.customer_password = @input_password
-      AND Customers.is_active = 1`); //note: update schema, insert password attribute into Customers table
+      AND Customers.is_active = 1`);
 
     if (result.recordset.length === 0) {
       //check if not found username and password
@@ -1055,14 +1056,14 @@ app.get("/employees", checkRoles([1]), async (req, res) => {
       FROM Employee e
       LEFT JOIN Role r ON e.role_id=r.role_id
       `;
-    if(status === "active") {
+    if (status === "active") {
       query += " WHERE e.is_active = 1";
     } else if (status === "inactive") {
       query += " WHERE e.is_active = 0";
     }
 
     query += " ORDER BY e.employee_id";
-      
+
     const result = await sql.query(query);
     res.json(result.recordset);
   } catch (err) {
