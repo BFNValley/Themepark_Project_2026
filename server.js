@@ -1001,15 +1001,24 @@ app.put("/rides/:id/deprecated", checkRoles([1, 2]), async (req, res) => {
 
 // --- EMPLOYEE ROUTEs ---
 app.get("/employees", checkRoles([1]), async (req, res) => {
+  const status = req.query.status;
+
   try {
     await sql.connect(config);
-    const result = await sql.query(`
+    let query = `
       SELECT e.employee_id, e.first_name, e.middle_initial, e.last_name, e.role_id, r.role_name, e.username, e.pay_rate, e.is_active
       FROM Employee e
       LEFT JOIN Role r ON e.role_id=r.role_id
-      WHERE e.is_active = 1
-      ORDER BY e.employee_id
-      `);
+      `;
+    if(status === "active") {
+      query += " WHERE e.is_active = 1";
+    } else if (status === "inactive") {
+      query += " WHERE e.is_active = 0";
+    }
+
+    query += " ORDER BY e.employee_id";
+      
+    const result = await sql.query(query);
     res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
@@ -1095,6 +1104,40 @@ app.put("/employees/deactivate/:id", checkRoles([1]), async (req, res) => {
     await request.query(`
       UPDATE Employee
       SET is_active = 0
+      WHERE employee_id = @id
+    `);
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.get("/employees/inactive", checkRoles([1]), async (req, res) => {
+  try {
+    await sql.connect(config);
+    const result = await sql.query(`
+      SELECT e.employee_id, e.first_name, e.last_name, r.role_name
+      FROM Employee e
+      LEFT JOIN Role r ON e.role_id=r.role_id
+      WHERE e.is_active = 0
+      ORDER BY e.employee_id
+      `);
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.put("/employees/reactivate/:id", checkRoles([1]), async (req, res) => {
+  const id = req.params.id;
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("id", sql.Int, id);
+
+    await request.query(`
+      UPDATE Employee
+      SET is_active = 1
       WHERE employee_id = @id
     `);
     res.sendStatus(200);
@@ -1455,10 +1498,6 @@ app.post("/submit-maintenance", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log("Server running on port 4000");
-});
-
 app.get("/maintenance-tickets", async (req, res) => {
   try {
     await sql.connect(config);
@@ -1552,4 +1591,8 @@ app.get("/maintenance-tickets/:ticket_id", async (req, res) => {
   } catch (err) {
     res.status(500).send(err.message);
   }
+});
+
+app.listen(port, () => {
+  console.log("Server running on port 4000");
 });
