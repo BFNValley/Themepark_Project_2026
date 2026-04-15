@@ -136,6 +136,14 @@ button.success {
   background-color: #27ae60;
 }
 
+button.warning {
+  background-color: #e0a937;
+}
+
+button.warning:hover {
+  background-color: #efba4f;
+}
+
 button.small {
   padding: 6px 12px;
   font-size: 12px;

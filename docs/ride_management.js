@@ -66,7 +66,7 @@ async function loadRides() {
   document.getElementById("searchInput").value = "";
 
   try {
-    const response = await fetch("/rides", {
+    const response = await fetch("/rides/all", {
       headers: {
         role_id: sessionStorage.getItem("role_id"),
       },
@@ -135,6 +135,7 @@ function renderTable(data) {
   html += "<th>Ride Name</th>";
   html += "<th>Ride Price</th>";
   html += "<th>Status</th>";
+  html += "<th>Deprecated</th>";
   html += "<th>Actions</th>";
   html += "</tr></thead><tbody>";
 
@@ -147,9 +148,11 @@ function renderTable(data) {
     html += `<td id="rname-${ride.ride_id}">${ride.ride_name}</td>`;
     html += `<td id="rprice-${ride.ride_id}">${Number(ride.ride_price).toFixed(2)}</td>`;
     html += `<td id="rstatus-${ride.ride_id}">${statusLabel(ride.ride_status)}</td>`;
+    html += `<td id="rdeprecated-${ride.ride_id}">${Number(ride.deprecated) === 1 ? "Yes" : "No"}</td>`;
     html += `<td>
-										<button class="small secondary" onclick="editRide(${ride.ride_id}, '${safeRideName}', ${Number(ride.ride_price)}, ${Number(ride.ride_status)})">&#9999;&#65039; Edit</button>
-									</td>`;
+                    <button class="small secondary" onclick="editRide(${ride.ride_id}, '${safeRideName}', ${Number(ride.ride_price)}, ${Number(ride.ride_status)})">&#9999;&#65039; Edit</button>
+										<button class="small ${Number(ride.deprecated) === 1 ? "success" : "warning"}" onclick="setRideDeprecated(${ride.ride_id}, '${safeRideName}', ${Number(ride.deprecated) === 1 ? 0 : 1})">${Number(ride.deprecated) === 1 ? "Restore" : "Deprecate"}</button>
+                  </td>`;
     html += "</tr>";
   });
 
@@ -223,6 +226,59 @@ async function saveRide(id) {
       msgEl.className = "msg error";
       msgEl.textContent = "Error: " + err;
     }
+  } catch (err) {
+    msgEl.className = "msg error";
+    msgEl.textContent = "Failed to connect to server.";
+  }
+}
+
+async function setRideDeprecated(id, rideName, deprecated) {
+  const msgEl = document.getElementById("actionMsg");
+  msgEl.className = "msg";
+  msgEl.textContent = "";
+
+  const actionWord = deprecated === 1 ? "deprecate" : "restore";
+  const confirmed = window.confirm(
+    `Are you sure you want to ${actionWord} ${rideName}?`,
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/rides/${id}/deprecated`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        role_id: sessionStorage.getItem("role_id"),
+      },
+      body: JSON.stringify({ deprecated }),
+    });
+
+    let payload = { message: "Request failed." };
+    const contentType = res.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      payload = await res.json();
+    } else {
+      const text = await res.text();
+      payload = { message: text };
+    }
+
+    if (!res.ok) {
+      msgEl.className = "msg error";
+      msgEl.textContent = payload.message || "Failed to update deprecation.";
+      return;
+    }
+
+    msgEl.className = "msg success";
+    msgEl.textContent =
+      payload.message ||
+      (deprecated === 1
+        ? "Ride marked as deprecated."
+        : "Ride restored successfully.");
+    loadRides();
   } catch (err) {
     msgEl.className = "msg error";
     msgEl.textContent = "Failed to connect to server.";

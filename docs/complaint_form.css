@@ -62,14 +62,6 @@ fieldset {
   margin: 0;
 }
 
-legend {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 14px;
-  padding: 0;
-}
-
 .form-section {
   background: var(--surface);
   border-radius: 16px;

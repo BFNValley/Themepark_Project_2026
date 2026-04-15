@@ -534,6 +534,10 @@ async function processCheckout(customerIdRaw, ticketCartRaw, giftCartRaw) {
           SELECT ride_name, ride_price
           FROM Ride
           WHERE ride_id = @ride_id
+            AND (
+              COL_LENGTH('dbo.Ride', 'deprecated') IS NULL
+              OR ISNULL(deprecated, 0) = 0
+            )
         `);
 
         if (rideResult.recordset.length === 0) {
@@ -664,7 +668,6 @@ async function processCheckout(customerIdRaw, ticketCartRaw, giftCartRaw) {
         `);
       }
 
-      // Persist gift-shop receipt if optional tables exist.
       const receiptTableCheck = new sql.Request(transaction);
       const tableCheckResult = await receiptTableCheck.query(`
         SELECT
@@ -761,7 +764,6 @@ app.post("/checkout", async (req, res) => {
   }
 });
 
-// Legacy ticket-only endpoint kept for compatibility.
 app.post("/buy-ticket", async (req, res) => {
   const { customer_id, cart } = req.body;
 
@@ -822,13 +824,48 @@ app.get("/rides", async (req, res) => {
     await sql.connect(config);
 
     const result = await sql.query(`
-          SELECT ride_id, ride_name, ride_price, ride_status
-            FROM Ride
+          SELECT
+            ride_id,
+            ride_name,
+            ride_price,
+            ride_status,
+            CASE
+              WHEN COL_LENGTH('dbo.Ride', 'deprecated') IS NULL THEN 0
+              ELSE ISNULL(deprecated, 0)
+            END AS deprecated
+          FROM Ride
+          WHERE
+            COL_LENGTH('dbo.Ride', 'deprecated') IS NULL
+            OR ISNULL(deprecated, 0) = 0
         `);
 
     res.json(result.recordset);
   } catch (err) {
     console.error(err);
+    res.status(500).send("Error retrieving rides.");
+  }
+});
+
+app.get("/rides/all", checkRoles([1, 2]), async (req, res) => {
+  try {
+    await sql.connect(config);
+
+    const result = await sql.query(`
+      SELECT
+        ride_id,
+        ride_name,
+        ride_price,
+        ride_status,
+        CASE
+          WHEN COL_LENGTH('dbo.Ride', 'deprecated') IS NULL THEN 0
+          ELSE ISNULL(deprecated, 0)
+        END AS deprecated
+      FROM Ride
+      ORDER BY ride_id
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
     res.status(500).send("Error retrieving rides.");
   }
 });
@@ -919,6 +956,49 @@ app.put("/rides/:id", checkRoles([1, 2]), async (req, res) => {
     res.sendStatus(200);
   } catch (err) {
     res.status(500).send(err.message);
+  }
+});
+
+app.put("/rides/:id/deprecated", checkRoles([1, 2]), async (req, res) => {
+  const rideId = Number(req.params.id);
+  const deprecated = Number(req.body.deprecated);
+
+  if (!Number.isInteger(rideId) || rideId <= 0) {
+    return res.status(400).send("Invalid ride id.");
+  }
+
+  if (![0, 1].includes(deprecated)) {
+    return res.status(400).send("Deprecated must be 0 or 1.");
+  }
+
+  try {
+    await sql.connect(config);
+
+    const columnCheckRequest = new sql.Request();
+    const columnCheckResult = await columnCheckRequest.query(`
+      SELECT CASE
+        WHEN COL_LENGTH('dbo.Ride', 'deprecated') IS NULL THEN 0
+        ELSE 1
+      END AS has_column
+    `);
+
+    const request = new sql.Request();
+    request.input("ride_id", sql.Int, rideId);
+    request.input("deprecated", sql.Int, deprecated);
+
+    const result = await request.query(`
+      UPDATE Ride
+      SET deprecated = @deprecated
+      WHERE ride_id = @ride_id
+    `);
+
+    if (!result.rowsAffected[0]) {
+      return res.status(404).send("Ride not found.");
+    }
+
+    return res.status(200).send("Ride deprecation status updated.");
+  } catch (err) {
+    return res.status(500).send(err.message);
   }
 });
 
