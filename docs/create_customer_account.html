@@ -4,147 +4,158 @@
     <title>Theme Park Login | Create Customer Account</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="customer_login.css" />
+    <link rel="stylesheet" href="create_customer_account.css" />
   </head>
   <body>
-    <form
-      id="create_customer_account_form"
-      class="create-customer-account-form"
-    >
-      <!--first name text box-->
-      <div>
-        <label for="first-name">First Name:</label>
-        <input
-          type="text"
-          id="first-name"
-          name="first-name"
-          class="first-name-textbox"
-          maxlength="30"
-          placeholder="first name"
-          required
-        />
-      </div>
-      <br />
+    <main class="account-shell">
+      <section class="account-card" aria-labelledby="account-heading">
+        <div class="account-header">
+          <h1 id="account-heading">Create Your Astro Park Account</h1>
+          <p>Join to buy tickets faster, track visits, and manage your profile.</p>
+        </div>
 
-      <!--middle initial text box-->
-      <div>
-        <label for="middle-initial">Middle Initial:</label>
-        <input
-          type="text"
-          id="middle-initial"
-          name="middle-initial"
-          class="middle-initial-textbox"
-          maxlength="1"
-          placeholder="middle initial"
-        />
-      </div>
-      <br />
+        <form
+          id="create_customer_account_form"
+          class="create-customer-account-form"
+        >
+          <div class="field-grid">
+            <!--first name text box-->
+            <div class="form-field">
+              <label for="first-name">First Name</label>
+              <input
+                type="text"
+                id="first-name"
+                name="first-name"
+                class="first-name-textbox"
+                maxlength="30"
+                placeholder="First name"
+                required
+              />
+            </div>
 
-      <!--last name text box-->
-      <div>
-        <label for="last-name">Last Name:</label>
-        <input
-          type="text"
-          id="last-name"
-          name="last-name"
-          class="last-name-textbox"
-          maxlength="30"
-          placeholder="last name"
-          required
-        />
-      </div>
-      <br />
+            <!--middle initial text box-->
+            <div class="form-field">
+              <label for="middle-initial">Middle Initial</label>
+              <input
+                type="text"
+                id="middle-initial"
+                name="middle-initial"
+                class="middle-initial-textbox"
+                maxlength="1"
+                placeholder="M"
+              />
+            </div>
 
-      <!--date of birth text box-->
-      <div>
-        <label for="date-of-birth">Date of Birth:</label>
-        <input
-          type="date"
-          id="date-of-birth"
-          name="date-of-birth"
-          class="date-of-birth-textbox"
-          required
-        />
-      </div>
-      <br />
+            <!--last name text box-->
+            <div class="form-field">
+              <label for="last-name">Last Name</label>
+              <input
+                type="text"
+                id="last-name"
+                name="last-name"
+                class="last-name-textbox"
+                maxlength="30"
+                placeholder="Last name"
+                required
+              />
+            </div>
 
-      <!--phone number box-->
-      <div>
-        <label for="phone-number">Phone Number:</label>
-        <input
-          type="text"
-          id="phone-number"
-          name="phone-number"
-          class="phone-number"
-          maxlength="10"
-          minlength="10"
-          placeholder="phone number"
-          required
-        />
-      </div>
-      <br />
+            <!--date of birth text box-->
+            <div class="form-field">
+              <label for="date-of-birth">Date of Birth</label>
+              <input
+                type="date"
+                id="date-of-birth"
+                name="date-of-birth"
+                class="date-of-birth-textbox"
+                required
+              />
+            </div>
 
-      <!--email text box-->
-      <div>
-        <label for="email">Email:</label>
-        <input
-          type="text"
-          id="email"
-          name="email"
-          class="email-textbox"
-          maxlength="30"
-          placeholder="email"
-          required
-        />
-      </div>
+            <!--phone number box-->
+            <div class="form-field">
+              <label for="phone-number">Phone Number</label>
+              <input
+                type="text"
+                id="phone-number"
+                name="phone-number"
+                class="phone-number"
+                maxlength="10"
+                minlength="10"
+                placeholder="5551234567"
+                required
+              />
+            </div>
 
-      <br />
-      <!--password text box-->
-      <div>
-        <label for="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          class="password-textbox"
-          minlength="4"
-          maxlength="30"
-          placeholder="password"
-          required
-        />
-      </div>
-      <br />
+            <!--email text box-->
+            <div class="form-field">
+              <label for="email">Email</label>
+              <input
+                type="text"
+                id="email"
+                name="email"
+                class="email-textbox"
+                maxlength="30"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
 
-      <!-- retype password text box-->
-      <div>
-        <label for="retype-password">Retype Password:</label>
-        <input
-          type="password"
-          id="retype-password"
-          name="retype-password"
-          class="retype-password-textbox"
-          minlength="4"
-          maxlength="30"
-          placeholder="password"
-          required
-        />
-      </div>
-      <br />
+            <!--password text box-->
+            <div class="form-field">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="password-textbox"
+                minlength="4"
+                maxlength="30"
+                placeholder="Create a password"
+                required
+              />
+            </div>
 
-      <p id="err-msg" style="display: none; color: red"></p>
+            <!-- retype password text box-->
+            <div class="form-field">
+              <label for="retype-password">Retype Password</label>
+              <input
+                type="password"
+                id="retype-password"
+                name="retype-password"
+                class="retype-password-textbox"
+                minlength="4"
+                maxlength="30"
+                placeholder="Retype password"
+                required
+              />
+            </div>
+          </div>
 
-      <!--create account button-->
-      <div>
-        <button type="submit" id="create-account" class="create-account-button">
-          Create Account
-        </button>
-      </div>
-    </form>
+          <p id="err-msg" class="error-message"></p>
 
-    <button
-      class="back-button"
-      onclick="window.location.href = 'login.html'"
-    >
+          <!--create account button-->
+          <div class="actions-row">
+            <button
+              type="button"
+              class="secondary-button"
+              onclick="window.location.href = 'customer_login.html'"
+            >
+              Already have an account?
+            </button>
+            <button
+              type="submit"
+              id="create-account"
+              class="create-account-button"
+            >
+              Create Account
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <button class="back-button" onclick="window.location.href = 'login.html'">
       Back
     </button>
 

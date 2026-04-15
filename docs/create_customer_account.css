@@ -55,15 +55,7 @@ body {
   font-weight: 600;
 }
 
-.username-textbox {
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  padding: 10px 11px;
-  font-size: 15px;
-}
-
-.password-textbox {
+.form-field input {
   border-radius: 6px;
   border: 1px solid #ccc;
   box-sizing: border-box;
@@ -82,78 +74,56 @@ body {
   margin-top: 16px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.login-button {
-  background: #eef3fa;
-  color: #1f2a37;
-
-  border-radius: 15px;
-  border: 1px solid #c6d6ec;
-
-  padding: 12px 24px;
-  margin: 10px;
-
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-
-  transition:
-    transform 0.4s ease,
-    background-color 0.4s ease,
-    box-shadow 0.28s ease;
-}
-
-.login-button:hover {
-  transform: scale(1.05);
-  background: #f7f9fc;
-}
-
-.secondary-link {
+.create-account-button,
+.secondary-button,
+.back-button {
   border-radius: 15px;
   border: none;
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
-  text-decoration: none;
-  background-color: #5f90d8;
-  color: white;
+  cursor: pointer;
   transition:
     transform 0.4s ease,
     background-color 0.4s ease,
     box-shadow 0.28s ease;
 }
 
-.secondary-link:hover {
-  transform: scale(1.05);
-  background-color: #83abdf;
-  box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
-}
-
+.create-account-button,
 .back-button {
   background-color: #5f90d8;
   color: white;
-  border-radius: 15px;
-  border: none;
-  width: fit-content;
-  height: auto;
-  padding: 12px 24px;
-  margin: 0 10px 10px 10px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  top: 10px;
-  left: 10px;
-  position: absolute;
 }
 
+.create-account-button:hover,
 .back-button:hover {
   transform: scale(1.05);
   background-color: #83abdf;
   box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
+}
+
+.secondary-button {
+  background: #eef3fa;
+  color: #1f2a37;
+  border: 1px solid #c6d6ec;
+}
+
+.secondary-button:hover {
+  transform: scale(1.05);
+  background: #f7f9fc;
+}
+
+.back-button {
+  width: fit-content;
+  height: auto;
+  margin: 0 10px 10px 10px;
+  top: 10px;
+  left: 10px;
+  position: absolute;
 }
 
 @media (max-width: 760px) {
@@ -175,13 +145,10 @@ body {
 
   .actions-row {
     flex-direction: column;
-    align-items: stretch;
   }
 
-  .login-button,
-  .secondary-link {
+  .secondary-button,
+  .create-account-button {
     width: 100%;
-    text-align: center;
-    margin: 0;
   }
 }
