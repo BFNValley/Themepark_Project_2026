@@ -5,76 +5,102 @@
         <link rel="stylesheet" href="login.css" />
         <style>
             body {
-                align-items: flex-start;
-                padding: 40px 20px;
-                flex-direction: column;
+                margin: 0;
+                display: flex;
+                font-family: Arial, sans-serif;
+                flex-direction: row;
                 justify-content: flex-start;
                 min-height: 100vh;
             }
 
-            .card {
-                background: rgba(255, 255, 255, 0.28);
-                box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-                border-radius: 28px;
-                padding: 40px 50px;
-                width: 900px;
-                max-width: 90vw;
-                margin: 0 auto 28px auto;
+            .sidebar {
+                width: 220px;
+                background: #1f2a37;
+                color: white;
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .sidebar h2 {
+                font-size: 18px;
+                margin-bottom: 20px;
+            }
+
+            .nav-btn {
+                display: block;
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                background: transparent;
+                border: none;
+                color: white;
+                text-align: left;
+                cursor: pointer;
+                border-radius: 8px;
+            }
+
+            .nav-btn:hover {
+                background: rgba(255,255,255,0.1);
+            }
+
+            .main {
+                flex: 1;
+                padding: 20px;
             }
 
             h1 {
                 font-size: 32px;
                 margin-bottom: 6px;
                 color: #1f2a37;
+                margin-top: 0;
             }
-
-            .section-title {
-                font-size: 15px;
-                font-weight: 700;
-                color: #1f2a37;
-                margin: 0 0 16px 0;
-                padding-bottom: 6px;
-                border-bottom: 1px solid rgba(0,0,0,0.1);
-            }
-
-            .filter-row {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                flex-wrap: wrap;
-                margin-bottom: 12px;
-            }
-
-            label {
-                font-size: 13px;
-                font-weight: 600;
-                color: #1f2a37;
-            }
-
-            input[type="date"] {
-                padding: 8px 12px;
-                border-radius: 10px;
-                border: none;
-                font-size: 14px;
-                background: rgba(255,255,255,0.65);
-                color: #1f2a37;
-            }
-
-            button.secondary {
-                background-color: #7a8fa6;
-            }
-
-            .btn-row {
+            
+            .stats {
                 display: flex;
                 gap: 12px;
-                margin-bottom: 16px;
                 flex-wrap: wrap;
+                margin-bottom: 20px;
+            }
+
+            .card {
+                background: white;
+                padding: 16px;
+                border-radius: 12px;
+                flex: 1;
+                min-width: 180px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            }
+
+            .filter-bar {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin-bottom: 15px;
+            }
+
+            input, select, button {
+                padding: 8px 10px;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+            }
+
+            button {
+                background: #5f90d8;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+
+            button:hover {
+                opacity: 0.9;
             }
 
             table {
                 width: 100%;
                 border-collapse: collapse;
-                font-size: 14px;
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
             }
 
             th {
@@ -82,19 +108,26 @@
                 color: white;
                 padding: 10px 14px;
                 text-align: left;
-                font-weight: 600;
             }
 
             td {
                 padding: 9px 14px;
-                border-bottom: 1px solid rgba(0,0,0,0.08);
-                color: #1f2a37;
+                border-bottom: 1px solid #eee;
             }
 
-            tr:nth-child(even) td { background: rgba(255,255,255,0.35); }
-            tr:nth-child(odd) td { background: rgba(255,255,255,0.15); }
+            tr:hover td {
+                background: #f0f6ff;
+            }
 
-            .status-msg {
+            .section {
+                display: none;
+            }
+
+            .active {
+                display: block;
+            }
+
+            .status {
                 font-size: 14px;
                 color: #1f2a37;
                 font-style: italic;
@@ -121,206 +154,237 @@
     </head>
     <body>
 
-        <div class="card">
-            <h1>Park Statistics</h1>
-            <div class="btn-row">
-                <button class="secondary" onclick="window.location.href='employee.html'">&#8592; Back</button>
-            </div>
+        <div class="sidebar">
+            <h2>Park Dashboard</h2>
+
+            <button class="nav-btn" onclick="showSection('customers')">Customers</button>
+            <button class="nav-btn" onclick="showSection('rides')">Rides</button>
+            <button class="nav-btn" onclick="showSection('weather')">Weather</button>
+            <button class="nav-btn" onclick="showSection('employees')">Employees</button>
         </div>
 
-        <!-- REPORT 1: Customers Ticket History -->
-        <div class="card">
-            <div class="section-title">Customer Tickets History</div>
-            <div class="filter-row">
-                <label>From:</label>
-                <input type="date" id="from1">
-                <label>To:</label>
-                <input type="date" id="to1">
-                <button onclick="loadCustomerStats()">Load Report</button>
+        <div class="main">
+            <h1>Statistics Overview</h1>
+            <div class="stats">
+                <div class="card">Tickets<br><b id="ticketsCount">--</b></div>
+                <div class="card">Rides<br><b id="ridesCount">--</b></div>
+                <div class="card">Weather Impact<br><b id="weatherCount">--</b></div>
+                <div class="card">Employees<br><b id="employeeCount">--</b></div>
             </div>
-            <div class="msg" id="msg1"></div>
-            <div class="status-msg" id="status1"></div>
-            <div id="customerTable"></div>
-            <div class="print-btn" id="printBtn1">
-                <button class="secondary" onclick="printReport('customerTable')">&#128438; Print / Save PDF</button>
-            </div>
-        </div>
 
-        <!-- Report 2: Most popular rides-->
-        <div class="card">
-            <div class="section-title">Most Popular Rides</div>
-            <div class="filter-row">
-                <label>From:</label>
-                <input type="date" id="from2">
-                <label>To:</label>
-                <input type="date" id="to2">
-                <button onclick="loadRideStats()">Load Report</button>
-            </div>
-            <div class="msg" id="msg2"></div>
-            <div class="status-msg" id="status2"></div>
-            <div id="rideTable"></div>
-            <div class="print-btn" id="printBtn2">
-                <button class="secondary" onclick="printReport('rideTable')">&#128438; Print / Save PDF</button>
-            </div>
-        </div>
+            <!-- REPORT 1: Customers Ticket History -->
+            <div id="customers" class="section active">
+                <h3>Customer Ticket History</h3>
 
-        <!-- Report 3: Weather Impact on Ticket Sales -->
-        <div class="card">
-            <div class="section-title">Weather Impact on Ticket Sales</div>
-            <div class="filter-row">
-                <label>From:</label>
-                <input type="date" id="from3">
-                <label>To:</label>
-                <input type="date" id="to3">
-                <button onclick="loadWeatherStats()">Load Report</button>
-            </div>
-            <div class="msg" id="msg3"></div>
-            <div class="status-msg" id="status3"></div>
-            <div id="weatherStatsTable"></div>
-            <div class="print-btn" id="printBtn3">
-                <button class="secondary" onclick="printReport('weatherStatsTable')">&#128438; Print / Save PDF</button>
-            </div>
-        </div>
+                <div class="filter-bar">
+                    <input type="date" id="from1">
+                    <input type="date" id="to1">
+                    <button onclick="loadReport('customers')">Load</button>
+                </div>
 
-        <!-- Report 4: Employee Maintenance Workload -->
-        <div class="card">
-            <div class="section-title">Employee Maintenance Workload</div>
-            <div class="filter-row">
-                <label>From:</label>
-                <input type="date" id="from4">
-                <label>To:</label>
-                <input type="date" id="to4">
-                <button onclick="loadEmployeeStats()">Load Report</button>
+                <div class="msg" id="msg1"></div>
+                <div class="status" id="status1"></div>
+                <div id="customerTable"></div>
+
+                <div class="print-btn" id="print1">
+                    <button class="secondary" onclick="printTable('customerTable')">Print /Save as PDF</button>
+                </div>
             </div>
-            <div class="msg" id="msg4"></div>
-            <div class="status-msg" id="status4"></div>
-            <div id="employeeTable"></div>
-            <div class="print-btn" id="printBtn4">
-                <button class="secondary" onclick="printReport('employeeTable')">&#128438; Print / Save PDF</button>
+            
+            <!-- Report 2: Most popular rides-->
+            <div id="rides" class="section">
+                <h3>Ride Stats</h3>
+
+                <div class="filter-bar">
+                    <input type="date" id="from2">
+                    <input type="date" id="to2">
+                    <button onclick="loadReport('rides')">Load</button>
+                </div>
+
+                <div class="msg" id="msg2"></div>
+                <div class="status" id="status2"></div>
+                <div id="rideTable"></div>
+
+                <div class="print-btn" id="print2">
+                    <button class="secondary" onclick="printTable('rideTable')">Print / PDF</button>
+                </div>
+
             </div>
+        
+            <!-- Report 3: Weather Impact on Ticket Sales -->
+            <div id="weather" class="section">
+                <h3>Weather Impact</h3>
+
+                <div class="filter-bar">
+                    <input type="date" id="from3">
+                    <input type="date" id="to3">
+                    <button onclick="loadReport('weather')">Load</button>
+                </div>
+
+                <div class="msg" id="msg3"></div>
+                <div class="status" id="status3"></div>
+                <div id="weatherStatsTable"></div>
+
+                <div class="print-btn" id="print3">
+                    <button class="secondary" onclick="printTable('weatherStatsTable')">Print / PDF</button>
+                </div>
+            </div>
+
+            <!-- Report 4: Employee Maintenance Workload -->
+            <div id="employees" class="section">
+                <h3>Employee Workload</h3>
+
+                <div class="filter-bar">
+                    <input type="date" id="from4">
+                    <input type="date" id="to4">
+                    <button onclick="loadReport('employees')">Load</button>
+                </div>
+
+                <div class="msg" id="msg4"></div>
+                <div class="status" id="status4"></div>
+                <div id="employeeTable"></div>
+
+                <div class="print-btn" id="print4">
+                    <button class="secondary" onclick="printTable('employeeTable')">Print / PDF</button>
+                </div>
+
+            </div>
+
         </div>
 
         <script>
-            function buildTable(containerId, statusId, data) {
-                const container = document.getElementById(containerId);
-                document.getElementById(statusId).textContent = "";
-                if (!data || data.length === 0) {
-                    container.innerHTML = "<p style='color:#555;'>No data found.</p>";
+            function showSection(id) {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+
+                loadReport(id);
+            }
+            
+            async function loadReport(type) {
+                const map = {
+                customers: { url: "/stats/customers-ticket-history", table: "customerTable", msg: "msg1", status: "status1", print: "print1", from: "from1", to: "to1" },
+                rides: { url: "/stats/rides-per-month", table: "rideTable", msg: "msg2", status: "status2", print: "print2", from: "from2", to: "to2" },
+                weather: { url: "/stats/weather-impact", table: "weatherStatsTable", msg: "msg3", status: "status3", print: "print3", from: "from3", to: "to3" },
+                employees: { url: "/stats/employee-workload", table: "employeeTable", msg: "msg4", status: "status4", print: "print4", from: "from4", to: "to4" }
+                };
+
+                const cfg = map[type];
+
+                const from = document.getElementById(cfg.from).value;
+                const to = document.getElementById(cfg.to).value;
+
+                const msg = document.getElementById(cfg.msg);
+                const status = document.getElementById(cfg.status);
+                const container = document.getElementById(cfg.table);
+
+                msg.textContent = "";
+                status.textContent = "";
+                container.innerHTML = "";
+
+                if (!from || !to || from > to) {
+                    msg.className = "msg error";
+                    msg.textContent = "Please select valid date range.";
                     return;
                 }
+
+                status.textContent = "Loading...";
+
+                try {
+                    const res = await fetch(`${cfg.url}?from=${from}&to=${to}`);
+
+                    if (!res.ok) {
+                        throw new Error(await res.text());
+                    }
+
+                    const data = await res.json();
+
+                    if (type === "customers") {
+                        document.getElementById("ticketsCount").textContent = data.length;
+                    }
+                    if (type === "rides") {
+                        document.getElementById("ridesCount").textContent = data.length;
+                    }
+                    if (type === "weather") {
+                        document.getElementById("weatherCount").textContent = data.length;
+                    }
+                    if (type === "employees") {
+                        document.getElementById("employeeCount").textContent = data.length;
+                    }
+
+                    if (!data.length) {
+                        container.innerHTML = "<p>No data found.</p>";
+                    } else {
+                        buildTable(container, data);
+                    }
+
+                    document.getElementById(cfg.print).style.display = "block";
+                    status.textContent = "";
+
+                } catch (err) {
+                    msg.className = "msg error";
+                    msg.textContent = "Error loading data from server.";
+                    status.textContent = "";
+                }
+            }
+
+            function buildTable(container, data) {
                 const cols = Object.keys(data[0]);
                 let html = "<table><thead><tr>";
-                cols.forEach(c => { html += `<th>${c.replace(/_/g,' ')}</th>`; });
+
+                cols.forEach(c => html += `<th>${c.replace(/_/g,' ')}</th>`);
                 html += "</tr></thead><tbody>";
+
                 data.forEach(row => {
                     html += "<tr>";
-                    cols.forEach(c => { html += `<td>${row[c] ?? ""}</td>`; });
+                    cols.forEach(c => html += `<td>${row[c] ?? ""}</td>`);
                     html += "</tr>";
                 });
+
                 html += "</tbody></table>";
                 container.innerHTML = html;
             }
 
-            function validateDates(fromId, toId, msgId) {
-                const from = document.getElementById(fromId).value;
-                const to = document.getElementById(toId).value;
-                const msgEl = document.getElementById(msgId);
-                msgEl.className = "msg";
-                msgEl.textContent = "";
+            function printTable(id) {
+                const content = document.getElementById(id).innerHTML;
 
-                if (!from || !to) {
-                    msgEl.className = "msg error";
-                    msgEl.textContent = "Please select both a start and end date.";
-                    return null;
-                }
-                if (from > to) {
-                    msgEl.className = "msg error";
-                    msgEl.textContent = "Start date cannot be after end date.";
-                    return null;
-                }
-                return { from, to };
-            }
-
-            async function loadCustomerStats() {
-                const dates = validateDates("from1", "to1", "msg1");
-                if (!dates) return;
-                document.getElementById("status1").textContent = "Loading...";
-                document.getElementById("customerTable").innerHTML = "";
-                try {
-                    const res = await fetch(`/stats/customers-ticket-history?from=${dates.from}&to=${dates.to}`);
-                    const data = await res.json();
-                    buildTable("customerTable", "status1", data);
-                    document.getElementById("printBtn1").style.display = "block";
-                } catch (err) {
-                    document.getElementById("status1").textContent = "Error loading data.";
-                }
-            }
-
-            async function loadRideStats() {
-                const dates = validateDates("from2", "to2", "msg2");
-                if (!dates) return;
-                document.getElementById("status2").textContent = "Loading...";
-                document.getElementById("rideTable").innerHTML = "";
-                try {
-                    const res = await fetch(`/stats/rides-per-month?from=${dates.from}&to=${dates.to}`);
-                    const data = await res.json();
-                    buildTable("rideTable", "status2", data);
-                    document.getElementById("printBtn2").style.display = "block";
-                } catch (err) {
-                    document.getElementById("status2").textContent = "Error loading data.";
-                }
-            }
-
-            async function loadWeatherStats() {
-                const dates = validateDates("from3", "to3", "msg3");
-                if (!dates) return;
-                document.getElementById("status3").textContent = "Loading...";
-                document.getElementById("weatherStatsTable").innerHTML = "";
-                try {
-                    const res = await fetch(`/stats/weather-impact?from=${dates.from}&to=${dates.to}`);
-                    const data = await res.json();
-                    buildTable("weatherStatsTable", "status3", data);
-                    document.getElementById("printBtn3").style.display = "block";
-                } catch (err) {
-                    document.getElementById("status3").textContent = "Error loading data.";
-                }
-            }
-
-            async function loadEmployeeStats() {
-                const dates = validateDates("from4", "to4", "msg4");
-                if (!dates) return;
-                document.getElementById("status4").textContent = "Loading...";
-                document.getElementById("employeeTable").innerHTML = "";
-                try {
-                    const res = await fetch(`/stats/employee-workload?from=${dates.from}&to=${dates.to}`);
-                    const data = await res.json();
-                    buildTable("employeeTable", "status4", data);
-                    document.getElementById("printBtn4").style.display = "block";
-                } catch (err) {
-                    document.getElementById("status4").textContent = "Error loading data.";
-                }
-            }
-
-            function printReport(tableId) {
-                const content = document.getElementById(tableId).innerHTML;
                 const win = window.open('', '', 'width=900,height=600');
                 win.document.write(`
                     <html>
-                        <head>
-                            <title>Report</title>
-                            <style>
-                                body { font-family: sans-serif; padding: 20px; }
-                                table { width: 100%; border-collapse: collapse; font-size: 14px; }
-                                th { background-color: #5f90d8; color:white; padding: 10px 14px; text-align: left; }
-                                td { padding: 9px 14px; border-bottom: 1px solid #ddd; }
-                                tr:nth-child(even) td { background: #f5f5f5; }
-                            </style>
-                        </head>
-                        <body>${content}</body>
+                    <head>
+                        <title>Report</title>
+                        <style>
+                            body { font-family: Arial; padding: 20px; }
+                            table { width: 100%; border-collapse: collapse; }
+                            th { background: #5f90d8; color: white; padding: 10px; }
+                            td { padding: 8px; border-bottom: 1px solid #ddd; }
+                        </style>
+                    </head>
+                    <body>${content}</body>
                     </html>
                 `);
+
                 win.document.close();
                 win.print();
+            }
+            window.onload = ()  => {
+                const today = new Date();
+                const past = new Date();
+                past.setDate(today.getDate() - 30);
+
+                const format = (d) => d.toISOString().split("T")[0];
+
+                ["from1","from2","from3","from4"].forEach(id => {
+                    document.getElementById(id).value = format(past);
+                });
+
+                ["to1","to2","to3","to4"].forEach(id => {
+                    document.getElementById(id).value = format(today);
+                });
+
+                loadReport("customers");
+                loadReport("rides");
+                loadReport("weather");
+                loadReport("employees");
             }
 
         </script>
