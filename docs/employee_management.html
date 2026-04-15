@@ -280,14 +280,6 @@
       <div id="employeeTable"></div>
     </div>
 
-    <!-- INACTIVE EMPLOYYES -->
-    <div class="card">
-      <div class="section-title">Deactivated Employees</div>
-
-      <div id="inactiveStatus"></div>
-      <div id="inactiveEmployeeTable"></div>
-    </div>
-    
     <script>
       let allEmployees = [];
 
@@ -565,59 +557,11 @@
 
           if (res.ok) {
             loadEmployees();
-            loadInactiveEmployees();
           } else {
             alert("Failed to deactivate employee");
           }
         } catch (err) {
           alert("Server error");
-        }
-      }
-
-      async function loadInactiveEmployees() {
-        document.getElementById("inactiveStatus").textContent = "Loading...";
-        document.getElementById("inactiveEmployeeTable").innerHTML = "";
-
-        try {
-          const res = await fetch("/employees/inactive", {
-            headers: {
-              role_id: sessionStorage.getItem("role_id"),
-            },
-          });
-
-          const data = await res.json();
-          document.getElementById("inactiveStatus").textContent = "";
-
-          if (!data || data.length === 0) {
-            document.getElementById("inactiveEmployeeTable").innerHTML = "<p>No deactivated employees.</p>";
-            return;
-          }
-
-          let html = "<table><thead><tr>";
-          html += "<th>ID</th>";
-          html += "<th>Name</th>";
-          html += "<th>Role</th>";
-          html += "<th>Action</th>";
-          html += "</tr></thead><tbody>";
-
-          data.forEach((e) => {
-            html += `<tr>
-              <td>${e.employee_id}</td>
-              <td>${e.first_name} ${e.last_name}</td>
-              <td>${e.role_name || "-"}</td>
-              <td>
-                <button class = "small success" onclick="reactivateEmployee(${e.employee_id})">
-                  Reactivate
-                </button>
-              </td>
-            </tr>`;
-          });
-
-          html += "</tbody></table>";
-          document.getElementById("inactiveEmployeeTable").innerHTML = html;
-        
-        } catch (err) {
-          document.getElementById("inactiveStatus").textContent = "Error loading inactive employees.";
         }
       }
 
@@ -632,7 +576,6 @@
 
           if (res.ok) {
             loadEmployees();
-            loadInactiveEmployees();
           } else {
             alert("Failed to reactivate employee");
           }
@@ -642,7 +585,6 @@
       }
 
       loadEmployees();
-      loadInactiveEmployees();
     </script>
   </body>
 </html>
