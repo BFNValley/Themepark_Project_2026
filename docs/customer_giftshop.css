@@ -118,3 +118,10 @@ button {
   font-weight: 700;
   font-size: 18px;
 }
+
+.checkout-hint {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #2b3f59;
+  opacity: 0.85;
+}

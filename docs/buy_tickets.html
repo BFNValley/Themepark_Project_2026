@@ -1,39 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head><title>Buy Tickets</title>
-    <link rel="stylesheet" href="buy_ticket.css">
-    </head>
+  <head>
+    <title>Buy Tickets</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="buy_ticket.css" />
+  </head>
 
-    <body>
-        <div class="ticket-card">
-            <div class="cart-info">
-        <h1>Buy tickets to your favorite attractions here!</h1>
+  <body>
+    <button
+      class="back-button"
+      onclick="window.location.href = 'customer.html'"
+    >
+      Return
+    </button>
 
-            <h3>Add Tickets</h3>
+    <main class="page-shell">
+      <section class="ticket-card" aria-labelledby="buy-ticket-heading">
+        <header class="ticket-header">
+          <h1 id="buy-ticket-heading">Buy Tickets</h1>
+          <p>Choose your ride, pick ticket type, and checkout in one place.</p>
+        </header>
 
-            <select id="rideSelect" required>
-            <option value="">Loading rides...</option>
-            </select>
-            <select name="ticket_type" id="ticketType" required>
-            <option value="Adult">Adult</option>
-            <option value="Child">Child</option>
-            </select>
-            <input type="number" name="ticket_quantity" id="ticketQuantity" placeholder="Quantity" min="1" required>
-            <br><br>
+        <div class="content-grid">
+          <section class="purchase-panel" aria-labelledby="add-tickets-heading">
+            <h2 id="add-tickets-heading">Add Tickets</h2>
 
-            <button type="button" onclick="addToCart()">Add to Cart</button>
+            <div class="form-field">
+              <label for="rideSelect">Ride</label>
+              <select id="rideSelect" required>
+                <option value="">Loading rides...</option>
+              </select>
+            </div>
 
-            <h3>Your Cart</h3>
+            <div class="form-field">
+              <label for="ticketType">Ticket Type</label>
+              <select name="ticket_type" id="ticketType" required>
+                <option value="Adult">Adult</option>
+                <option value="Child">Child</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="ticketQuantity">Quantity</label>
+              <input
+                type="number"
+                name="ticket_quantity"
+                id="ticketQuantity"
+                placeholder="Enter quantity"
+                min="1"
+                required
+              />
+            </div>
+
+            <button type="button" class="primary-btn" onclick="addToCart()">
+              Add to Cart
+            </button>
+          </section>
+
+          <section class="cart-panel" aria-labelledby="cart-heading">
+            <h2 id="cart-heading">Your Cart</h2>
             <ul id="cartList"></ul>
-            <br>
-            <h3>Total: $<span id="totalPrice">0</span></h3>
-            <button onclick="checkout()">Checkout</button>
 
-            <script src="cart.js"></script>
-            <br><br>
-            <button class="nav-btn" onclick="window.location.href='customer.html'">Return</button>
+            <div class="total-row">
+              <span>Total</span>
+              <strong>$<span id="totalPrice">0</span></strong>
             </div>
-            
-            </div>
-    </body>
+
+            <button class="checkout-btn" onclick="checkout()">Checkout</button>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="cart.js"></script>
+  </body>
 </html>

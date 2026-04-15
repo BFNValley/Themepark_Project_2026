@@ -113,7 +113,9 @@ header {
   padding: 36px 32px;
   text-align: center;
   width: 260px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .feature-card:hover {

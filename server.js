@@ -468,76 +468,102 @@ app.delete("/customers/:id", async (req, res) => {
   }
 });
 
-// --- TICKET BUYING ROUTE ---
+// --- COMBINED CHECKOUT ROUTES ---
 
-app.post("/buy-ticket", async (req, res) => {
-  console.log("Incoming body:", req.body);
+async function processCheckout(customerIdRaw, ticketCartRaw, giftCartRaw) {
+  const customerId = Number.parseInt(customerIdRaw, 10);
+  const ticketCart = Array.isArray(ticketCartRaw) ? ticketCartRaw : [];
+  const giftCart = Array.isArray(giftCartRaw) ? giftCartRaw : [];
 
-  const { customer_id, cart } = req.body;
-
-  if (!customer_id) {
-    return res.status(400).send("Customer ID must be valid.");
+  if (!Number.isInteger(customerId) || customerId <= 0) {
+    throw new Error("Customer ID must be valid.");
   }
 
-  if (!cart || cart.length === 0) {
-    return res.status(400).send("Cart is empty.");
+  if (ticketCart.length === 0 && giftCart.length === 0) {
+    throw new Error("No items in checkout cart.");
   }
+
+  const checkRequest = new sql.Request();
+  checkRequest.input("customer_id", sql.Int, customerId);
+
+  const customerCheck = await checkRequest.query(
+    "SELECT 1 FROM Customers WHERE customer_id = @customer_id",
+  );
+
+  if (customerCheck.recordset.length === 0) {
+    throw new Error("Invalid customer ID.");
+  }
+
+  const transaction = new sql.Transaction();
+  await transaction.begin();
 
   try {
-    await sql.connect(config);
+    const purchasedAt = new Date();
+    const expirationDate = new Date();
+    expirationDate.setDate(purchasedAt.getDate() + 30);
 
-    // Check if customer exists
-    const checkRequest = new sql.Request();
-    checkRequest.input("customer_id", sql.Int, parseInt(customer_id, 10));
+    const receipt = {
+      purchasedAt,
+      ticketItems: [],
+      giftItems: [],
+      ticketSubtotal: 0,
+      giftSubtotal: 0,
+      grandTotal: 0,
+      ticketPaymentId: null,
+      giftReceiptId: null,
+    };
 
-    const customerCheck = await checkRequest.query(
-      "SELECT 1 FROM Customers WHERE customer_id = @customer_id",
-    );
+    if (ticketCart.length > 0) {
+      for (const item of ticketCart) {
+        const rideId = Number.parseInt(item.ride_id, 10);
+        const quantity = Number.parseInt(item.quantity, 10);
+        const ticketType = item.ticket_type || "Adult";
 
-    if (customerCheck.recordset.length === 0) {
-      return res.status(400).send("Invalid customer ID.");
-    }
+        if (!Number.isInteger(rideId) || rideId <= 0) {
+          throw new Error("Invalid ride ID in ticket cart.");
+        }
 
-    // Start transaction
-    const transaction = new sql.Transaction();
-    await transaction.begin();
+        if (!Number.isInteger(quantity) || quantity <= 0) {
+          throw new Error("Ticket quantity must be at least 1.");
+        }
 
-    try {
-      let totalPrice = 0;
+        const rideRequest = new sql.Request(transaction);
+        rideRequest.input("ride_id", sql.Int, rideId);
 
-      const issueDate = new Date();
-      const expirationDate = new Date();
-      expirationDate.setDate(issueDate.getDate() + 30);
-
-      // Calculate total price with child discount
-      for (const item of cart) {
-        const priceRequest = new sql.Request(transaction);
-        priceRequest.input("ride_id", sql.Int, parseInt(item.ride_id, 10));
-
-        const priceResult = await priceRequest.query(`
-          SELECT ride_price
+        const rideResult = await rideRequest.query(`
+          SELECT ride_name, ride_price
           FROM Ride
           WHERE ride_id = @ride_id
         `);
 
-        if (priceResult.recordset.length === 0) {
-          throw new Error("Invalid ride ID in cart.");
+        if (rideResult.recordset.length === 0) {
+          throw new Error("Invalid ride ID in ticket cart.");
         }
 
-        let ticketPrice = parseFloat(priceResult.recordset[0].ride_price);
+        const rideName = rideResult.recordset[0].ride_name;
+        let ticketUnitPrice = Number.parseFloat(
+          rideResult.recordset[0].ride_price,
+        );
 
-        if (item.ticket_type && item.ticket_type.toLowerCase() === "child") {
-          ticketPrice *= 0.5;
+        if (String(ticketType).toLowerCase() === "child") {
+          ticketUnitPrice *= 0.5;
         }
 
-        totalPrice += ticketPrice * parseInt(item.quantity, 10);
+        receipt.ticketSubtotal += ticketUnitPrice * quantity;
+        receipt.ticketItems.push({
+          ride_id: rideId,
+          ride_name: rideName,
+          ticket_type: ticketType,
+          quantity,
+          unit_price: Number(ticketUnitPrice.toFixed(2)),
+          line_total: Number((ticketUnitPrice * quantity).toFixed(2)),
+        });
       }
 
-      // Insert payment
       const paymentRequest = new sql.Request(transaction);
-      paymentRequest.input("customer_id", sql.Int, parseInt(customer_id, 10));
-      paymentRequest.input("price", sql.Decimal(10, 2), totalPrice);
-      paymentRequest.input("purchase_date", sql.DateTime, issueDate);
+      paymentRequest.input("customer_id", sql.Int, customerId);
+      paymentRequest.input("price", sql.Decimal(10, 2), receipt.ticketSubtotal);
+      paymentRequest.input("purchase_date", sql.DateTime, purchasedAt);
 
       const paymentResult = await paymentRequest.query(`
         INSERT INTO Ticket_Payment (customer_id, price, purchase_date)
@@ -545,42 +571,21 @@ app.post("/buy-ticket", async (req, res) => {
         VALUES (@customer_id, @price, @purchase_date)
       `);
 
-      const payment_id = paymentResult.recordset[0].payment_id;
+      receipt.ticketPaymentId = paymentResult.recordset[0].payment_id;
 
-      // Insert tickets
-      for (const item of cart) {
-        const priceRequest = new sql.Request(transaction);
-        priceRequest.input("ride_id", sql.Int, parseInt(item.ride_id, 10));
-
-        const priceResult = await priceRequest.query(`
-          SELECT ride_price
-          FROM Ride
-          WHERE ride_id = @ride_id
-        `);
-
-        if (priceResult.recordset.length === 0) {
-          throw new Error("Invalid ride ID in cart.");
-        }
-
-        let ticketPrice = parseFloat(priceResult.recordset[0].ride_price);
-
-        if (item.ticket_type && item.ticket_type.toLowerCase() === "child") {
-          ticketPrice *= 0.5;
-        }
-
-        for (let i = 0; i < parseInt(item.quantity, 10); i++) {
+      for (const item of receipt.ticketItems) {
+        for (let i = 0; i < item.quantity; i++) {
           const ticketRequest = new sql.Request(transaction);
-
-          ticketRequest.input(
-            "customer_id",
-            sql.Int,
-            parseInt(customer_id, 10),
-          );
-          ticketRequest.input("visit_date", sql.DateTime, issueDate);
+          ticketRequest.input("customer_id", sql.Int, customerId);
+          ticketRequest.input("visit_date", sql.DateTime, purchasedAt);
           ticketRequest.input("exp_date", sql.DateTime, expirationDate);
-          ticketRequest.input("ride", sql.Int, parseInt(item.ride_id, 10));
+          ticketRequest.input("ride", sql.Int, item.ride_id);
           ticketRequest.input("ticket_type", sql.VarChar(20), item.ticket_type);
-          ticketRequest.input("ticket_price", sql.Decimal(10, 2), ticketPrice);
+          ticketRequest.input(
+            "ticket_price",
+            sql.Decimal(10, 2),
+            item.unit_price,
+          );
 
           await ticketRequest.query(`
             INSERT INTO Ticket (
@@ -602,17 +607,172 @@ app.post("/buy-ticket", async (req, res) => {
           `);
         }
       }
-
-      await transaction.commit();
-      res.send("Tickets purchased successfully!");
-    } catch (err) {
-      await transaction.rollback();
-      console.error("Transaction Error:", err);
-      res.status(500).send("Transaction failed: " + err.message);
     }
+
+    if (giftCart.length > 0) {
+      for (const item of giftCart) {
+        const productId = Number.parseInt(item.product_id, 10);
+        const quantity = Number.parseInt(item.quantity, 10);
+
+        if (!Number.isInteger(productId) || productId <= 0) {
+          throw new Error("Invalid product ID in gift cart.");
+        }
+
+        if (!Number.isInteger(quantity) || quantity <= 0) {
+          throw new Error("Gift item quantity must be at least 1.");
+        }
+
+        const productRequest = new sql.Request(transaction);
+        productRequest.input("product_id", sql.Int, productId);
+
+        const productResult = await productRequest.query(`
+          SELECT product_name, product_price, stock
+          FROM Gift_Shop WITH (UPDLOCK, ROWLOCK)
+          WHERE product_id = @product_id
+        `);
+
+        if (productResult.recordset.length === 0) {
+          throw new Error("Invalid product in gift cart.");
+        }
+
+        const product = productResult.recordset[0];
+        if (product.stock < quantity) {
+          throw new Error(
+            `${product.product_name} only has ${product.stock} item(s) left in stock.`,
+          );
+        }
+
+        const unitPrice = Number.parseFloat(product.product_price);
+        const lineTotal = unitPrice * quantity;
+        receipt.giftSubtotal += lineTotal;
+        receipt.giftItems.push({
+          product_id: productId,
+          product_name: product.product_name,
+          quantity,
+          unit_price: Number(unitPrice.toFixed(2)),
+          line_total: Number(lineTotal.toFixed(2)),
+        });
+
+        const updateStockRequest = new sql.Request(transaction);
+        updateStockRequest.input("product_id", sql.Int, productId);
+        updateStockRequest.input("quantity", sql.Int, quantity);
+
+        await updateStockRequest.query(`
+          UPDATE Gift_Shop
+          SET stock = stock - @quantity
+          WHERE product_id = @product_id
+        `);
+      }
+
+      // Persist gift-shop receipt if optional tables exist.
+      const receiptTableCheck = new sql.Request(transaction);
+      const tableCheckResult = await receiptTableCheck.query(`
+        SELECT
+          OBJECT_ID('Gift_Shop_Receipt', 'U') AS receipt_table_id,
+          OBJECT_ID('Gift_Shop_Receipt_Item', 'U') AS receipt_item_table_id
+      `);
+
+      const hasReceiptTables =
+        tableCheckResult.recordset[0].receipt_table_id &&
+        tableCheckResult.recordset[0].receipt_item_table_id;
+
+      if (hasReceiptTables) {
+        const giftReceiptRequest = new sql.Request(transaction);
+        giftReceiptRequest.input("customer_id", sql.Int, customerId);
+        giftReceiptRequest.input(
+          "purchase_datetime",
+          sql.DateTime2,
+          purchasedAt,
+        );
+        giftReceiptRequest.input(
+          "subtotal",
+          sql.Decimal(10, 2),
+          receipt.giftSubtotal,
+        );
+
+        const giftReceiptResult = await giftReceiptRequest.query(`
+          INSERT INTO Gift_Shop_Receipt (customer_id, purchase_datetime, subtotal)
+          OUTPUT INSERTED.receipt_id
+          VALUES (@customer_id, @purchase_datetime, @subtotal)
+        `);
+
+        const giftReceiptId = giftReceiptResult.recordset[0].receipt_id;
+        receipt.giftReceiptId = giftReceiptId;
+
+        for (const giftItem of receipt.giftItems) {
+          const giftItemRequest = new sql.Request(transaction);
+          giftItemRequest.input("receipt_id", sql.Int, giftReceiptId);
+          giftItemRequest.input("product_id", sql.Int, giftItem.product_id);
+          giftItemRequest.input("quantity", sql.Int, giftItem.quantity);
+          giftItemRequest.input(
+            "unit_price",
+            sql.Decimal(10, 2),
+            giftItem.unit_price,
+          );
+
+          await giftItemRequest.query(`
+            INSERT INTO Gift_Shop_Receipt_Item
+              (receipt_id, product_id, quantity, unit_price)
+            VALUES
+              (@receipt_id, @product_id, @quantity, @unit_price)
+          `);
+        }
+      }
+    }
+
+    receipt.ticketSubtotal = Number(receipt.ticketSubtotal.toFixed(2));
+    receipt.giftSubtotal = Number(receipt.giftSubtotal.toFixed(2));
+    receipt.grandTotal = Number(
+      (receipt.ticketSubtotal + receipt.giftSubtotal).toFixed(2),
+    );
+
+    await transaction.commit();
+    return receipt;
   } catch (err) {
-    console.error("Connection Error:", err);
-    res.status(500).send("Database connection failed: " + err.message);
+    await transaction.rollback();
+    throw err;
+  }
+}
+
+app.post("/checkout", async (req, res) => {
+  const { customer_id, ticket_cart, gift_cart } = req.body;
+
+  try {
+    await sql.connect(config);
+    const receipt = await processCheckout(customer_id, ticket_cart, gift_cart);
+
+    res.json({
+      success: true,
+      message: "Checkout completed successfully.",
+      receipt,
+    });
+  } catch (err) {
+    const message = err?.message || "Checkout failed.";
+    const isValidationError =
+      message.includes("Invalid") ||
+      message.includes("must") ||
+      message.includes("No items") ||
+      message.includes("stock");
+
+    res.status(isValidationError ? 400 : 500).json({
+      success: false,
+      message,
+    });
+  }
+});
+
+// Legacy ticket-only endpoint kept for compatibility.
+app.post("/buy-ticket", async (req, res) => {
+  const { customer_id, cart } = req.body;
+
+  try {
+    await sql.connect(config);
+    await processCheckout(customer_id, cart, []);
+    res.send("Tickets purchased successfully!");
+  } catch (err) {
+    res
+      .status(500)
+      .send("Transaction failed: " + (err?.message || "Unknown error"));
   }
 });
 

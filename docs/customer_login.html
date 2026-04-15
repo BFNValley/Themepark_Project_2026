@@ -9,50 +9,60 @@
   <body>
     <main class="account-shell">
       <section class="account-card" aria-labelledby="login-heading">
-        <div class="account-header">
-          <h1 id="login-heading">Customer Login</h1>
-          <p>Sign in to manage tickets, complaints, and park activity.</p>
+        <div class="account-main">
+          <div class="account-content">
+            <div class="account-header">
+              <h1 id="login-heading">Customer Login</h1>
+              <p>Sign in to manage tickets, complaints, and park activity.</p>
+            </div>
+
+            <form id="customer_login_form" class="login-form">
+              <div class="field-grid">
+                <div class="form-field">
+                  <label for="username">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="username-textbox"
+                    maxlength="30"
+                    placeholder="Username"
+                    required
+                  />
+                </div>
+
+                <div class="form-field">
+                  <label for="password">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="password-textbox"
+                    minlength="4"
+                    maxlength="30"
+                    placeholder="Password"
+                    required
+                  />
+                </div>
+              </div>
+
+              <p id="err-msg" class="error-message">
+                Invalid username or password
+              </p>
+
+              <div class="actions-row">
+                <button type="submit" id="login" class="login-button">
+                  Login
+                </button>
+                <a href="create_customer_account.html" class="secondary-link"
+                  >Create Account</a
+                >
+              </div>
+            </form>
+          </div>
+
+          <aside class="account-image" aria-hidden="true"></aside>
         </div>
-
-        <form id="customer_login_form" class="login-form">
-          <div class="field-grid">
-            <div class="form-field">
-              <label for="username">Username</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                class="username-textbox"
-                maxlength="30"
-                placeholder="Username"
-                required
-              />
-            </div>
-
-            <div class="form-field">
-              <label for="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                class="password-textbox"
-                minlength="4"
-                maxlength="30"
-                placeholder="Password"
-                required
-              />
-            </div>
-          </div>
-
-          <p id="err-msg" class="error-message">Invalid username or password</p>
-
-          <div class="actions-row">
-            <button type="submit" id="login" class="login-button">Login</button>
-            <a href="create_customer_account.html" class="secondary-link"
-              >Create Account</a
-            >
-          </div>
-        </form>
       </section>
     </main>
 

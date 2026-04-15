@@ -1,81 +1,204 @@
+:root {
+  --bg: #a9bbcf;
+  --card: rgba(255, 255, 255, 0.28);
+  --surface: rgba(255, 255, 255, 0.66);
+  --text: #1f2a37;
+  --muted: #425b7b;
+  --primary: #5f90d8;
+  --primary-hover: #83abdf;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background: #a9bbcf;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  margin: 0;
+  min-height: 100vh;
+  padding: 88px 22px 28px;
   font-family: sans-serif;
+  color: var(--text);
+  background: #a9bbcf;
+}
+
+.page-shell {
+  max-width: 1060px;
+  margin: 0 auto;
 }
 
 .ticket-card {
-    display: flex;
-    flex-direction: column;
+  background: var(--card);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 28px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(4px);
+}
 
-  background-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
+.ticket-header {
+  margin-bottom: 20px;
+}
+
+.ticket-header h1 {
+  margin: 0;
+  font-size: 36px;
+  letter-spacing: 0.2px;
+}
+
+.ticket-header p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  max-width: 560px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+
+.purchase-panel,
+.cart-panel {
+  background: var(--surface);
   border-radius: 20px;
-  padding-bottom: 10px;
-
-  min-height: 60%;
-  width: 70%;
-  /*border: 2px solid blue;*/
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
 }
 
-select {
-    border-radius: 4px; /*rounded corners*/
-    border: 1px solid #ccc; /*gray borders*/
-    height: 5%;
-    box-sizing: border-box;
+.purchase-panel h2,
+.cart-panel h2 {
+  margin: 0 0 14px;
+  font-size: 23px;
 }
 
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.form-field label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+select,
 input {
-    border-radius: 4px; /*rounded corners*/
-    border: 1px solid #ccc; /*gray borders*/
-    height: 5%;
-    box-sizing: border-box;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #c8d5e6;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+}
+
+select:focus,
+input:focus {
+  outline: 2px solid rgba(95, 144, 216, 0.35);
+  border-color: var(--primary);
 }
 
 button {
-  background-color: #5f90d8;
-  color: white;
-  border-radius: 15px;
-  font-size: 16px;
-  font-weight: 600;
   border: none;
-
-  width: 40%;
-  max-width: 120px;
-  height: 40px;
-
+  border-radius: 14px;
+  padding: 11px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  color: white;
+  background-color: var(--primary);
   transition:
-    transform 0.4s ease,
-    background-color 0.4s ease,
-    box-shadow 0.28s ease;
-
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease;
+  box-shadow: 0 8px 22px rgba(70, 110, 171, 0.22);
 }
 
 button:hover {
-  transform: scale(1.05);
-  background-color: #83abdf;
-  box-shadow: 0 10px 24px rgba(99, 132, 182, 0.18);
+  transform: translateY(-1px);
+  background-color: var(--primary-hover);
 }
 
-.cart-info{
-    margin: 10px;
-    /*border: 2px solid red;*/
+.primary-btn,
+.checkout-btn {
+  width: 100%;
+  margin-top: 6px;
 }
 
-/* Cart list */
 #cartList {
   list-style: none;
+  margin: 0;
   padding: 0;
+  max-height: 280px;
+  overflow: auto;
 }
 
 #cartList li {
-  background: rgba(255, 255, 255, 0.6);
-  margin: 5px 0;
-  padding: 8px;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  margin: 0 0 10px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+}
+
+#cartList li button {
+  width: auto;
+  min-width: 80px;
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.total-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(66, 91, 123, 0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+}
+
+.back-button {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  padding: 10px 16px;
+  z-index: 10;
+}
+
+@media (max-width: 860px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-card {
+    padding: 20px;
+  }
+
+  .ticket-header h1 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 76px 12px 16px;
+  }
+
+  .ticket-header h1 {
+    font-size: 26px;
+  }
+
+  .purchase-panel,
+  .cart-panel {
+    padding: 14px;
+  }
 }

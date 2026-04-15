@@ -1,2 +1,0 @@
-INSERT INTO Customers
-VALUES (10, 'Michael', 'J', 'Jackson', null, null, 'MichaelJackson@gmail.com', 'HeeHee');

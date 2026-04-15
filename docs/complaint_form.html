@@ -2,59 +2,89 @@
 <html>
   <head>
     <title>Customer Complaint Form</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="complaint_form.css" />
   </head>
 
   <body>
-    <div class="complaint-card">
-      <h1>Customer Complaint Form</h1>
-      <form action="/submit-complaint" method="POST">
-        <div class="subject-reason">
-          <label for="complaint-reason">Reason for complaint:</label>
-          <select id="complaint-reason" name="reason" required>
-            <option value="" disabled selected>Loading options...</option>
-          </select>
-          <div id="other-container">
-            <label for="other-reason">Please specify:</label>
-            <input type="text" id="other-reason" name="other-reason" />
-          </div>
-        </div>
-        <label for="complaint-description">Describe the complaint:</label>
-        <textarea
-          id="complaint-description"
-          name="description"
-          placeholder="Description of complaint..."
-          required
-        ></textarea>
-        <div class="input-row">
-          <div class="input-group">
-            <label for="fname">First name:</label>
-            <input type="text" id="fname" name="fname" required />
-          </div>
-          <div class="input-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required />
-          </div>
-        </div>
-        <div class="input-row">
-          <div class="input-group">
-            <label for="lname">Last name:</label>
-            <input type="text" id="lname" name="lname" required />
-          </div>
-          <div class="input-group">
-            <label for="complaint-date">Date:</label>
-            <input type="date" id="complaint-date" name="date" required />
-          </div>
-        </div>
-        <button type="submit">Submit</button>
-      </form>
-    </div>
     <button
       class="back-button"
       onclick="window.location.href = 'customer.html'"
     >
       Back
     </button>
+
+    <main class="page-shell">
+      <section class="complaint-card" aria-labelledby="complaint-heading">
+        <header class="form-header">
+          <h1 id="complaint-heading">Submit a Complaint</h1>
+          <p>Help us improve by sharing your feedback and concerns.</p>
+        </header>
+
+        <form action="/submit-complaint" method="POST" class="complaint-form">
+          <fieldset class="form-section">
+            <legend>Complaint Details</legend>
+
+            <div class="form-field">
+              <label for="complaint-reason">Reason for Complaint</label>
+              <select id="complaint-reason" name="reason" required>
+                <option value="" disabled selected>Loading options...</option>
+              </select>
+            </div>
+
+            <div id="other-container" class="form-field">
+              <label for="other-reason">Please Specify</label>
+              <input
+                type="text"
+                id="other-reason"
+                name="other-reason"
+                placeholder="Enter details"
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="complaint-description">Description</label>
+              <textarea
+                id="complaint-description"
+                name="description"
+                placeholder="Please provide a detailed description of your complaint..."
+                required
+              ></textarea>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-section">
+            <legend>Your Information</legend>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="fname">First Name</label>
+                <input type="text" id="fname" name="fname" required />
+              </div>
+              <div class="form-field">
+                <label for="lname">Last Name</label>
+                <input type="text" id="lname" name="lname" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required />
+              </div>
+              <div class="form-field">
+                <label for="complaint-date">Date of Incident</label>
+                <input type="date" id="complaint-date" name="date" required />
+              </div>
+            </div>
+          </fieldset>
+
+          <button type="submit" class="submit-btn">Submit Complaint</button>
+        </form>
+      </section>
+    </main>
+
     <script src="complaint_form.js"></script>
   </body>
 </html>

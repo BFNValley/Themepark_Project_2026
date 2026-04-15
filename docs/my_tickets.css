@@ -1,0 +1,116 @@
+:root {
+  --bg: #a9bbcf;
+  --card: rgba(255, 255, 255, 0.28);
+  --surface: rgba(255, 255, 255, 0.66);
+  --text: #1f2a37;
+  --muted: #425b7b;
+  --primary: #5f90d8;
+  --primary-hover: #83abdf;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 88px 22px 28px;
+  font-family: sans-serif;
+  color: var(--text);
+  background: #a9bbcf;
+}
+
+.ticket-card {
+  background: var(--card);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 28px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(4px);
+}
+
+.cart-info {
+  margin: 0;
+}
+
+.cart-info h1 {
+  margin: 0 0 20px;
+  font-size: 36px;
+  letter-spacing: 0.2px;
+  color: var(--text);
+}
+
+button {
+  border: none;
+  border-radius: 14px;
+  padding: 11px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  color: white;
+  background-color: var(--primary);
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease;
+  box-shadow: 0 8px 22px rgba(70, 110, 171, 0.22);
+}
+
+button:hover {
+  transform: translateY(-1px);
+  background-color: var(--primary-hover);
+}
+
+.table-scroll-container {
+  max-height: 448px;
+  overflow-y: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+#ticketsTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+#ticketsTable thead {
+  position: sticky;
+  top: 0;
+  background: rgba(95, 144, 216, 0.95);
+  z-index: 5;
+}
+
+#ticketsTable th {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+#ticketsTable td {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 10px;
+}
+
+@media (max-width: 860px) {
+  .ticket-card {
+    padding: 20px;
+  }
+
+  .cart-info h1 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 76px 12px 16px;
+  }
+
+  .cart-info h1 {
+    font-size: 26px;
+  }
+}
