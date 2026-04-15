@@ -258,10 +258,6 @@
     <div class="card">
       <div class="section-title">Employee List</div>
 
-      <div class="btn-row">
-        <button onclick="loadEmployees()">&#8635; Refresh</button>
-      </div>
-
       <div class="search-row">
         <input
           type="text"
@@ -269,6 +265,14 @@
           placeholder="Search by name..."
           oninput="searchEmployees()"
         />
+
+        <select id = "statusFilter" onchange="loadEmployees()">
+          <option value="active">Active</option>
+          <option value="inactive">Deactivated</option>
+          <option value="all">All</option>
+        </select>
+
+        <button onclick="loadEmployees()">&#8635; Refresh</button>
       </div>
 
       <div class="msg" id="actionMsg"></div>
@@ -363,14 +367,17 @@
         document.getElementById("employeeTable").innerHTML = "";
         document.getElementById("actionMsg").className = "msg";
         document.getElementById("searchInput").value = "";
+        const statusFilter = document.getElementById("statusFilter").value;
+
         try {
-          const response = await fetch("/employees", {
+          const response = await fetch(`/employees?status=${statusFilter}`, {
             headers: {
               role_id: sessionStorage.getItem("role_id"),
             },
           });
           const data = await response.json();
           allEmployees = data;
+
           document.getElementById("status").textContent = "";
 
           if (!data || data.length === 0) {
@@ -422,7 +429,6 @@
 
         data.forEach((e) => {
           const middleInitial = e.middle_initial ? e.middle_initial + ". " : "";
-          const fullName = e.first_name + " " + middleInitial + e.last_name;
           html += `<tr id="erow-${e.employee_id}">`;
           html += `<td>${e.employee_id}</td>`;
           html += `<td id = "efirstname-${e.employee_id}">${e.first_name}</td>`;
@@ -430,11 +436,20 @@
           html += `<td id ="erole-${e.employee_id}">${e.role_name || "-"}</td>`;
           html += `<td id="eusername-${e.employee_id}">${e.username}</td>`;
           html += `<td id="epay-${e.employee_id}">${e.pay_rate}</td>`;
-          html += `<td>${e.is_active == 1 ? "Active" : "Inactive"}</td>`;
-          html += `<td>
-                        <button class="small secondary" onclick="editEmployee(${e.employee_id}, '${e.username}', ${e.pay_rate}, ${e.role_id ?? "null"}, '${e.first_name}', '${e.last_name}')">&#9999;&#65039; Edit</button>
-                        <button class="small danger" onclick="deactivateEmployee(${e.employee_id})">Deactivate</button>
-                    </td>`;
+          html += `<td style="color:${e.is_active ? "green" : "red"}">
+            ${e.is_active ? "Active" : "Inactive"}
+          </td>`;
+          const actionButtons = 
+            e.is_active == 1
+            ? `
+              <button class="small secondary" onclick="editEmployee(${e.employee_id}, '${e.username}', ${e.pay_rate}, ${e.role_id ?? "null"}, '${e.first_name}', '${e.last_name}')">&#9999;&#65039; Edit</button>
+              <button class="small danger" onclick="deactivateEmployee(${e.employee_id})">Deactivate</button>
+            `
+            : `
+              <button class="small success" onclick="reactivateEmployee(${e.employee_id})">Reactivate</button>
+            `;
+          html += `<td>${actionButtons}</td>`;
+          
           html += "</tr>";
         });
 
@@ -544,6 +559,25 @@
             loadEmployees();
           } else {
             alert("Failed to deactivate employee");
+          }
+        } catch (err) {
+          alert("Server error");
+        }
+      }
+
+      async function reactivateEmployee(id) {
+        try {
+          const res = await fetch(`/employees/reactivate/${id}`, {
+            method: "PUT",
+            headers: {
+              role_id: sessionStorage.getItem("role_id"),
+            },
+          });
+
+          if (res.ok) {
+            loadEmployees();
+          } else {
+            alert("Failed to reactivate employee");
           }
         } catch (err) {
           alert("Server error");

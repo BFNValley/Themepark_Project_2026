@@ -223,9 +223,14 @@
                         msgEl.textContent = "Weather report submitted successfully";
                         loadWeatherRecords();
                     } else {
-                        const err = await res.text();
+                        const err = await res.text;
                         msgEl.className = 'msg error';
-                        msgEl.textContent = "Error: " + err;
+
+                        if (res.status === 409) {
+                            msgEl.textContent = err.message || "Weather record exists for this date. You cannot enter two records for the same day.";
+                        } else {
+                            msgEl.textContent = errText || "Something went wrong.";
+                        }
                     }
                 } catch (err) {
                     msgEl.className = "msg error";
