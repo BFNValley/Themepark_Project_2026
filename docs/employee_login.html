@@ -7,52 +7,55 @@
     <link rel="stylesheet" href="employee_login.css" />
   </head>
   <body>
-    <!--Create box for username and password-->
-    <form id="employee_login_form" class="login-form">
-      <br /><br />
-      <!--username text box-->
-      <div>
-        <label for="username">Username:</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          class="username-textbox"
-          maxlength="30"
-          placeholder="username"
-          required
-        />
-      </div>
+    <main class="account-shell">
+      <section class="account-card" aria-labelledby="login-heading">
+        <div class="account-header">
+          <h1 id="login-heading">Employee Login</h1>
+          <p>Sign in to access employee tools and operational dashboards.</p>
+        </div>
 
-      <br />
-      <!--password text box-->
-      <div>
-        <label for="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          class="password-textbox"
-          minlength="8"
-          maxlength="30"
-          placeholder="password"
-          required
-        />
-      </div>
-      <br />
-      <p id="err-msg" style="display: none; color: red">
-        Invalid username or password
-      </p>
+        <form id="employee_login_form" class="login-form">
+          <div class="field-grid">
+            <div class="form-field">
+              <label for="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                class="username-textbox"
+                maxlength="30"
+                placeholder="Username"
+                required
+              />
+            </div>
 
-      <br />
-      <!--login button-->
-      <div>
-        <button type="submit" id="login" class="login-button">Login</button>
-      </div>
-      <button class="back-button" onclick="window.location.href = 'login.html'">
-        Back
-      </button>
-    </form>
+            <div class="form-field">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="password-textbox"
+                minlength="8"
+                maxlength="30"
+                placeholder="Password"
+                required
+              />
+            </div>
+          </div>
+
+          <p id="err-msg" class="error-message">Invalid username or password</p>
+
+          <div class="actions-row">
+            <button type="submit" id="login" class="login-button">Login</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <button class="back-button" onclick="window.location.href = 'login.html'">
+      Back
+    </button>
 
     <script>
       document
