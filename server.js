@@ -20,18 +20,29 @@ app.get("/customer_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/customer_login.html");
 });
 
-const config = {
+/*const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   server: process.env.DB_SERVER,
   database: process.env.DB_NAME,
   options: { encrypt: true },
+};*/
+
+const config = {
+  user: "BFNValley",
+  password: "ThemeparkProject3!",
+  server: "themepark-db-server.database.windows.net",
+  database: "themepark-database",
+  options: { encrypt: true },
 };
 
 app.get("/customers", async (req, res) => {
+  const activeOnly = req.query.activeOnly === "1";
   try {
     await sql.connect(config);
-    const result = await sql.query(`
+    const request = new sql.Request();
+    request.input("active_only", sql.Bit, activeOnly ? 1 : 0);
+    const result = await request.query(`
             SELECT 
                 c.customer_id,
                 c.first_name,
@@ -40,9 +51,11 @@ app.get("/customers", async (req, res) => {
                 c.date_of_birth,
                 c.phone_number,
                 c.email_address,
+                c.is_active,
                 MAX(t.visiting_date) AS last_visit_date
             FROM Customers c
             LEFT JOIN Ticket t on c.customer_id = t.customer_id
+            WHERE (@active_only = 0 OR c.is_active = 1)
             GROUP BY
                 c.customer_id,
                 c.first_name,
@@ -50,7 +63,8 @@ app.get("/customers", async (req, res) => {
                 c.last_name,
                 c.date_of_birth,
                 c.phone_number,
-                c.email_address
+                c.email_address,
+                c.is_active
             ORDER BY last_visit_date DESC
             `);
     res.json(result.recordset);
@@ -149,7 +163,8 @@ app.post("/customer_login", async (req, res) => {
         SELECT Customers.email_address, Customers.customer_id
         FROM Customers 
         WHERE Customers.email_address = @input_username
-        AND Customers.customer_password = @input_password`); //note: update schema, insert password attribute into Customers table
+      AND Customers.customer_password = @input_password
+      AND Customers.is_active = 1`); //note: update schema, insert password attribute into Customers table
 
     if (result.recordset.length === 0) {
       //check if not found username and password
@@ -236,9 +251,9 @@ app.post("/create_customer_account", async (req, res) => {
 
     await request.query(`
       INSERT INTO Customers
-      (first_name, middle_initial, last_name, date_of_birth, phone_number, email_address, customer_password)
+      (first_name, middle_initial, last_name, date_of_birth, phone_number, email_address, customer_password, is_active)
       VALUES
-      (@first_name, @middle_initial, @last_name, @date_of_birth, @phone_number, @email_address, @customer_password)
+      (@first_name, @middle_initial, @last_name, @date_of_birth, @phone_number, @email_address, @customer_password, 1)
     `);
 
     return res.json({
@@ -449,16 +464,46 @@ app.put("/customers/:id", async (req, res) => {
   }
 });
 
-app.delete("/customers/:id", async (req, res) => {
+app.patch("/customers/:id/deactivate", async (req, res) => {
   const id = req.params.id;
   try {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("id", sql.Int, id);
-    await request.query(`
-            DELETE FROM Customers
+    const result = await request.query(`
+            UPDATE Customers
+            SET is_active = 0
             WHERE customer_id = @id
+              AND is_active = 1
         `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).send("Customer not found or already inactive.");
+    }
+
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.patch("/customers/:id/reactivate", async (req, res) => {
+  const id = req.params.id;
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input("id", sql.Int, id);
+    const result = await request.query(`
+            UPDATE Customers
+            SET is_active = 1
+            WHERE customer_id = @id
+              AND is_active = 0
+        `);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).send("Customer not found or already active.");
+    }
+
     res.sendStatus(200);
   } catch (err) {
     res.status(500).send(err.message);
@@ -484,7 +529,7 @@ async function processCheckout(customerIdRaw, ticketCartRaw, giftCartRaw) {
   checkRequest.input("customer_id", sql.Int, customerId);
 
   const customerCheck = await checkRequest.query(
-    "SELECT 1 FROM Customers WHERE customer_id = @customer_id",
+    "SELECT 1 FROM Customers WHERE customer_id = @customer_id AND is_active = 1",
   );
 
   if (customerCheck.recordset.length === 0) {

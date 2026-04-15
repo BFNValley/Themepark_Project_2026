@@ -17,8 +17,8 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
         border-radius: 28px;
         padding: 40px 50px;
-        width: 900px;
-        max-width: 90vw;
+        width: 1120px;
+        max-width: 96vw;
         margin: 0 auto;
       }
 
@@ -27,8 +27,8 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
         border-radius: 28px;
         padding: 32px 50px;
-        width: 900px;
-        max-width: 90vw;
+        width: 1120px;
+        max-width: 96vw;
         margin: 24px auto 0;
       }
 
@@ -138,6 +138,40 @@
         max-height: 200px;
       }
 
+      .customer-table-wrap {
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 420px;
+      }
+
+      .customer-table-wrap thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      .active-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.62);
+        color: #1f2a37;
+        font-size: 14px;
+        font-weight: 600;
+        user-select: none;
+        cursor: pointer;
+      }
+
+      .active-toggle input {
+        margin: 0;
+        width: 16px;
+        height: 16px;
+        accent-color: #5f90d8;
+        cursor: pointer;
+      }
+
       #complaintsTable thead th {
         position: sticky;
         top: 0;
@@ -198,6 +232,15 @@
           placeholder="Search by name..."
           oninput="searchCustomers()"
         />
+        <label class="active-toggle" for="activeOnlyToggle">
+          <input
+            type="checkbox"
+            id="activeOnlyToggle"
+            checked
+            onchange="loadCustomers()"
+          />
+          <span>Active customers only</span>
+        </label>
       </div>
 
       <div class="msg" id="actionMsg"></div>
@@ -219,8 +262,11 @@
         document.getElementById("customerTable").innerHTML = "";
         document.getElementById("actionMsg").className = "msg";
         document.getElementById("searchInput").value = "";
+        const activeOnly = document.getElementById("activeOnlyToggle").checked;
         try {
-          const response = await fetch("/customers");
+          const response = await fetch(
+            `/customers?activeOnly=${activeOnly ? "1" : "0"}`,
+          );
           const data = await response.json();
           allCustomers = data;
           document.getElementById("status").textContent = "";
@@ -268,6 +314,7 @@
         html += "<th>Phone Number</th>";
         html += "<th>Email Address</th>";
         html += "<th>Last Visit</th>";
+        html += "<th>Active</th>";
         html += "<th>Actions</th>";
         html += "</tr></thead><tbody>";
 
@@ -285,15 +332,21 @@
           html += `<td id="phone-${c.customer_id}">${c.phone_number}</td>`;
           html += `<td id="email-${c.customer_id}">${c.email_address}</td>`;
           html += `<td>${lastVisit}</td>`;
+          html += `<td>${c.is_active ? "Yes" : "No"}</td>`;
           html += `<td>
-                        <button class="small secondary" onclick="editCustomer(${c.customer_id}, '${c.phone_number}', '${c.email_address}')">&#9999;&#65039; Edit</button>
-                        <button class="small danger" onclick="deleteCustomer(${c.customer_id})">&#128465;&#65039; Delete</button>
+                        ${
+                          c.is_active
+                            ? `<button class="small secondary" onclick="editCustomer(${c.customer_id}, '${c.phone_number}', '${c.email_address}')">&#9999;&#65039; Edit</button>
+                        <button class="small danger" onclick="deactivateCustomer(${c.customer_id})">Deactivate</button>`
+                            : `<button class="small success" onclick="reactivateCustomer(${c.customer_id})">Reactivate</button>`
+                        }
                     </td>`;
           html += "</tr>";
         });
 
         html += "</tbody></table>";
-        document.getElementById("customerTable").innerHTML = html;
+        document.getElementById("customerTable").innerHTML =
+          `<div class=\"customer-table-wrap\">${html}</div>`;
       }
 
       function editCustomer(id, phone, email) {
@@ -348,18 +401,43 @@
         }
       }
 
-      async function deleteCustomer(id) {
-        if (!confirm("Are you sure you want to delete this customer?")) return;
+      async function deactivateCustomer(id) {
+        if (!confirm("Are you sure you want to deactivate this customer?"))
+          return;
 
         const msgEl = document.getElementById("actionMsg");
         try {
-          const res = await fetch(`/customers/${id}`, {
-            method: "DELETE",
+          const res = await fetch(`/customers/${id}/deactivate`, {
+            method: "PATCH",
           });
 
           if (res.ok) {
             msgEl.className = "msg success";
-            msgEl.textContent = "Customer deleted successfully.";
+            msgEl.textContent = "Customer deactivated successfully.";
+            loadCustomers();
+          } else {
+            const err = await res.text();
+            msgEl.className = "msg error";
+            msgEl.textContent = "Error: " + err;
+          }
+        } catch (err) {
+          msgEl.className = "msg error";
+          msgEl.textContent = "Failed to connect to server.";
+        }
+      }
+
+      async function reactivateCustomer(id) {
+        if (!confirm("Reactivate this customer account?")) return;
+
+        const msgEl = document.getElementById("actionMsg");
+        try {
+          const res = await fetch(`/customers/${id}/reactivate`, {
+            method: "PATCH",
+          });
+
+          if (res.ok) {
+            msgEl.className = "msg success";
+            msgEl.textContent = "Customer reactivated successfully.";
             loadCustomers();
           } else {
             const err = await res.text();
