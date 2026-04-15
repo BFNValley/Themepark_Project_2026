@@ -5,6 +5,13 @@
     <link rel="stylesheet" href="maintenance_form.css" />
   </head>
   <body>
+    <button
+      class="back-button"
+      onclick="window.location.href = 'maintenance_portal.html'"
+    >
+      Back
+    </button>
+
     <div class="maintenance-card">
       <h1>Create Maintenance</h1>
       <form method="POST" action="/submit-maintenance" id="maintenance_form">
@@ -62,12 +69,6 @@
         ></textarea>
         <button type="submit">Submit</button>
       </form>
-      <button
-        class="back-button"
-        onclick="window.location.href = 'maintenance_portal.html'"
-      >
-        Back
-      </button>
     </div>
     <script src="maintenance_form.js"></script>
   </body>

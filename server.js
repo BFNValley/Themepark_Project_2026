@@ -20,19 +20,11 @@ app.get("/customer_login.html", (req, res) => {
   res.sendFile(__dirname + "/docs/customer_login.html");
 });
 
-/*const config = {
+const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   server: process.env.DB_SERVER,
   database: process.env.DB_NAME,
-  options: { encrypt: true },
-};*/
-
-const config = {
-  user: "BFNValley",
-  password: "ThemeparkProject3!",
-  server: "themepark-db-server.database.windows.net",
-  database: "themepark-database",
   options: { encrypt: true },
 };
 
@@ -302,6 +294,11 @@ app.post("/weather", async (req, res) => {
         `);
     res.sendStatus(200);
   } catch (err) {
+    if (err.number === 2627 || err.number === 2601) {
+      return res
+        .status(409)
+        .send("Weather report for this date has already been submitted");
+    }
     res.status(500).send(err.message);
   }
 });
@@ -1467,9 +1464,19 @@ app.get("/maintenance-tickets", async (req, res) => {
     await sql.connect(config);
 
     const result = await sql.query(`
-      SELECT ticket_id, ride_id, employee_id, date_opened, issue_type, maintenance_description, maintenance_priority, maintenance_status
-      FROM Maintenance_Ticket
-      ORDER BY ticket_id
+      SELECT
+        mt.ticket_id,
+        mt.ride_id,
+        r.ride_name,
+        mt.employee_id,
+        mt.date_opened,
+        mt.issue_type,
+        mt.maintenance_description,
+        mt.maintenance_priority,
+        mt.maintenance_status
+      FROM Maintenance_Ticket mt
+      LEFT JOIN Ride r ON mt.ride_id = r.ride_id
+      ORDER BY mt.date_opened DESC, mt.ticket_id DESC
     `);
 
     res.json(result.recordset);
@@ -1546,5 +1553,3 @@ app.get("/maintenance-tickets/:ticket_id", async (req, res) => {
     res.status(500).send(err.message);
   }
 });
-
-// gift shop stuff

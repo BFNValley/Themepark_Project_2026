@@ -41,6 +41,40 @@ h1 {
   font-weight: 700;
 }
 
+.toolbar {
+  width: 90%;
+  margin: 0 auto 12px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+}
+
+.toggle-label input[type="checkbox"] {
+  accent-color: #5f90d8;
+}
+
+.toolbar select {
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: #fff;
+  font-size: 14px;
+}
+
 .table-container {
   width: 90%;
   margin: 0 auto;
