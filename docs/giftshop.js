@@ -1,4 +1,5 @@
 let inventory = [];
+let lowStockAlerts = [];
 
 const roleId = Number(sessionStorage.getItem("role_id"));
 const username = sessionStorage.getItem("username");
@@ -8,6 +9,7 @@ const formMsg = document.getElementById("form-msg");
 const tableMsg = document.getElementById("table-msg");
 const addForm = document.getElementById("add-product-form");
 const searchInput = document.getElementById("search-input");
+const alertStack = document.getElementById("low-stock-alerts");
 
 if (!username || ![1, 3].includes(roleId)) {
   sessionStorage.clear();
@@ -16,6 +18,7 @@ if (!username || ![1, 3].includes(roleId)) {
 
 document.getElementById("refresh-btn").addEventListener("click", () => {
   loadInventory();
+  loadLowStockAlerts();
 });
 
 document.getElementById("clear-btn").addEventListener("click", () => {
@@ -26,6 +29,8 @@ document.getElementById("clear-btn").addEventListener("click", () => {
 searchInput.addEventListener("input", () => {
   renderInventory(searchInput.value.trim().toLowerCase());
 });
+
+setInterval(loadLowStockAlerts, 15000);
 
 addForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -76,6 +81,7 @@ addForm.addEventListener("submit", async (event) => {
     setMessage(formMsg, "Product added successfully.", "success");
     addForm.reset();
     await loadInventory();
+    await loadLowStockAlerts();
   } catch (err) {
     setMessage(formMsg, "Server error. Please try again.", "error");
   }
@@ -105,6 +111,7 @@ async function loadInventory() {
     inventory = data;
     setMessage(tableMsg, "", "");
     renderInventory(searchInput.value.trim().toLowerCase());
+    await loadLowStockAlerts();
   } catch (err) {
     setMessage(tableMsg, "Server error while loading inventory.", "error");
   }
@@ -224,6 +231,7 @@ async function saveEdit(productId) {
 
     setMessage(tableMsg, "Product updated.", "success");
     await loadInventory();
+    await loadLowStockAlerts();
   } catch (err) {
     setMessage(tableMsg, "Server error while updating.", "error");
   }
@@ -253,8 +261,92 @@ async function deleteProduct(productId) {
 
     setMessage(tableMsg, "Product deleted.", "success");
     await loadInventory();
+    await loadLowStockAlerts();
   } catch (err) {
     setMessage(tableMsg, "Server error while deleting.", "error");
+  }
+}
+
+async function loadLowStockAlerts() {
+  if (!alertStack) return;
+
+  try {
+    const response = await fetch("/gift-shop/alerts", {
+      headers: {
+        role_id: String(roleId),
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      renderLowStockAlerts([]);
+      return;
+    }
+
+    lowStockAlerts = Array.isArray(data) ? data : [];
+    renderLowStockAlerts(lowStockAlerts);
+  } catch (err) {
+    renderLowStockAlerts([]);
+  }
+}
+
+function renderLowStockAlerts(alerts) {
+  if (!alertStack) return;
+
+  if (!alerts.length) {
+    alertStack.innerHTML = "";
+    alertStack.style.display = "none";
+    return;
+  }
+
+  alertStack.style.display = "flex";
+  alertStack.innerHTML = alerts
+    .map(
+      (alert) => `
+        <article class="alert-card">
+          <h3>Low Stock Alert</h3>
+          <p><strong>${escapeHtml(alert.product_name)}</strong> is running low.</p>
+          <p>Current stock: ${Number(alert.current_stock)} | Threshold: ${Number(alert.threshold)}</p>
+          <p>${escapeHtml(alert.message)}</p>
+          <div class="alert-actions">
+            <button class="acknowledge" type="button" data-alert-id="${alert.alert_id}">Acknowledge</button>
+          </div>
+          <p class="alert-muted">Created ${new Date(alert.created_at).toLocaleString()}</p>
+        </article>
+      `,
+    )
+    .join("");
+
+  alertStack.querySelectorAll("button[data-alert-id]").forEach((button) => {
+    button.addEventListener("click", () =>
+      acknowledgeAlert(button.dataset.alertId),
+    );
+  });
+}
+
+async function acknowledgeAlert(alertId) {
+  try {
+    const response = await fetch(`/gift-shop/alerts/${alertId}/acknowledge`, {
+      method: "PUT",
+      headers: {
+        role_id: String(roleId),
+      },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      setMessage(
+        tableMsg,
+        data.message || "Unable to acknowledge alert.",
+        "error",
+      );
+      return;
+    }
+
+    await loadLowStockAlerts();
+  } catch (err) {
+    setMessage(tableMsg, "Server error while acknowledging alert.", "error");
   }
 }
 

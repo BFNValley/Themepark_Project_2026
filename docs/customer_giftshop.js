@@ -71,7 +71,6 @@ function renderProducts() {
     item.innerHTML = `
       <h3>${escapeHtml(product.product_name)}</h3>
       <p class="product-meta">Price: $${Number(product.product_price).toFixed(2)}</p>
-      <p class="product-meta">In Stock: ${product.stock}</p>
       <div class="quantity-row">
         <label for="qty-${product.product_id}">Qty</label>
         <input id="qty-${product.product_id}" type="number" min="1" max="${product.stock}" value="1" />

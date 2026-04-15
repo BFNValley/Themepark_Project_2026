@@ -150,8 +150,8 @@ function renderTable(data) {
     html += `<td id="rstatus-${ride.ride_id}">${statusLabel(ride.ride_status)}</td>`;
     html += `<td id="rdeprecated-${ride.ride_id}">${Number(ride.deprecated) === 1 ? "Yes" : "No"}</td>`;
     html += `<td>
-                    <button class="small secondary" onclick="editRide(${ride.ride_id}, '${safeRideName}', ${Number(ride.ride_price)}, ${Number(ride.ride_status)})">&#9999;&#65039; Edit</button>
-										<button class="small ${Number(ride.deprecated) === 1 ? "success" : "warning"}" onclick="setRideDeprecated(${ride.ride_id}, '${safeRideName}', ${Number(ride.deprecated) === 1 ? 0 : 1})">${Number(ride.deprecated) === 1 ? "Restore" : "Deprecate"}</button>
+                    <button class="small secondary" onclick="editRide(${ride.ride_id}, '${safeRideName}', ${Number(ride.ride_price)}, ${Number(ride.ride_status)})">Edit</button>
+										<button class="small ${Number(ride.deprecated) === 1 ? "restore" : "warning"}" onclick="setRideDeprecated(${ride.ride_id}, '${safeRideName}', ${Number(ride.deprecated) === 1 ? 0 : 1})">${Number(ride.deprecated) === 1 ? "Restore" : "Deprecate"}</button>
                   </td>`;
     html += "</tr>";
   });

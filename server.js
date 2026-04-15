@@ -1263,6 +1263,86 @@ app.delete("/gift-shop/products/:id", checkRoles([1, 3]), async (req, res) => {
   }
 });
 
+app.get("/gift-shop/alerts", checkRoles([1, 3]), async (req, res) => {
+  try {
+    await sql.connect(config);
+
+    const tableCheck = await new sql.Request().query(`
+      SELECT CASE
+        WHEN OBJECT_ID('dbo.Gift_Shop_Low_Stock_Alert', 'U') IS NULL THEN 0
+        ELSE 1
+      END AS has_table
+    `);
+
+    if (!tableCheck.recordset[0]?.has_table) {
+      return res.json([]);
+    }
+
+    const result = await sql.query(`
+      SELECT
+        a.alert_id,
+        a.product_id,
+        a.product_name,
+        a.current_stock,
+        a.threshold,
+        a.message,
+        a.created_at
+      FROM Gift_Shop_Low_Stock_Alert a
+      WHERE a.acknowledged_at IS NULL
+      ORDER BY a.created_at DESC, a.alert_id DESC
+    `);
+
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put(
+  "/gift-shop/alerts/:id/acknowledge",
+  checkRoles([1, 3]),
+  async (req, res) => {
+    const alertId = Number(req.params.id);
+
+    if (!Number.isInteger(alertId) || alertId <= 0) {
+      return res.status(400).json({ message: "Invalid alert id." });
+    }
+
+    try {
+      await sql.connect(config);
+
+      const tableCheck = await new sql.Request().query(`
+        SELECT CASE
+          WHEN OBJECT_ID('dbo.Gift_Shop_Low_Stock_Alert', 'U') IS NULL THEN 0
+          ELSE 1
+        END AS has_table
+      `);
+
+      if (!tableCheck.recordset[0]?.has_table) {
+        return res.status(400).json({ message: "Alert table does not exist." });
+      }
+
+      const request = new sql.Request();
+      request.input("alert_id", sql.Int, alertId);
+
+      const result = await request.query(`
+        UPDATE Gift_Shop_Low_Stock_Alert
+        SET acknowledged_at = SYSDATETIME()
+        WHERE alert_id = @alert_id
+          AND acknowledged_at IS NULL
+      `);
+
+      if (result.rowsAffected[0] === 0) {
+        return res.status(404).json({ message: "Alert not found." });
+      }
+
+      res.json({ success: true, message: "Alert acknowledged." });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+);
+
 // customer complaint route
 
 app.post("/submit-complaint", async (req, res) => {
