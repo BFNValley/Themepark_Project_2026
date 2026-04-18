@@ -5,7 +5,11 @@
 }
 
 body {
-  background: #a9bbcf;
+  background: url(home_page_bg.jpeg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   font-family: sans-serif;
   color: #1f2a37;
   min-height: 100vh;
@@ -88,7 +92,7 @@ header {
 }
 
 .hero-buttons button.outline {
-  background: transparent;
+  /*background: transparent;*/
   color: #1f2a37;
   border: 2px solid #1f2a37;
 }
@@ -107,7 +111,7 @@ header {
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.80);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   border-radius: 28px;
   padding: 36px 32px;
@@ -255,7 +259,7 @@ h1 {
   text-align: center;
   width: 820px;
   max-width: 90vw;
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.80);
   box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
 }
 
