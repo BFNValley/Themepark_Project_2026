@@ -332,12 +332,13 @@ app.get("/stats/revenue", async (req, res) => {
     request.input("to", sql.Date, to);
     const result = await request.query(`
             SELECT
-                SUM(t.price) AS Total_Revenue,
-                COUNT(t.ticket_id) AS Tickets_Sold,
-                COUNT(DISTINCT t.customer_id) AS Unique_Customers
+                DATENAME(MONTH, t.visiting_date) AS Month,
+                SUM(t.ticket_price) AS Revenue,
+                COUNT(t.ticket_id) AS Tickets_Sold
             FROM Ticket t
-            JOIN Ride r ON t.ride = r.ride_id
             WHERE t.visiting_date BETWEEN @from AND @to
+            GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date)
+            ORDER BY MONTH(t.visiting_date)
             `);
     res.json(result.recordset);
   } catch (err) {
@@ -387,11 +388,9 @@ app.get("/stats/new-customers", async (req, res) => {
     request.input("to", sql.Date, to);
     const result = await request.query(`
             SELECT
-              COUNT(DISTINCT c.customer_id) AS New_Customers
+              COUNT(*) AS New_Customers
             FROM Customers c
-            JOIN Ticket t ON c.customer_id = t.customer_id
-            WHERE created_at BETWEEN @from AND @to
-              AND t.visiting_date BETWEEN @from AND @to
+            WHERE t.visiting_date BETWEEN @from AND @to
             `);
     res.json(result.recordset);
   } catch (err) {
