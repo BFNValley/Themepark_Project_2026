@@ -319,123 +319,124 @@ app.post("/weather", async (req, res) => {
   }
 });
 
-// --- STATS: CUSTOMER Ticket History ---
-
-app.get("/stats/customers-ticket-history", async (req, res) => {
+// --- STATS: Total Revenue ---
+app.get("/stats/revenue", async (req, res) => {
   const { from, to } = req.query;
-  if (!from || !to)
-    return res.status(400).send("Please provide from and to dates.");
+  if (!from || !to) return res.status(400).send("Please provide from and to dates.");
   try {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("from", sql.Date, from);
     request.input("to", sql.Date, to);
     const result = await request.query(`
-            SELECT
-                c.first_name + ' ' + c.last_name AS Customer,
-                COUNT(t.ticket_id) AS Total_Tickets,
-                CONVERT(VARCHAR(10), MAX(t.visiting_date), 120) AS Last_Visit
-            FROM Customers c
-            JOIN Ticket t ON c.customer_id = t.customer_id
-            WHERE t.visiting_date BETWEEN @from AND @to
-            GROUP BY c.customer_id, c.first_name, c.last_name
-            ORDER BY Total_Tickets DESC
-            `);
+      SELECT
+        DATENAME(MONTH, t.visiting_date) AS Month,
+        COUNT(t.ticket_id) AS Tickets_Sold,
+        SUM(t.ticket_price) AS Ticket_Revenue,
+        COUNT(DISTINCT gs_r.receipt_id) AS Gift_Transactions,
+        ISNULL(SUM(gs_r.subtotal), 0) AS Gift_Revenue,
+        SUM(t.ticket_price) + ISNULL(SUM(gs_r.subtotal), 0) AS Total_Revenue
+      FROM Ticket t
+      LEFT JOIN Ticket_Payment tp ON tp.customer_id = t.customer_id
+        AND CAST(tp.purchase_date AS DATE) = CAST(t.visiting_date AS DATE)
+      LEFT JOIN Gift_Shop_Receipt gs_r ON gs_r.customer_id = t.customer_id
+        AND CAST(gs_r.purchase_datetime AS DATE) = CAST(t.visiting_date AS DATE)
+      WHERE t.visiting_date BETWEEN @from AND @to
+      GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date)
+      ORDER BY MONTH(t.visiting_date)
+    `);
     res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
-// --- STATS: Popular Rides Per Month ---
-
-app.get("/stats/rides-per-month", async (req, res) => {
+// --- STATS: Tickets Overview ---
+app.get("/stats/tickets", async (req, res) => {
   const { from, to } = req.query;
-  if (!from || !to) {
-    return res.status(400).send("Please provide from and to dates.");
-  }
+  if (!from || !to) return res.status(400).send("Please provide from and to dates.");
   try {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("from", sql.Date, from);
     request.input("to", sql.Date, to);
     const result = await request.query(`
-            SELECT
-              DATENAME(MONTH, t.visiting_date) AS Month,
-              r.ride_name AS Ride,
-              COUNT(t.ticket_id) AS Tickets_Sold
-            FROM Ticket t
-            JOIN Ride r ON t.ride = r.ride_id
-            WHERE t.visiting_date BETWEEN @from AND @to
-            GROUP BY MONTH(t.visiting_date), DATENAME(MONTH, t.visiting_date), r.ride_name
-            ORDER BY MONTH(t.visiting_date), Tickets_Sold DESC
-        `);
+      SELECT
+        r.ride_name AS Ride,
+        t.ticket_type AS Ticket_Type,
+        COUNT(t.ticket_id) AS Tickets_Sold,
+        SUM(t.ticket_price) AS Revenue,
+        AVG(t.ticket_price) AS Avg_Price
+      FROM Ticket t
+      JOIN Ride r ON t.ride = r.ride_id
+      WHERE t.visiting_date BETWEEN @from AND @to
+      GROUP BY r.ride_name, t.ticket_type
+      ORDER BY Tickets_Sold DESC
+    `);
     res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
-// ---STATS: Weather Impact on Ticket Sales ---
-
-app.get("/stats/weather-impact", async (req, res) => {
+// --- STATS: Customer Overview ---
+app.get("/stats/new-customers", async (req, res) => {
   const { from, to } = req.query;
-  if (!from || !to) {
-    return res.status(400).send("Please provide from and to dates.");
-  }
+  if (!from || !to) return res.status(400).send("Please provide from and to dates.");
   try {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("from", sql.Date, from);
     request.input("to", sql.Date, to);
     const result = await request.query(`
-            SELECT
-              wr.condition AS Weather_Condition,
-              SUM(CASE WHEN wr.rainout_flag = 1
-                  THEN 1 ELSE 0 END) AS Park_Operations_Affected,
-              COUNT(t.ticket_id) AS Total_Tickets_Sold,
-              COUNT(DISTINCT t.customer_id) AS Unique_Customers
-            FROM Weather_Record wr
-            LEFT JOIN Ticket t ON t.visiting_date = wr.record_date
-            LEFT JOIN Customers c ON t.customer_id = c.customer_id
-            WHERE wr.record_date BETWEEN @from AND @to
-            GROUP BY wr.condition
-            ORDER BY Total_Tickets_Sold DESC
-            `);
+      SELECT
+        c.customer_id AS ID,
+        c.first_name + ' ' + c.last_name AS Customer_Name,
+        COUNT(DISTINCT t.ticket_id) AS Tickets_Purchased,
+        ISNULL(SUM(t.ticket_price), 0) AS Amount_Spent,
+        MAX(t.visiting_date) AS Last_Visit,
+        COUNT(DISTINCT gs_r.receipt_id) AS Gift_Shop_Visits
+      FROM Customers c
+      LEFT JOIN Ticket t ON c.customer_id = t.customer_id
+        AND t.visiting_date BETWEEN @from AND @to
+      LEFT JOIN Gift_Shop_Receipt gs_r ON c.customer_id = gs_r.customer_id
+        AND CAST(gs_r.purchase_datetime AS DATE) BETWEEN @from AND @to
+      WHERE c.is_active = 1
+        AND (t.ticket_id IS NOT NULL OR gs_r.receipt_id IS NOT NULL)
+      GROUP BY c.customer_id, c.first_name, c.last_name
+      ORDER BY Amount_Spent DESC
+    `);
     res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
 
-// ---STATS: Employee Maintenance Workload ---
-
-app.get("/stats/employee-workload", async (req, res) => {
+// --- STATS: Rides Overview ---
+app.get("/stats/top-ride", async (req, res) => {
   const { from, to } = req.query;
-  if (!from || !to)
-    return res.status(400).send("Please provide from and to dates.");
+  if (!from || !to) return res.status(400).send("Please provide from and to dates.");
   try {
     await sql.connect(config);
     const request = new sql.Request();
     request.input("from", sql.Date, from);
     request.input("to", sql.Date, to);
     const result = await request.query(`
-            SELECT
-                e.first_name + ' ' + e.last_name AS Employee,
-                COUNT(mt.ticket_id) AS Total_Maintenance_Tickets,
-                SUM(CASE WHEN mt.maintenance_priority = 'high'
-                    THEN 1 ELSE 0 END) AS High_Priority,
-                SUM(CASE WHEN mt.maintenance_priority = 'medium'
-                    THEN 1 ELSE 0 END) AS Medium_Priority,
-                SUM(CASE WHEN mt.maintenance_priority = 'low'
-                    THEN 1 ELSE 0 END) AS Low_Priority
-            FROM Employee e
-            LEFT JOIN Maintenance_Ticket mt ON e.employee_id = mt.employee_id
-                AND mt.date_opened BETWEEN @from AND @to
-            WHERE e.is_active = 1
-            GROUP BY e.employee_id, e.first_name, e.last_name
-            ORDER BY Total_Maintenance_Tickets DESC
-        `);
+      SELECT
+        r.ride_name AS Ride,
+        r.ride_status AS Status,
+        COUNT(t.ticket_id) AS Total_Tickets,
+        ISNULL(SUM(t.ticket_price), 0) AS Total_Revenue,
+        COUNT(DISTINCT mt.ride_id) AS Maintenance_Issues,
+        ISNULL(MAX(mt.maintenance_priority), 'None') AS Highest_Priority
+      FROM Ride r
+      LEFT JOIN Ticket t ON r.ride_id = t.ride
+        AND t.visiting_date BETWEEN @from AND @to
+      LEFT JOIN Maintenance_Ticket mt ON r.ride_id = mt.ride_id
+        AND mt.date_opened BETWEEN @from AND @to
+      GROUP BY r.ride_id, r.ride_name, r.ride_status
+      ORDER BY Total_Tickets DESC
+    `);
     res.json(result.recordset);
   } catch (err) {
     res.status(500).send(err.message);
