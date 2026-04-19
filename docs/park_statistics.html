@@ -157,96 +157,96 @@
         <div class="sidebar">
             <h2>Park Dashboard</h2>
 
+            <button class="nav-btn" onclick="showSection('revenue')">Revenue</button>
+            <button class="nav-btn" onclick="showSection('tickets')">Tickets</button>
             <button class="nav-btn" onclick="showSection('customers')">Customers</button>
-            <button class="nav-btn" onclick="showSection('rides')">Rides</button>
-            <button class="nav-btn" onclick="showSection('weather')">Weather</button>
-            <button class="nav-btn" onclick="showSection('employees')">Employees</button>
+            <button class="nav-btn" onclick="showSection('rides')">Top Rides</button>
             <button class="nav-btn" onclick="window.location.href = 'employee.html'"> &#8592; Back</button>
         </div>
 
         <div class="main">
             <h1>Statistics Overview</h1>
             <div class="stats">
-                <div class="card">Customer<br><b id="ticketsCount">--</b></div>
-                <div class="card">Rides<br><b id="ridesCount">--</b></div>
-                <div class="card">Weather Impact<br><b id="weatherCount">--</b></div>
-                <div class="card">Employees<br><b id="employeeCount">--</b></div>
+                <div class="card">Revenue<br><b id="revenueValue">--</b></div>
+                <div class="card">Popular Ride<br><b id="topRide">--</b></div>
+                <div class="card">New Customers<br><b id="newCustomers">--</b></div>
+                <div class="card">Tickets Sold<br><b id="ticketsCount">--</b></div>
             </div>
 
-            <!-- REPORT 1: Customers Ticket History -->
-            <div id="customers" class="section active">
-                <h3>Customer Ticket History</h3>
+            <!-- REPORT 1: Total Revenue -->
+            <div id="revenue" class="section active">
+                <h3>Revenue Overview</h3>
 
                 <div class="filter-bar">
                     <input type="date" id="from1">
                     <input type="date" id="to1">
-                    <button onclick="loadReport('customers')">Load</button>
+                    <button onclick="loadReport('revenue')">Load</button>
                 </div>
 
                 <div class="msg" id="msg1"></div>
                 <div class="status" id="status1"></div>
-                <div id="customerTable"></div>
+                <div id="revenueTable"></div>
 
                 <div class="print-btn" id="print1">
-                    <button class="secondary" onclick="printTable('customerTable')">Print /Save as PDF</button>
+                    <button class="secondary" onclick="printTable('revenueTable')">Print /Save as PDF</button>
                 </div>
             </div>
             
-            <!-- Report 2: Most popular rides-->
-            <div id="rides" class="section">
-                <h3>Ride Stats</h3>
+            <!-- Report 2: Tickets Overview-->
+            <div id="tickets" class="section">
+                <h3>Tickets Overview</h3>
 
                 <div class="filter-bar">
                     <input type="date" id="from2">
                     <input type="date" id="to2">
-                    <button onclick="loadReport('rides')">Load</button>
+                    <button onclick="loadReport('tickets')">Load</button>
                 </div>
 
                 <div class="msg" id="msg2"></div>
                 <div class="status" id="status2"></div>
-                <div id="rideTable"></div>
+                <div id="ticketTable"></div>
 
                 <div class="print-btn" id="print2">
-                    <button class="secondary" onclick="printTable('rideTable')">Print / PDF</button>
+                    <button class="secondary" onclick="printTable('ticketTable')">Print / PDF</button>
                 </div>
 
             </div>
         
-            <!-- Report 3: Weather Impact on Ticket Sales -->
-            <div id="weather" class="section">
-                <h3>Weather Impact</h3>
+            <!-- Report 3: Customer Overview -->
+            <div id="customers" class="section">
+                <h3>Customer Overview</h3>
 
                 <div class="filter-bar">
                     <input type="date" id="from3">
                     <input type="date" id="to3">
-                    <button onclick="loadReport('weather')">Load</button>
+                    <button onclick="loadReport('customers')">Load</button>
                 </div>
 
                 <div class="msg" id="msg3"></div>
                 <div class="status" id="status3"></div>
-                <div id="weatherStatsTable"></div>
+                <div id="customerTable"></div>
 
                 <div class="print-btn" id="print3">
-                    <button class="secondary" onclick="printTable('weatherStatsTable')">Print / PDF</button>
+                    <button class="secondary" onclick="printTable('customerTable')">Print / PDF</button>
                 </div>
             </div>
 
-            <!-- Report 4: Employee Maintenance Workload -->
-            <div id="employees" class="section">
-                <h3>Employee Workload</h3>
+            <!-- Report 4: Rides Overview -->
+            <div id="rides" class="section">
+                <h3>Rides Overview</h3>
 
                 <div class="filter-bar">
                     <input type="date" id="from4">
                     <input type="date" id="to4">
-                    <button onclick="loadReport('employees')">Load</button>
+                    <button onclick="loadReport('rides')">Load</button>
                 </div>
 
                 <div class="msg" id="msg4"></div>
                 <div class="status" id="status4"></div>
-                <div id="employeeTable"></div>
+                <div id="rideTable"></div>
 
                 <div class="print-btn" id="print4">
-                    <button class="secondary" onclick="printTable('employeeTable')">Print / PDF</button>
+                    <button class="secondary" onclick="printTable('rideTable')">Print / PDF</button>
                 </div>
 
             </div>
@@ -263,10 +263,10 @@
             
             async function loadReport(type) {
                 const map = {
-                customers: { url: "/stats/customers-ticket-history", table: "customerTable", msg: "msg1", status: "status1", print: "print1", from: "from1", to: "to1" },
-                rides: { url: "/stats/rides-per-month", table: "rideTable", msg: "msg2", status: "status2", print: "print2", from: "from2", to: "to2" },
-                weather: { url: "/stats/weather-impact", table: "weatherStatsTable", msg: "msg3", status: "status3", print: "print3", from: "from3", to: "to3" },
-                employees: { url: "/stats/employee-workload", table: "employeeTable", msg: "msg4", status: "status4", print: "print4", from: "from4", to: "to4" }
+                revenue: { url: "/stats/revenue", table: "revenueTable", msg: "msg1", status: "status1", print: "print1", from: "from1", to: "to1" },
+                tickets: { url: "/stats/tickets", table: "ticketTable", msg: "msg2", status: "status2", print: "print2", from: "from2", to: "to2" },
+                customers: { url: "/stats/new-customers", table: "customerTable", msg: "msg3", status: "status3", print: "print3", from: "from3", to: "to3" },
+                rides: { url: "/stats/top-ride", table: "rideTable", msg: "msg4", status: "status4", print: "print4", from: "from4", to: "to4" }
                 };
 
                 const cfg = map[type];
@@ -299,17 +299,17 @@
 
                     const data = await res.json();
 
-                    if (type === "customers") {
+                    if (type === "revenue") {
+                        document.getElementById("revenueValue").textContent = data.length;
+                    }
+                    if (type === "tickets") {
                         document.getElementById("ticketsCount").textContent = data.length;
                     }
+                    if (type === "customers") {
+                        document.getElementById("newCustomers").textContent = data.length;
+                    }
                     if (type === "rides") {
-                        document.getElementById("ridesCount").textContent = data.length;
-                    }
-                    if (type === "weather") {
-                        document.getElementById("weatherCount").textContent = data.length;
-                    }
-                    if (type === "employees") {
-                        document.getElementById("employeeCount").textContent = data.length;
+                        document.getElementById("topRide").textContent = data.length;
                     }
 
                     if (!data.length) {
@@ -382,10 +382,10 @@
                     document.getElementById(id).value = format(today);
                 });
 
+                loadReport("revenue");
+                loadReport("tickets");
                 loadReport("customers");
                 loadReport("rides");
-                loadReport("weather");
-                loadReport("employees");
             }
 
         </script>
