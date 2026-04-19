@@ -257,136 +257,133 @@
             function showSection(id) {
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById(id).classList.add('active');
-
                 loadReport(id);
             }
-            
-            async function loadReport(type) {
-                const map = {
+
+        async function loadReport(type) {
+            const map = {
                 revenue: { url: "/stats/revenue", table: "revenueTable", msg: "msg1", status: "status1", print: "print1", from: "from1", to: "to1" },
                 tickets: { url: "/stats/tickets", table: "ticketTable", msg: "msg2", status: "status2", print: "print2", from: "from2", to: "to2" },
                 customers: { url: "/stats/new-customers", table: "customerTable", msg: "msg3", status: "status3", print: "print3", from: "from3", to: "to3" },
                 rides: { url: "/stats/top-ride", table: "rideTable", msg: "msg4", status: "status4", print: "print4", from: "from4", to: "to4" }
-                };
+            };
 
-                const cfg = map[type];
+            const cfg = map[type];
+            const from = document.getElementById(cfg.from).value;
+            const to   = document.getElementById(cfg.to).value;
 
-                const from = document.getElementById(cfg.from).value;
-                const to = document.getElementById(cfg.to).value;
+            const msg = document.getElementById(cfg.msg);
+            const status = document.getElementById(cfg.status);
+            const container = document.getElementById(cfg.table);
 
-                const msg = document.getElementById(cfg.msg);
-                const status = document.getElementById(cfg.status);
-                const container = document.getElementById(cfg.table);
+            msg.textContent = "";
+            msg.className = "msg";
+            status.textContent = "";
+            container.innerHTML = "";
 
-                msg.textContent = "";
+            if (!from || !to || from > to) {
+                msg.className = "msg error";
+                msg.textContent = "Please select a valid date range.";
+                return;
+            }
+
+            status.textContent = "Loading...";
+
+            try {
+                const res = await fetch(`${cfg.url}?from=${from}&to=${to}`);
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+
+                if (type === "revenue") {
+                    const total = data.reduce((sum, r) => sum + (r.Total_Revenue || 0), 0);
+                    document.getElementById("revenueValue").textContent = "$" + total.toLocaleString("en-US", { minimumFractionDigits: 2 });
+                }
+                if (type === "tickets") {
+                    const total = data.reduce((sum, r) => sum + (r.Tickets_Sold || 0), 0);
+                    document.getElementById("ticketsCount").textContent = total.toLocaleString();
+                }
+                if (type === "customers") {
+                    document.getElementById("newCustomers").textContent = data.length + " active";
+                }
+                if (type === "rides") {
+                    const top = data[0];
+                    document.getElementById("topRide").textContent = top ? top.Ride : "--";
+                }
+
+                if (!data.length) {
+                    container.innerHTML = "<p>No data found.</p>";
+                } else {
+                    buildTable(container, data);
+                }
+
+                document.getElementById(cfg.print).style.display = "block";
+                status.textContent = `Showing results from ${from} to ${to}`;
+
+            } catch (err) {
+                msg.className = "msg error";
+                msg.textContent = "Error loading data from server.";
                 status.textContent = "";
-                container.innerHTML = "";
-
-                if (!from || !to || from > to) {
-                    msg.className = "msg error";
-                    msg.textContent = "Please select valid date range.";
-                    return;
-                }
-
-                status.textContent = "Loading...";
-
-                try {
-                    const res = await fetch(`${cfg.url}?from=${from}&to=${to}`);
-
-                    if (!res.ok) {
-                        throw new Error(await res.text());
-                    }
-
-                    const data = await res.json();
-
-                    if (type === "revenue") {
-                        document.getElementById("revenueValue").textContent = data.length;
-                    }
-                    if (type === "tickets") {
-                        document.getElementById("ticketsCount").textContent = data.length;
-                    }
-                    if (type === "customers") {
-                        document.getElementById("newCustomers").textContent = data.length;
-                    }
-                    if (type === "rides") {
-                        document.getElementById("topRide").textContent = data.length;
-                    }
-
-                    if (!data.length) {
-                        container.innerHTML = "<p>No data found.</p>";
-                    } else {
-                        buildTable(container, data);
-                    }
-
-                    document.getElementById(cfg.print).style.display = "block";
-                    status.textContent = "";
-
-                } catch (err) {
-                    msg.className = "msg error";
-                    msg.textContent = "Error loading data from server.";
-                    status.textContent = "";
-                }
             }
+        }
 
-            function buildTable(container, data) {
-                const cols = Object.keys(data[0]);
-                let html = "<table><thead><tr>";
+        function buildTable(container, data) {
+            const cols = Object.keys(data[0]);
+            let html = "<table><thead><tr>";
 
-                cols.forEach(c => html += `<th>${c.replace(/_/g,' ')}</th>`);
-                html += "</tr></thead><tbody>";
+            cols.forEach(c => html += `<th>${c.replace(/_/g, ' ')}</th>`);
+            html += "</tr></thead><tbody>";
 
-                data.forEach(row => {
-                    html += "<tr>";
-                    cols.forEach(c => html += `<td>${row[c] ?? ""}</td>`);
-                    html += "</tr>";
+            data.forEach(row => {
+                html += "<tr>";
+                cols.forEach(c => {
+                    let val = row[c] ?? "";
+                    if (typeof val === "number" && (c.toLowerCase().includes("revenue") || c.toLowerCase().includes("spent") || c.toLowerCase().includes("price"))) {
+                        val = "$" + val.toLocaleString("en-US", { minimumFractionDigits: 2 });
+                    }
+                    
+                    if (typeof val === "string" && val.match(/^\d{4}-\d{2}-\d{2}T/)) {
+                        val = val.split("T")[0];
+                    }
+                    html += `<td>${val}</td>`;
                 });
+                html += "</tr>";
+            });
 
-                html += "</tbody></table>";
-                container.innerHTML = html;
-            }
+            html += "</tbody></table>";
+            container.innerHTML = html;
+        }
 
-            function printTable(id) {
-                const content = document.getElementById(id).innerHTML;
+        function printTable(id) {
+            const content = document.getElementById(id).innerHTML;
+            const win = window.open('', '', 'width=900,height=600');
+            win.document.write(`
+                <html><head><title>Report</title>
+                <style>
+                    body { font-family: Arial; padding: 20px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th { background: #5f90d8; color: white; padding: 10px; }
+                    td { padding: 8px; border-bottom: 1px solid #ddd; }
+                </style>
+                </head><body>${content}</body></html>
+            `);
+            win.document.close();
+            win.print();
+        }
 
-                const win = window.open('', '', 'width=900,height=600');
-                win.document.write(`
-                    <html>
-                    <head>
-                        <title>Report</title>
-                        <style>
-                            body { font-family: Arial; padding: 20px; }
-                            table { width: 100%; border-collapse: collapse; }
-                            th { background: #5f90d8; color: white; padding: 10px; }
-                            td { padding: 8px; border-bottom: 1px solid #ddd; }
-                        </style>
-                    </head>
-                    <body>${content}</body>
-                    </html>
-                `);
+        window.onload = () => {
+            const today = new Date();
+            const past  = new Date();
+            past.setDate(today.getDate() - 30);
+            const format = d => d.toISOString().split("T")[0];
 
-                win.document.close();
-                win.print();
-            }
-            window.onload = ()  => {
-                const today = new Date();
-                const past = new Date();
-                past.setDate(today.getDate() - 30);
+            ["from1","from2","from3","from4"].forEach(id => document.getElementById(id).value = format(past));
+            ["to1","to2","to3","to4"].forEach(id => document.getElementById(id).value = format(today));
 
-                const format = (d) => d.toISOString().split("T")[0];
-
-                ["from1","from2","from3","from4"].forEach(id => {
-                    document.getElementById(id).value = format(past);
-                });
-
-                ["to1","to2","to3","to4"].forEach(id => {
-                    document.getElementById(id).value = format(today);
-                });
-
-                loadReport("revenue");
-                loadReport("tickets");
-                loadReport("customers");
-                loadReport("rides");
-            }
+            loadReport("revenue");
+            loadReport("tickets");
+            loadReport("customers");
+            loadReport("rides");
+        };
 
         </script>
 
