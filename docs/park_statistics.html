@@ -5,158 +5,179 @@
     <link rel="stylesheet" href="login.css" />
     <style>
       body {
-        margin: 0;
         display: flex;
-        font-family: Arial, sans-serif;
         flex-direction: row;
-        justify-content: flex-start;
         min-height: 100vh;
-        color: #1f2a37;
       }
 
       .sidebar {
         width: 220px;
-        background: #1f2a37;
-        color: white;
-        min-height: 100vh;
-        padding: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border-right: 1px solid var(--border);
+        padding: 32px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 100%;
       }
 
       .sidebar h2 {
-        font-size: 18px;
-        margin-bottom: 20px;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--cyan);
+        margin: 0 0 16px 9px;
       }
 
-      .nav-btn {
+      .sidebar .nav-btn {
         display: block;
         width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
+        text-align: left;
+        padding: 10px 14px;
         background: transparent;
         border: none;
-        color: white;
-        text-align: left;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
         cursor: pointer;
-        border-radius: 8px;
+        border-radius: 10px;
+        box-shadow: none;
+        margin: 0;
+        transition: background 0.2s color 0.2s;
       }
 
-      .nav-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
+      .sidebar .nav-btn:hover {
+        background: rgba(56, 217, 245,0.08);
+        color: var(--white);
+        transform: none;
+        box-shadow: none;
+      }
+
+      .sidebar .nav-btn.active {
+        background: rgba(56,217,245,0.12);
+        color: var(--cyan);
+        border: 1px solid rgba(56,217,245,0.2);
+      }
+
+      .sidebar .back-nav {
+        margin-top: auto;
+        color: var(--muted);
+        font-size: 13px;
       }
 
       .main {
         flex: 1;
         padding: 20px;
-        color: #1f2a37;
+        overflow-y: auto;
       }
 
-      h1 {
+      .main h1 {
         font-size: 32px;
-        margin-bottom: 6px;
-        color: #1f2a37;
-        margin-top: 0;
+        font-weight: 700;
+        background: linear-gradient(90deg, var(--cyan), var(--gold));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0 0 8px;
+      }
+
+      .main > p {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 0 0 32px;
       }
 
       .stats {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 32px;
       }
 
-      .card {
-        background: white;
-        padding: 16px;
-        border-radius: 12px;
-        flex: 1;
-        min-width: 180px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      .stat-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px 22px;
+        transition: border-color 0.2s;
+      }
+
+      .stat-card:hover {
+        border-color: rgba(56,217,245,0.25);
+      }
+
+      .stat-card .stat-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .stat-card .stat-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--white);
+      }
+
+      .section { display: none; }
+      .section.active { display: block; }
+
+      .section h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--white);
+        margin: 0 0 20px;
       }
 
       .filter-bar {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
-        margin-bottom: 15px;
-      }
-
-      input,
-      select,
-      button {
-        padding: 8px 10px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-      }
-
-      button {
-        background: #5f90d8;
-        color: white;
-        border: none;
-        cursor: pointer;
-      }
-
-      button:hover {
-        opacity: 0.9;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-      }
-
-      th {
-        background-color: #5f90d8;
-        color: white;
-        padding: 10px 14px;
-        text-align: left;
-      }
-
-      td {
-        padding: 9px 14px;
-        border-bottom: 1px solid #eee;
-        color: #1f2a37;
-      }
-
-      tr:hover td {
-        background: #f0f6ff;
-      }
-
-      .section {
-        display: none;
-      }
-
-      .active {
-        display: block;
-      }
-
-      .status {
-        font-size: 14px;
-        color: #1f2a37;
-        font-style: italic;
-        margin-bottom: 12px;
-      }
-
-      .msg {
-        margin-top: 10px;
-        font-size: 14px;
-        font-weight: 600;
-        padding: 10px 14px;
-        border-radius: 10px;
-        display: none;
-      }
-
-      .msg.error {
-        background: rgba(220, 80, 80, 0.25);
-        color: #7a1a1a;
-        display: block;
+        margin-bottom: 20px;
+        align-items: flex-end;
       }
 
       .print-btn {
         display: none;
-        margin-top: 12px;
+        margin-top: 16px;
+      }
+
+      .print-btn button {
+        background: rgba(255,255,255,0.06);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        box-shadow: none;
+        font-size: 13px;
+        padding: 8px 18px;
+      }
+
+      .print-btn button:hover {
+        color: var(--white);
+        border-color: rgba(255,255,255,0.2);
+        transform: none;
+        box-shadow: none;
+      }
+
+      .table-wrap {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .table-wrap table {
+        border-radius: 0;
+      }
+
+      @media (max-width: 768px) {
+        .page-layout { flex-direction: column; }
+        .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 16px; min-height: unset; border-right: none; border-bottom: 1px solid var(--border); }
+        .sidebar h2 { width: 100%; margin-bottom: 8px; }
+        .sidebar .back-nav { margin-top: 0; }
+        .main { padding: 24px 16px; }
       }
     </style>
   </head>
