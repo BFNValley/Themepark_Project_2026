@@ -1,64 +1,39 @@
-:root {
-  --bg: #a9bbcf;
-  --card: rgba(255, 255, 255, 0.22);
-  --surface: rgba(255, 255, 255, 0.82);
-  --text: #1f2a37;
-  --muted: #4d6079;
-  --line: rgba(19, 45, 73, 0.18);
-  --primary: #5f90d8;
-  --primary-hover: #83abdf;
-}
-
-* {
-  box-sizing: border-box;
-}
+@import url('login.css');
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 84px 20px 28px;
-  font-family: sans-serif;
-  color: var(--text);
-  background:
-    radial-gradient(
-      circle at 20% 18%,
-      rgba(255, 255, 255, 0.5),
-      transparent 36%
-    ),
-    linear-gradient(160deg, #9fb5ca 0%, var(--bg) 55%, #95abc1 100%);
+  padding: 80px 20px 40px;
 }
 
 .maintenance-card {
   width: min(1000px, 100%);
   margin: 0 auto;
   padding: 32px 34px 28px;
-  border-radius: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.36);
+  border-radius: 22px;
+  border: 1px solid var(--border);
   background: var(--card);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(6px);
 }
 
 h1 {
-  margin: 0 0 18px;
-  font-size: 34px;
-  letter-spacing: 0.2px;
+  margin: 0 0 22px;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--white);
 }
 
 form {
   display: grid;
   grid-template-columns: minmax(290px, 1fr) 1.2fr;
   grid-template-rows: auto auto;
-  gap: 18px;
+  gap: 20px;
 }
 
 .maintenance-details {
   grid-column: 1;
   grid-row: 1;
-  padding: 18px;
-  border-radius: 16px;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
 }
 
 .selects {
@@ -77,7 +52,7 @@ form {
 .date-select {
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px dashed var(--line);
+  border-top: 1px dashed var(--border);
 }
 
 #description {
@@ -98,75 +73,20 @@ form button[type="submit"] {
   margin-top: 4px;
 }
 
-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-input,
-select,
-textarea {
-  width: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.14);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.84);
-  color: var(--text);
-  font-size: 14px;
-}
-
-input,
-select {
-  height: 38px;
-  padding: 0 12px;
-}
-
-textarea {
-  padding: 12px;
-  line-height: 1.45;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline: 2px solid rgba(95, 144, 216, 0.45);
-  border-color: rgba(95, 144, 216, 0.65);
-}
-
-button {
-  border: none;
-  border-radius: 15px;
-  font-size: 16px;
-  font-weight: 600;
-  color: white;
-  background-color: var(--primary);
-  transition:
-    transform 0.3s ease,
-    background-color 0.25s ease,
-    box-shadow 0.25s ease;
-  box-shadow: 0 8px 20px rgba(79, 128, 199, 0.28);
-  cursor: pointer;
-}
-
-button:hover {
-  transform: translateY(-1px);
-  background-color: var(--primary-hover);
-  box-shadow: 0 12px 24px rgba(79, 128, 199, 0.34);
-}
-
 .back-button {
   width: fit-content;
   height: auto;
   padding: 8px 16px;
   position: fixed;
-  top: 12px;
-  left: 12px;
-  z-index: 20;
+  top: 14px;
+  left: 14px;
+  z-index: 200;
+  font-size: 13px;
 }
 
 @media (max-width: 860px) {
   .maintenance-card {
-    padding: 24px 20px 22px;
+    padding: 22px 18px;
   }
 
   h1 {
@@ -186,7 +106,7 @@ button:hover {
   #description {
     grid-column: 1;
     grid-row: 2;
-    min-height: 220px;
+    min-height: 200px;
   }
 
   form button[type="submit"] {

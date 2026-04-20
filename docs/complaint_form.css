@@ -1,24 +1,7 @@
-:root {
-  --bg: #a9bbcf;
-  --card: rgba(255, 255, 255, 0.28);
-  --surface: rgba(255, 255, 255, 0.66);
-  --text: #1f2a37;
-  --muted: #425b7b;
-  --primary: #5f90d8;
-  --primary-hover: #83abdf;
-}
-
-* {
-  box-sizing: border-box;
-}
+@import url('login.css');
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 88px 22px 28px;
-  font-family: sans-serif;
-  color: var(--text);
-  background: #a9bbcf;
+  padding: 80px 22px 40px;
 }
 
 .page-shell {
@@ -28,11 +11,9 @@ body {
 
 .complaint-card {
   background: var(--card);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
-  border-radius: 28px;
-  padding: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  backdrop-filter: blur(4px);
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid var(--border);
 }
 
 .form-header {
@@ -41,13 +22,15 @@ body {
 
 .form-header h1 {
   margin: 0;
-  font-size: 36px;
-  letter-spacing: 0.2px;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--white);
 }
 
 .form-header p {
   margin: 8px 0 0;
   color: var(--muted);
+  font-size: 16px;
 }
 
 .complaint-form {
@@ -63,17 +46,17 @@ fieldset {
 }
 
 .form-section {
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.04);
   border-radius: 16px;
-  padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  padding: 20px;
+  border: 1px solid var(--border);
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .form-field:last-child {
@@ -81,8 +64,9 @@ fieldset {
 }
 
 .form-field label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--muted);
 }
 
 .customer-meta {
@@ -129,51 +113,28 @@ textarea:focus {
   display: none;
 }
 
-button {
-  border: none;
-  border-radius: 14px;
-  padding: 12px 18px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  color: white;
-  background-color: var(--primary);
-  transition:
-    transform 0.25s ease,
-    background-color 0.25s ease,
-    box-shadow 0.25s ease;
-  box-shadow: 0 8px 22px rgba(70, 110, 171, 0.22);
-}
-
-button:hover {
-  transform: translateY(-1px);
-  background-color: var(--primary-hover);
-}
-
 .submit-btn {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .back-button {
   position: fixed;
   top: 16px;
   left: 16px;
-  padding: 10px 16px;
-  z-index: 10;
 }
 
 @media (max-width: 640px) {
   body {
-    padding: 76px 12px 16px;
+    padding: 76px 12px 20px;
   }
 
   .complaint-card {
-    padding: 20px;
+    padding: 22px;
   }
 
   .form-header h1 {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .form-row {

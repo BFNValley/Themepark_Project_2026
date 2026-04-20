@@ -1,24 +1,7 @@
-:root {
-  --bg: #a9bbcf;
-  --card: rgba(255, 255, 255, 0.28);
-  --surface: rgba(255, 255, 255, 0.66);
-  --text: #1f2a37;
-  --muted: #425b7b;
-  --primary: #5f90d8;
-  --primary-hover: #83abdf;
-}
-
-* {
-  box-sizing: border-box;
-}
+@import url('login.css');
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 88px 22px 28px;
-  font-family: sans-serif;
-  color: var(--text);
-  background: #a9bbcf;
+  padding: 80px 22px 40px;
 }
 
 .page-shell {
@@ -28,27 +11,27 @@ body {
 
 .ticket-card {
   background: var(--card);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
-  border-radius: 28px;
-  padding: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  backdrop-filter: blur(4px);
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid var(--border);
 }
 
 .ticket-header {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .ticket-header h1 {
   margin: 0;
-  font-size: 36px;
-  letter-spacing: 0.2px;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.5px;
 }
 
 .ticket-header p {
   margin: 8px 0 0;
   color: var(--muted);
-  max-width: 560px;
+  font-size: 16px;
 }
 
 .content-grid {
@@ -59,146 +42,99 @@ body {
 
 .purchase-panel,
 .cart-panel {
-  background: var(--surface);
-  border-radius: 20px;
-  padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 22px;
+  border: 1px solid var(--border);
 }
 
 .purchase-panel h2,
 .cart-panel h2 {
-  margin: 0 0 14px;
-  font-size: 23px;
+  margin: 0 0 18px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--white);
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .form-field label {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
+  color: var(--muted);
 }
 
-select,
-input {
+.primary-btn, .checkout-btn {
   width: 100%;
-  border-radius: 10px;
-  border: 1px solid #c8d5e6;
-  box-sizing: border-box;
-  padding: 11px 12px;
-  font-size: 15px;
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--text);
-}
-
-select:focus,
-input:focus {
-  outline: 2px solid rgba(95, 144, 216, 0.35);
-  border-color: var(--primary);
-}
-
-button {
-  border: none;
-  border-radius: 14px;
-  padding: 11px 18px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  color: white;
-  background-color: var(--primary);
-  transition:
-    transform 0.25s ease,
-    background-color 0.25s ease,
-    box-shadow 0.25s ease;
-  box-shadow: 0 8px 22px rgba(70, 110, 171, 0.22);
-}
-
-button:hover {
-  transform: translateY(-1px);
-  background-color: var(--primary-hover);
-}
-
-.primary-btn,
-.checkout-btn {
-  width: 100%;
-  margin-top: 6px;
+  margin: 6px;
 }
 
 #cartList {
   list-style: none;
-  margin: 0;
-  padding: 0;
   max-height: 280px;
   overflow: auto;
 }
 
 #cartList li {
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
   margin: 0 0 10px;
-  padding: 11px 12px;
+  padding: 12px 14px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   font-size: 14px;
+  color: var(--white);
 }
 
 #cartList li button {
   width: auto;
   min-width: 80px;
   margin: 0;
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 7px 12px;
+  font-size: 12px;
 }
 
 .total-row {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(66, 91, 123, 0.25);
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 18px;
+  color: var(--white);
+}
+
+.total-row strong {
+  color: var(--cyan);
+  font-size: 20px;
 }
 
 .back-button {
   position: fixed;
-  top: 16px;
-  left: 16px;
-  padding: 10px 16px;
+  top: 14px;
+  left: 14px;
+  padding: 8px 16px;
   z-index: 10;
+  font-size: 13px;
 }
 
 @media (max-width: 860px) {
   .content-grid {
     grid-template-columns: 1fr;
   }
-
-  .ticket-card {
-    padding: 20px;
-  }
-
-  .ticket-header h1 {
-    font-size: 30px;
-  }
 }
 
 @media (max-width: 520px) {
   body {
-    padding: 76px 12px 16px;
-  }
-
-  .ticket-header h1 {
-    font-size: 26px;
-  }
-
-  .purchase-panel,
-  .cart-panel {
-    padding: 14px;
+    padding: 76px 12px 20px;
   }
 }

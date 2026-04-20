@@ -1,33 +1,16 @@
-:root {
-  --bg: #a9bbcf;
-  --card: rgba(255, 255, 255, 0.28);
-  --surface: rgba(255, 255, 255, 0.66);
-  --text: #1f2a37;
-  --muted: #425b7b;
-  --primary: #5f90d8;
-  --primary-hover: #83abdf;
-}
-
-* {
-  box-sizing: border-box;
-}
+@import url('login.css')
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 88px 22px 28px;
-  font-family: sans-serif;
-  color: var(--text);
-  background: #a9bbcf;
+  padding: 80px 22px 40px;
 }
 
 .ticket-card {
   background: var(--card);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
-  border-radius: 28px;
-  padding: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  backdrop-filter: blur(4px);
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  max-width: 1060px;
+  margin: 0 auto;
 }
 
 .cart-info {
@@ -37,67 +20,59 @@ body {
 .cart-info h1 {
   margin: 0 0 20px;
   font-size: 36px;
-  letter-spacing: 0.2px;
-  color: var(--text);
-}
-
-button {
-  border: none;
-  border-radius: 14px;
-  padding: 11px 18px;
-  font-size: 15px;
   font-weight: 700;
-  cursor: pointer;
-  color: white;
-  background-color: var(--primary);
-  transition:
-    transform 0.25s ease,
-    background-color 0.25s ease,
-    box-shadow 0.25s ease;
-  box-shadow: 0 8px 22px rgba(70, 110, 171, 0.22);
-}
-
-button:hover {
-  transform: translateY(-1px);
-  background-color: var(--primary-hover);
+  color: var(--white);
 }
 
 .table-scroll-container {
   max-height: 448px;
   overflow-y: auto;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  border: 1px solid var(--border);
 }
 
 #ticketsTable {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(255, 255, 255, 0.85);
+  background: transparent;
 }
 
 #ticketsTable thead {
   position: sticky;
   top: 0;
-  background: rgba(95, 144, 216, 0.95);
+  background: rgba(8, 8, 15, 0.95);
   z-index: 5;
 }
 
 #ticketsTable th {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  border-bottom: 1px solid rgba(56, 217, 245, 0.2);
+  padding: 12px 16px;
   text-align: left;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--cyan);
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  background: rgba(56, 217, 245, 0.08);
 }
 
 #ticketsTable td {
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 12px 16px;
+  color: var(--white);
+  font-size: 14px;
+}
+
+#ticketsTable tr:hover td { background: rgba(56,217,245,0.04); }
+ 
+button {
+  margin-top: 18px; 
+  width: auto; 
 }
 
 @media (max-width: 860px) {
   .ticket-card {
-    padding: 20px;
+    padding: 22px;
   }
 
   .cart-info h1 {
@@ -107,7 +82,7 @@ button:hover {
 
 @media (max-width: 520px) {
   body {
-    padding: 76px 12px 16px;
+    padding: 72px 12px 20px;
   }
 
   .cart-info h1 {

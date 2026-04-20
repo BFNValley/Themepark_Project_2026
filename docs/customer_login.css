@@ -1,31 +1,29 @@
+@import url('login.css');
+
 body {
-  background: #a9bbcf;
   min-height: 100vh;
-  margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: sans-serif;
-  color: #1f2a37;
+  padding: 80px 20px 40px;
 }
 
 .account-shell {
   width: 900px;
   max-width: 94vw;
-  padding: 80px 0 28px;
 }
 
 .account-card {
-  background: rgba(255, 255, 255, 0.28);
-  border-radius: 28px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.26);
-  padding: 34px 34px 28px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 36px 36px 30px;
 }
 
 .account-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 28px;
   align-items: stretch;
 }
 
@@ -36,32 +34,33 @@ body {
 .account-image {
   border-radius: 22px;
   background:
-    linear-gradient(rgba(31, 42, 55, 0.14), rgba(31, 42, 55, 0.28)),
+    linear-gradient(rgba(8,8,15,0.3), rgba(8,8,15,0.5)),
     url("theme_park.jpg") center/cover no-repeat;
   min-height: 360px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.26);
+  border: 1px solid var(--border);
 }
 
 .account-header {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .account-header h1 {
   margin: 0;
-  font-size: 32px;
-  color: #1f2a37;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--white);
 }
 
 .account-header p {
   margin: 8px 0 0;
-  color: #1f2a37;
-  opacity: 0.82;
+  color: var(--muted);
+  font-size: 14px;
 }
 
 .field-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 14px 16px;
+  gap: 14px;
 }
 
 .form-field {
@@ -73,130 +72,123 @@ body {
 .form-field label {
   font-size: 14px;
   font-weight: 600;
+  color: var(--muted);
 }
 
-.username-textbox {
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.username-textbox, .password-textbox {
+  background: var(--input-bg);
+  border-radius: 10px;
+  border: 1px solid var(--input-border);
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--white);
+  width: 100%;
   box-sizing: border-box;
-  padding: 10px 11px;
-  font-size: 15px;
 }
 
-.password-textbox {
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  padding: 10px 11px;
-  font-size: 15px;
+.username-textbox:focus, .password-textbox:focus {
+  outline: none;
+  border-color: rgba(56,217,245,0.5);
+  box-shadow: 0 0 0 3px rgba(56,217,245,0.12);
 }
+ 
+.username-textbox::placeholder, .password-textbox::placeholder { color: var(--muted); opacity: 0.7; }
 
 .error-message {
   display: none;
   margin: 14px 0 0;
-  color: red;
+  color: var(--danger);
   font-size: 14px;
 }
 
 .actions-row {
-  margin-top: 16px;
+  margin-top: 22px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .login-button {
-  background: #eef3fa;
-  color: #1f2a37;
-
-  border-radius: 15px;
-  border: 1px solid #c6d6ec;
-
+  background: rgba(255,255,255,0.06);
+  color: var(--white);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   padding: 12px 24px;
   margin: 10px;
-
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-
+  box-shadow: none;
   transition:
-    transform 0.4s ease,
-    background-color 0.4s ease,
-    box-shadow 0.28s ease;
+    background 0.2s;
 }
 
 .login-button:hover {
-  transform: scale(1.05);
-  background: #f7f9fc;
+  transform: none;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.11);
 }
 
 .secondary-link {
-  border-radius: 15px;
+  background: linear-gradient(135deg, var(--cyan), var(--primary-dark));
+  border-radius: 10px;
   border: none;
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
   text-decoration: none;
-  background-color: #5f90d8;
-  color: white;
+  display: inline-block;
+  color: #08080f;
+  box-shadow: 0 4px 18px rgba(56, 217, 245, 0.35);
   transition:
-    transform 0.4s ease,
-    background-color 0.4s ease,
-    box-shadow 0.28s ease;
+    transform 0.4s,
+    box-shadow 0.2s;
 }
 
 .secondary-link:hover {
-  transform: scale(1.05);
-  background-color: #83abdf;
-  box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(56,217,245,0.45);
 }
 
 .back-button {
-  background-color: #5f90d8;
-  color: white;
-  border-radius: 15px;
+  background: linear-gradient(135deg, var(--cyan), var(--primary-dark));
+  color: #08080f;
+  border-radius: 10px;
   border: none;
   width: fit-content;
   height: auto;
-  padding: 12px 24px;
+  padding: 8px 16px;
   margin: 0 10px 10px 10px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  top: 10px;
-  left: 10px;
-  position: absolute;
-}
-
-.back-button:hover {
-  transform: scale(1.05);
-  background-color: #83abdf;
-  box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
+  top: 14px;
+  left: 14px;
+  position: fixed;
+  z-index: 200;
+  box-shadow: 0 4px 14px rgba(56, 217, 245, 0.3);
 }
 
 @media (max-width: 760px) {
-  .account-shell {
-    padding-top: 72px;
-  }
 
+  body { padding: 72px 14px 30px; }
   .account-card {
-    padding: 26px 18px 20px;
+    padding: 24px 18px 20px;
   }
 
   .account-main {
     grid-template-columns: 1fr;
-    gap: 18px;
   }
 
   .account-image {
-    min-height: 220px;
+    min-height: 200px;
     order: -1;
   }
 
   .account-header h1 {
-    font-size: 27px;
+    font-size: 24px;
   }
 
   .actions-row {
@@ -208,6 +200,5 @@ body {
   .secondary-link {
     width: 100%;
     text-align: center;
-    margin: 0;
   }
 }

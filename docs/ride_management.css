@@ -1,13 +1,6 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@import url('login.css');
 
 body {
-  background: #a9bbcf;
-  font-family: sans-serif;
-  color: #1f2a37;
   display: flex;
   align-items: flex-start;
   padding: 40px 20px;
@@ -16,49 +9,27 @@ body {
   min-height: 100vh;
 }
 
-button {
-  background-color: #5f90d8;
-  color: white;
-  border-radius: 15px;
-  border: none;
-  padding: 12px 24px;
-  margin: 10px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.4s ease,
-    background-color 0.4s ease,
-    box-shadow 0.28s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-button:hover {
-  transform: scale(1.05);
-  background-color: #83abdf;
-  box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
-}
-
 .card {
-  background: rgba(255, 255, 255, 0.28);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-  border-radius: 28px;
-  padding: 40px 50px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 30px 36px;
   width: 1100px;
   max-width: 90vw;
-  margin: 0 auto 28px auto;
+  margin: 0 auto 24px auto;
 }
 
 h1 {
-  font-size: 32px;
-  margin-bottom: 6px;
-  color: #1f2a37;
+  font-size: 30px;
+  margin-bottom: 8px;
+  color: var(--white);
+  font-weight: 700;
 }
 
 .section-title {
   font-size: 15px;
   font-weight: 700;
-  color: #1f2a37;
+  color: var(--muted);
   margin: 0 0 16px 0;
   padding-bottom: 6px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -74,29 +45,6 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 5px;
-}
-
-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1f2a37;
-}
-
-input,
-select {
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: none;
-  font-size: 14px;
-  background: rgba(255, 255, 255, 0.65);
-  color: #1f2a37;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-input:focus,
-select:focus {
-  outline: 2px solid #5f90d8;
 }
 
 .btn-row {
@@ -115,12 +63,6 @@ select:focus {
 }
 
 .search-row input {
-  padding: 9px 14px;
-  border-radius: 12px;
-  border: none;
-  font-size: 14px;
-  background: rgba(255, 255, 255, 0.65);
-  color: #1f2a37;
   width: 280px;
 }
 
@@ -129,27 +71,31 @@ select:focus {
 }
 
 button.secondary {
-  background-color: #7a8fa6;
+  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--white);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+  transform: none;
 }
 
 button.success {
-  background-color: #27ae60;
+  background-color: linear-gradient(135deg, #38d98a, #20b86a); 
+  color: #08080f; 
+  box-shadow: 0 4px 16px rgba(56,217,138,0.3);
 }
 
 button.restore {
-  background-color: #5f90d8;
-}
-
-button.restore:hover {
-  background-color: #83abdf;
+  background: linear-gradient(135deg, var(--cyan), var(--primary-dark));
 }
 
 button.warning {
-  background-color: #e0a937;
+  background: linear-gradient(135deg, var(--gold), #d4a820); 
+  color: #08080f; 
+  box-shadow: 0 4px 14px rgba(245,200,66,0.3);
 }
 
 button.warning:hover {
-  background-color: #efba4f;
+  box-shadow: 0 8px 22px rgba(245,200,66,0.4);
 }
 
 button.small {
@@ -175,7 +121,7 @@ th {
 td {
   padding: 9px 14px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  color: #1f2a37;
+  color: var(--muted);
 }
 
 tr:nth-child(even) td {
@@ -188,7 +134,7 @@ tr:nth-child(odd) td {
 
 .status-msg {
   font-size: 14px;
-  color: #1f2a37;
+  color: var(--muted);
   font-style: italic;
   margin-bottom: 12px;
 }
@@ -200,7 +146,7 @@ select.inline-edit {
   border: none;
   font-size: 13px;
   background: rgba(255, 255, 255, 0.85);
-  color: #1f2a37;
+  color: var(--muted);
   width: 100%;
 }
 
