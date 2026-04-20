@@ -37,10 +37,6 @@ async function ensureDbConnection() {
   return connectionPromise;
 }
 
-// ============================================
-// HELPER FUNCTIONS - RESPONSE HANDLERS
-// ============================================
-
 function sendJson(res, statusCode, data) {
   res.writeHead(statusCode, { "Content-Type": "application/json" });
   res.end(JSON.stringify(data));
@@ -66,10 +62,6 @@ function sendRedirect(res, location) {
   res.end();
 }
 
-// ============================================
-// MIME TYPES
-// ============================================
-
 const mimeTypes = {
   ".html": "text/html",
   ".css": "text/css",
@@ -87,23 +79,16 @@ const mimeTypes = {
   ".eot": "application/vnd.ms-fontobject",
 };
 
-// ============================================
-// HELPER FUNCTIONS - STATIC FILES
-// ============================================
-
 async function serveStaticFile(req, res) {
   let urlPath = url.parse(req.url, true).pathname;
 
-  // Map root to login.html
   if (urlPath === "/") {
     urlPath = "/login.html";
   }
 
-  // Security: prevent directory traversal
   const cleanPath = path.normalize(urlPath).replace(/^(\.\.[\/\\])+/, "");
   const filePath = path.join(__dirname, "docs", cleanPath);
 
-  // Ensure file is within /docs directory
   const docsPath = path.join(__dirname, "docs");
   if (!filePath.startsWith(docsPath)) {
     res.writeHead(403);
@@ -115,7 +100,6 @@ async function serveStaticFile(req, res) {
     const stats = await fs.promises.stat(filePath);
 
     if (stats.isDirectory()) {
-      // Try to serve index.html from directory
       const indexPath = path.join(filePath, "index.html");
       try {
         const indexStats = await fs.promises.stat(indexPath);
@@ -125,9 +109,7 @@ async function serveStaticFile(req, res) {
           res.end(content);
           return;
         }
-      } catch {
-        // index.html not found
-      }
+      } catch {}
       res.writeHead(404);
       res.end("Not Found");
       return;
@@ -154,10 +136,6 @@ async function serveStaticFile(req, res) {
     }
   }
 }
-
-// ============================================
-// HELPER FUNCTIONS - BODY PARSING
-// ============================================
 
 async function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -242,10 +220,6 @@ async function parseFormBody(req) {
   }
 }
 
-// ============================================
-// HELPER FUNCTIONS - URL PARSING
-// ============================================
-
 function parseUrl(req) {
   const parsedUrl = url.parse(req.url, true);
   return {
@@ -254,8 +228,6 @@ function parseUrl(req) {
   };
 }
 
-// Extract route parameters: /customers/:id matches /customers/123
-// Returns {id: "123"} or null if no match
 function extractParams(pathname, pattern) {
   const patternParts = pattern.split("/").filter(Boolean);
   const pathParts = pathname.split("/").filter(Boolean);
@@ -277,10 +249,6 @@ function extractParams(pathname, pattern) {
   return params;
 }
 
-// ============================================
-// HELPER FUNCTIONS - AUTHORIZATION
-// ============================================
-
 function checkRoles(req, res, allowedRoles) {
   const roleId = Number(req.headers["role_id"]);
 
@@ -292,11 +260,6 @@ function checkRoles(req, res, allowedRoles) {
   return true;
 }
 
-// ============================================
-// SHARED ROUTE HANDLERS (used by multiple routes)
-// ============================================
-
-// Roles middleware replacement - returns true if authorized
 function checkRolesMiddleware(req, allowedRoles) {
   const roleId = Number(req.headers["role_id"]);
   if (!roleId || !allowedRoles.includes(roleId)) {
@@ -305,7 +268,6 @@ function checkRolesMiddleware(req, allowedRoles) {
   return true;
 }
 
-// processCheckout function (shared by /checkout and /buy-ticket)
 async function processCheckout(customerIdRaw, ticketCartRaw, giftCartRaw) {
   const customerId = Number.parseInt(customerIdRaw, 10);
   const ticketCart = Array.isArray(ticketCartRaw) ? ticketCartRaw : [];
@@ -573,19 +535,10 @@ async function processCheckout(customerIdRaw, ticketCartRaw, giftCartRaw) {
   }
 }
 
-// ============================================
-// MAIN REQUEST HANDLER & ROUTES
-// ============================================
-
 async function handleRequest(req, res) {
   const { pathname, query } = parseUrl(req);
 
   try {
-    // ============================================
-    // GET ROUTES (specific paths first)
-    // ============================================
-
-    // GET /employees/inactive (must come before /employees/:id)
     if (req.method === "GET" && pathname === "/employees/inactive") {
       if (!checkRolesMiddleware(req, [1])) {
         sendText(res, 403, "Access denied");
@@ -603,7 +556,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /employees
     if (req.method === "GET" && pathname === "/employees") {
       if (!checkRolesMiddleware(req, [1])) {
         sendText(res, 403, "Access denied");
@@ -627,7 +579,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /rides/all (must come before /rides/:id)
     if (req.method === "GET" && pathname === "/rides/all") {
       if (!checkRolesMiddleware(req, [1, 2])) {
         sendText(res, 403, "Access denied");
@@ -651,7 +602,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /rides
     if (req.method === "GET" && pathname === "/rides") {
       await ensureDbConnection();
       const result = await sql.query(`
@@ -673,7 +623,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /my-tickets/:customer_id
     const myTicketsParams = extractParams(pathname, "/my-tickets/:customer_id");
     if (req.method === "GET" && myTicketsParams) {
       const customerId = parseInt(myTicketsParams.customer_id, 10);
@@ -704,7 +653,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /maintenance-tickets/:ticket_id
     const maintenanceTicketParams = extractParams(
       pathname,
       "/maintenance-tickets/:ticket_id",
@@ -727,7 +675,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /maintenance-tickets
     if (req.method === "GET" && pathname === "/maintenance-tickets") {
       await ensureDbConnection();
       const result = await sql.query(`
@@ -749,7 +696,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /gift-shop/alerts
     if (req.method === "GET" && pathname === "/gift-shop/alerts") {
       if (!checkRolesMiddleware(req, [1, 3])) {
         sendText(res, 403, "Access denied");
@@ -783,7 +729,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /gift-shop/catalog
     if (req.method === "GET" && pathname === "/gift-shop/catalog") {
       await ensureDbConnection();
       const result = await sql.query(`
@@ -796,7 +741,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /gift-shop/products
     if (req.method === "GET" && pathname === "/gift-shop/products") {
       if (!checkRolesMiddleware(req, [1, 3])) {
         sendText(res, 403, "Access denied");
@@ -812,7 +756,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /complaints
     if (req.method === "GET" && pathname === "/complaints") {
       await ensureDbConnection();
       const result = await sql.query(`
@@ -831,7 +774,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /weather
     if (req.method === "GET" && pathname === "/weather") {
       await ensureDbConnection();
       const result = await sql.query(`
@@ -843,7 +785,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /stats/top-ride
     if (req.method === "GET" && pathname === "/stats/top-ride") {
       const { from, to } = query;
       if (!from || !to) {
@@ -874,7 +815,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /stats/new-customers
     if (req.method === "GET" && pathname === "/stats/new-customers") {
       const { from, to } = query;
       if (!from || !to) {
@@ -907,7 +847,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /stats/tickets
     if (req.method === "GET" && pathname === "/stats/tickets") {
       const { from, to } = query;
       if (!from || !to) {
@@ -935,7 +874,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /stats/revenue
     if (req.method === "GET" && pathname === "/stats/revenue") {
       const { from, to } = query;
       if (!from || !to) {
@@ -980,7 +918,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // GET /customers
     if (req.method === "GET" && pathname === "/customers") {
       const activeOnly = query.activeOnly === "1";
       await ensureDbConnection();
@@ -1015,11 +952,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // ============================================
-    // POST ROUTES
-    // ============================================
-
-    // POST /submit-maintenance (form data)
     if (req.method === "POST" && pathname === "/submit-maintenance") {
       const body = await parseFormBody(req);
       const employeeId = body.employee_id;
@@ -1071,7 +1003,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /submit-complaint (form data)
     if (req.method === "POST" && pathname === "/submit-complaint") {
       const body = await parseFormBody(req);
       const fname = body.fname;
@@ -1108,7 +1039,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /buy-ticket
     if (req.method === "POST" && pathname === "/buy-ticket") {
       const body = await parseJsonBody(req);
       const { customer_id, cart } = body;
@@ -1118,7 +1048,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /checkout
     if (req.method === "POST" && pathname === "/checkout") {
       const body = await parseJsonBody(req);
       const { customer_id, ticket_cart, gift_cart } = body;
@@ -1136,7 +1065,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /weather
     if (req.method === "POST" && pathname === "/weather") {
       const body = await parseJsonBody(req);
       const { record_date, condition, rainout_flag } = body;
@@ -1169,7 +1097,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /create_customer_account
     if (req.method === "POST" && pathname === "/create_customer_account") {
       const body = await parseJsonBody(req);
       const {
@@ -1268,7 +1195,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /customer_login
     if (req.method === "POST" && pathname === "/customer_login") {
       const body = await parseJsonBody(req);
       const { username, password } = body;
@@ -1305,7 +1231,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /employee_login
     if (req.method === "POST" && pathname === "/employee_login") {
       const body = await parseJsonBody(req);
       const { username, password } = body;
@@ -1342,7 +1267,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /login
     if (req.method === "POST" && pathname === "/login") {
       const body = await parseJsonBody(req);
       const role = body.role;
@@ -1357,7 +1281,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /employees
     if (req.method === "POST" && pathname === "/employees") {
       if (!checkRolesMiddleware(req, [1])) {
         sendText(res, 403, "Access denied");
@@ -1407,7 +1330,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /rides
     if (req.method === "POST" && pathname === "/rides") {
       if (!checkRolesMiddleware(req, [1, 2])) {
         sendText(res, 403, "Access denied");
@@ -1449,7 +1371,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // POST /gift-shop/products
     if (req.method === "POST" && pathname === "/gift-shop/products") {
       if (!checkRolesMiddleware(req, [1, 3])) {
         sendText(res, 403, "Access denied");
@@ -1500,11 +1421,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // ============================================
-    // PUT ROUTES (specific paths first)
-    // ============================================
-
-    // PUT /employees/reactivate/:id (must come before /employees/:id)
     const employeeReactivateParams = extractParams(
       pathname,
       "/employees/reactivate/:id",
@@ -1527,7 +1443,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PUT /employees/deactivate/:id
     const employeeDeactivateParams = extractParams(
       pathname,
       "/employees/deactivate/:id",
@@ -1550,7 +1465,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PUT /employees/:id
     const employeeParams = extractParams(pathname, "/employees/:id");
     if (req.method === "PUT" && employeeParams) {
       if (!checkRolesMiddleware(req, [1])) {
@@ -1583,7 +1497,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PUT /rides/:id/deprecated (must come before /rides/:id)
     const rideDeprecatedParams = extractParams(
       pathname,
       "/rides/:id/deprecated",
@@ -1627,7 +1540,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PUT /rides/:id
     const rideParams = extractParams(pathname, "/rides/:id");
     if (req.method === "PUT" && rideParams) {
       if (!checkRolesMiddleware(req, [1, 2])) {
@@ -1685,7 +1597,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PUT /update-maintenance/:ticket_id
     const updateMaintenanceParams = extractParams(
       pathname,
       "/update-maintenance/:ticket_id",
@@ -1733,7 +1644,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PUT /gift-shop/alerts/:id/acknowledge (must come before others)
     const alertAcknowledgeParams = extractParams(
       pathname,
       "/gift-shop/alerts/:id/acknowledge",
@@ -1783,7 +1693,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PUT /gift-shop/products/:id
     const giftProductParams = extractParams(
       pathname,
       "/gift-shop/products/:id",
@@ -1853,7 +1762,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PUT /customers/:id/reactivate (must come before /customers/:id)
     const customerReactivateParams = extractParams(
       pathname,
       "/customers/:id/reactivate",
@@ -1879,7 +1787,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PATCH /customers/:id/deactivate
     const customerDeactivateParams = extractParams(
       pathname,
       "/customers/:id/deactivate",
@@ -1905,7 +1812,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // PUT /customers/:id
     const customerParams = extractParams(pathname, "/customers/:id");
     if (req.method === "PUT" && customerParams) {
       const body = await parseJsonBody(req);
@@ -1929,11 +1835,6 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // ============================================
-    // DELETE ROUTES
-    // ============================================
-
-    // DELETE /gift-shop/products/:id
     const deleteProductParams = extractParams(
       pathname,
       "/gift-shop/products/:id",
@@ -1971,25 +1872,16 @@ async function handleRequest(req, res) {
       return;
     }
 
-    // ============================================
-    // CATCH-ALL: Static file serving
-    // ============================================
-
     await serveStaticFile(req, res);
   } catch (err) {
     console.error("Error:", err);
     const message = err?.message || "Internal Server Error";
 
-    // Check if response has already been sent
     if (!res.writableEnded) {
       sendText(res, 500, message);
     }
   }
 }
-
-// ============================================
-// CREATE AND START SERVER
-// ============================================
 
 const server = http.createServer(handleRequest);
 
