@@ -1,59 +1,40 @@
+@import url('login.css');
+
 body {
-  background: #a9bbcf;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
   min-height: 100vh;
-  margin: 0;
-  padding-top: 24px;
-  font-family: sans-serif;
-}
-
-button {
-  background-color: #5f90d8;
-  color: white;
-  border-radius: 15px;
-  font-size: 16px;
-  font-weight: 600;
-  border: none;
-
-  width: 70px;
-  height: 10%;
-
-  transition:
-    transform 0.4s ease,
-    background-color 0.4s ease,
-    box-shadow 0.28s ease;
-
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-button:hover {
-  transform: scale(1.05);
-  background-color: #80a9dd;
-  box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
+  padding: 80px 20px 40px;
 }
 
 h1 {
   text-align: center;
-  margin: 0 0 16px 0;
+  margin: 0 0 20px 0;
+  font-size: 28px;
   font-weight: 700;
+  color: var(--white);
+  background: linear-gradient(90deg, var(--cyan), var(--gold));
+  --webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .toolbar {
   width: 90%;
-  margin: 0 auto 12px;
+  margin: 0 auto 14px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .toolbar label {
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--muted);
 }
 
 .toggle-label {
@@ -61,26 +42,30 @@ h1 {
   align-items: center;
   gap: 6px;
   margin-left: 6px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .toggle-label input[type="checkbox"] {
-  accent-color: #5f90d8;
+  accent-color: var(--cyan);
 }
 
 .toolbar select {
-  border: 1px solid rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--input-border);
   border-radius: 10px;
-  padding: 6px 10px;
-  background: #fff;
+  padding: 7px 12px;
+  background: var(--input-bg);
   font-size: 14px;
+  color: var(--white);
+  width: auto;
 }
 
 .table-container {
   width: 90%;
   margin: 0 auto;
-  background: rgb(255, 255, 255);
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid var(--border);
 }
 
 table {
@@ -132,7 +117,19 @@ th {
   width: fit-content;
   height: auto;
   padding: 8px 16px;
-  top: 10px;
-  left: 10px;
-  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 200;
+  font-size: 13px;
+  position: fixed;
+}
+
+button {
+  width: auto;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .toolbar { width: 98%; }
+  .table-container { width: 98%; }
 }
