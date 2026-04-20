@@ -1,6 +1,36 @@
 const select = document.getElementById("complaint-reason");
 const otherContainer = document.getElementById("other-container");
 const otherInput = document.getElementById("other-reason");
+const customerMeta = document.getElementById("customer-meta");
+const firstNameInput = document.getElementById("fname");
+const lastNameInput = document.getElementById("lname");
+const emailInput = document.getElementById("email");
+const submitButton = document.querySelector(".submit-btn");
+
+function hydrateCustomerProfile() {
+  const firstName = (
+    sessionStorage.getItem("customer_first_name") || ""
+  ).trim();
+  const lastName = (sessionStorage.getItem("customer_last_name") || "").trim();
+  const email = (
+    sessionStorage.getItem("customer_email_address") ||
+    sessionStorage.getItem("username") ||
+    ""
+  ).trim();
+
+  firstNameInput.value = firstName;
+  lastNameInput.value = lastName;
+  emailInput.value = email;
+
+  if (firstName && lastName && email) {
+    customerMeta.textContent = `${firstName} ${lastName} (${email})`;
+    submitButton.disabled = false;
+    return;
+  }
+
+  customerMeta.textContent = "Profile not found. Please log in again.";
+  submitButton.disabled = true;
+}
 
 async function loadRideOptions() {
   try {
@@ -35,6 +65,7 @@ async function loadRideOptions() {
 }
 
 // Load rides on page load
+hydrateCustomerProfile();
 loadRideOptions();
 
 select.addEventListener("change", function () {

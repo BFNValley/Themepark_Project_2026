@@ -69,6 +69,13 @@ fieldset {
   color: var(--muted);
 }
 
+.customer-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
 select,
 input,
 textarea {
