@@ -10,32 +10,34 @@
         flex-direction: column;
         justify-content: flex-start;
         min-height: 100vh;
+        display: flex;
       }
 
       .customer-list-card {
-        background: rgba(255, 255, 255, 0.80);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-        border-radius: 28px;
-        padding: 40px 50px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px 36px;
         width: 1120px;
         max-width: 96vw;
         margin: 0 auto;
       }
 
       .complaints-card {
-        background: rgba(255, 255, 255, 0.80);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-        border-radius: 28px;
-        padding: 32px 50px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 26px 36px;
         width: 1120px;
         max-width: 96vw;
-        margin: 24px auto 0;
+        margin: 20px auto 0;
       }
 
       h1 {
-        font-size: 32px;
-        margin-bottom: 24px;
-        color: #1f2a37;
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: var(--white);
+        font-weight: 700;
       }
 
       .customer-header {
@@ -54,7 +56,6 @@
       .btn-row {
         display: flex;
         gap: 12px;
-        margin-bottom: 0;
         flex-wrap: wrap;
       }
 
@@ -64,72 +65,6 @@
         margin-bottom: 16px;
         flex-wrap: wrap;
         align-items: center;
-      }
-
-      .search-row input {
-        padding: 9px 14px;
-        border-radius: 12px;
-        border: none;
-        font-size: 14px;
-        background: rgba(255, 255, 255, 0.65);
-        color: #1f2a37;
-        width: 280px;
-      }
-
-      .search-row input:focus {
-        outline: 2px solid #5f90d8;
-      }
-
-      button.secondary {
-        background-color: #7a8fa6;
-      }
-
-      button.danger {
-        background-color: #c0392b;
-      }
-
-      button.success {
-        background-color: #27ae60;
-      }
-
-      button.small {
-        padding: 6px 12px;
-        font-size: 12px;
-        margin: 0 2px;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 14px;
-      }
-
-      th {
-        background-color: #5f90d8;
-        color: white;
-        padding: 10px 14px;
-        text-align: left;
-        font-weight: 600;
-      }
-
-      td {
-        padding: 9px 14px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        color: #1f2a37;
-      }
-
-      tr:nth-child(even) td {
-        background: rgba(255, 255, 255, 0.35);
-      }
-      tr:nth-child(odd) td {
-        background: rgba(255, 255, 255, 0.15);
-      }
-
-      .status-msg {
-        font-size: 14px;
-        color: #1f2a37;
-        font-style: italic;
-        margin-bottom: 12px;
       }
 
       .table-wrap {
@@ -142,6 +77,8 @@
         overflow-x: auto;
         overflow-y: auto;
         max-height: 420px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
       }
 
       .customer-table-wrap thead th {
@@ -156,9 +93,9 @@
         gap: 8px;
         padding: 8px 12px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.62);
-        color: #1f2a37;
-        font-size: 14px;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+        font-size: 13px;
         font-weight: 600;
         user-select: none;
         cursor: pointer;
@@ -168,7 +105,7 @@
         margin: 0;
         width: 16px;
         height: 16px;
-        accent-color: #5f90d8;
+        accent-color: var(--cyan);
         cursor: pointer;
       }
 
@@ -181,31 +118,41 @@
       input.inline-edit {
         padding: 6px 10px;
         border-radius: 8px;
-        border: none;
         font-size: 13px;
-        background: rgba(255, 255, 255, 0.85);
-        color: #1f2a37;
+        background: var(--input-border);
+        color: var(--white);
         width: 100%;
       }
 
-      .msg {
-        margin-top: 10px;
-        font-size: 14px;
-        font-weight: 600;
-        padding: 10px 14px;
-        border-radius: 10px;
-        display: none;
+      button.secondary {
+        background: rgba(255,255,255,0.06);
+        color: var(--white);
+        border: 1.5px solid rgba(255,255,255,0.18);
+        box-shadow: none;
       }
 
-      .msg.success {
-        background: rgba(100, 200, 130, 0.35);
-        color: #1a5c30;
-        display: block;
+      button.secondary:hover {
+        background: rgba(255,255,255,0.11);
+        box-shadow: none;
+        transform: none;
       }
-      .msg.error {
-        background: rgba(220, 80, 80, 0.25);
-        color: #7a1a1a;
-        display: block;
+
+      button.danger {
+        background: linear-gradient(135deg, #e05252, #b83232);
+        color: white;
+        box-shadow: 0 4px 16px rgba(224,82,82,0.3);
+      }
+
+      button.success {
+        background: linear-gradient(135deg, #38d98a, #20b86a);
+        color: #08080f;
+        box-shadow: 0 4px 16px rgba(56,217,138,0.3);
+      }
+
+      button.small {
+        padding: 6px 12px;
+        font-size: 12px;
+        margin: 0 2px;
       }
     </style>
   </head>

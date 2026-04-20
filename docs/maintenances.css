@@ -16,7 +16,7 @@ h1 {
   font-weight: 700;
   color: var(--white);
   background: linear-gradient(90deg, var(--cyan), var(--gold));
-  --webkit-background-clip: text;
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
@@ -76,23 +76,26 @@ table {
 }
 
 th {
-  background: #1f2937;
-  color: white;
+  background: rgba(56, 217, 245, 0.08);
+  color: var(--cyan);
   text-align: left;
-  padding: 14px;
+  padding: 12px 18px;
   font-size: 14px;
-  letter-spacing: 0.5px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(56, 217, 245, 0.2);
 }
 
 td {
-  padding: 14px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
   font-size: 14px;
+  color: var(--white);
 }
 
 tr:hover {
-  background: #eef2ff;
-  transition: 0.2s ease;
+  background: rgba(56, 217, 245, 0.04);
 }
 
 th:first-child {

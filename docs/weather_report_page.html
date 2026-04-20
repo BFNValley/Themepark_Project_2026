@@ -8,13 +8,15 @@
                 align-items: flex-start;
                 padding: 40px 20px;
                 flex-direction: column;
+                display: flex;
+                min-height: 100vh;
             }
 
             .card {
-                background: rgba(255, 255, 255, 0.80);
-                box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-                border-radius: 28px;
-                padding: 40px 50px;
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                padding: 30px 36px;
                 width: 820px;
                 max-width: 90vw;
                 margin: 0 auto 28px auto;
@@ -23,16 +25,19 @@
             h1 {
                 font-size: 32px;
                 margin-bottom: 6px;
-                color: #1f2a37;
+                color: var(--white);
+                font-weight: 700;
             }
 
             .section-title {
-                font-size: 15px;
+                font-size: 13px;
                 font-weight: 700;
-                color: #1f2a37;
+                color: var(--cyan);
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
                 margin: 24px 0 12px 0;
                 padding-bottom: 6px;
-                border-bottom: 1px solid rgba(0,0,0,0.1);
+                border-bottom: 1px solid rgba(56, 217, 245, 0.2);
             }
 
             .form-grid {
@@ -45,27 +50,6 @@
                 display: flex;
                 flex-direction: column;
                 gap: 5px;
-            }
-
-            label {
-                font-size: 13px;
-                font-weight: 600;
-                color: #1f2a37;
-            }
-
-            input, select {
-                padding: 10px 14px;
-                border-radius: 12px;
-                border: none;
-                font-size: 14px;
-                background: rgba(255,255,255,0.65);
-                color: #1f2a37;
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            input:focus, select:focus {
-                outline: 2px solid #5f90d8;
             }
             
             .radio-group {
@@ -80,19 +64,9 @@
                 gap: 6px;
                 font-weight: 400;
                 cursor: pointer;
-            }
-
-            .msg {
-                margin-top: 16px;
+                color: var(--white);
                 font-size: 14px;
-                font-weight: 600;
-                padding: 10px 14px;
-                border-radius: 10px;
-                display: none;
             }
-
-            .msg.success { background: rgba(100,200,130,0.35); color: #1a5c30; display: block; }
-            .msg.error { background: rgba(220,80,80,0.25); color: #7a1a1a; display: block; }
 
             .btn-row {
                 display: flex;
@@ -102,37 +76,16 @@
             }
 
             button.secondary {
-                background-color: #7a8fa6;
+                background: rgba(255,255,255,0.11);
+                color: var(--cyan);
+                box-shadow: none;
+                transform: none;
             }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 18px;
-                font-size: 14px;
-            }
-
-            th {
-                background-color: #5f90d8;
-                color: white;
-                padding: 10px 14px;
-                text-align: left;
-                font-weight: 600;
-            }
-
-            td {
-                padding: 9px 14px;
-                border-bottom: 1px solid rgba(0,0,0,0.08);
-                color: #1f2a37;
-            }
-
-            tr:nth-child(even) td { background: rgba(255,255,255,0.35); }
-            tr:nth-child(odd) td { background: rgba(255,255,255,0.15); }
 
             .status-msg {
                 margin-top: 14px;
                 font-size: 14px;
-                color: #1f2a37;
+                color: var(--muted);
                 font-style: italic;
             }
         </style>

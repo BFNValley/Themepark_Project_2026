@@ -2,7 +2,7 @@
 
 body {
   font-family: sans-serif;
-  background: var(-bg);
+  background: var(--bg);
   color: var(--white);
   min-height: 100vh;
   display: flex;

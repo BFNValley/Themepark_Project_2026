@@ -73,7 +73,7 @@ body {
   box-shadow: 0 0 0 3px rgba(56, 217, 245, 0.12);
 }
 
-.form-field inout::placeholder {
+.form-field input::placeholder {
   color: var(--muted);
   opacity: 0.7;
 }
@@ -95,7 +95,7 @@ body {
 
 .create-account-button {
   background: linear-gradient(135deg, var(--cyan), var(--primary-dark));
-  color: var(--white);
+  color: #08080f;
   border-radius: 10px;
   border: none;
   padding: 11px 26px;

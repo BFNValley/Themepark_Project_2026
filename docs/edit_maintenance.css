@@ -1,5 +1,6 @@
+@import url('login.css');
+
 body {
-  background: #a9bbcf;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -15,8 +16,9 @@ body {
   justify-content: flex-start;
   gap: 20px;
 
-  background-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 24px rgb(0, 0, 0, 0.26);
+  background-color: var(--card);
+  box-shadow: none;
+  border: 1px solid var(--border);
   border-radius: 20px;
 
   height: 60%;
@@ -54,7 +56,7 @@ textarea {
 
 .maintenance-details {
   padding-right: 10px;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  border-right: 1px solid var(--border);
 }
 
 .maintenance-details {
@@ -83,26 +85,7 @@ form button[type="submit"] {
 
 h1 {
   margin: 40px 0 20px 0;
-}
-
-button {
-  background-color: #5f90d8;
-  color: white;
-  border-radius: 15px;
-  font-size: 16px;
-  font-weight: 600;
-  border: none;
-
-  width: 40%;
-  max-width: max-content + 20px;
-  height: 10%;
-
-  transition:
-    transform 0.4s ease,
-    background-color 0.4s ease,
-    box-shadow 0.28s ease;
-
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: var(--white);
 }
 
 button:hover {
@@ -114,17 +97,7 @@ button:hover {
 label {
   font-size: 16px;
   font-weight: 600;
-  color: black;
-}
-
-input {
-  height: 30px;
-  padding: 0 14px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.75);
-  font-size: 14px;
-  box-sizing: border-box;
+  color: var(--muted);
 }
 
 .back-button {

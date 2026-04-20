@@ -71,7 +71,7 @@ body {
 
 .primary-btn, .checkout-btn {
   width: 100%;
-  margin: 6px;
+  margin-top: 6px;
 }
 
 #cartList {

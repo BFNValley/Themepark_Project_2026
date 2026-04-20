@@ -100,15 +100,15 @@ body {
 label {
   font-size: 16px;
   font-weight: 600;
-  color: black;
+  color: var(--muted);
 }
 
 input {
   height: 34px;
   padding: 0 14px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--input-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--input-bg);
   font-size: 14px;
   box-sizing: border-box;
 }
@@ -193,7 +193,7 @@ button.small {
   width: 100%;
   overflow-x: auto;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--card);
 }
 
 table {
@@ -202,8 +202,9 @@ table {
 }
 
 th {
-  background: #1f2937;
-  color: white;
+  background: rgba(56,217,245,0.1);
+  color: var(--cyan);
+  border-bottom: 1px solid rgba(56, 217, 245, 0.2);
   text-align: left;
   padding: 14px 18px;
   font-size: 14px;
@@ -214,12 +215,13 @@ th {
 
 td {
   padding: 14px 18px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--white);
   font-size: 14px;
 }
 
 tr:hover {
-  background: #eef2ff;
+  background: rgba(56, 217, 245, 0.04);
   transition: 0.2s ease;
 }
 
@@ -241,7 +243,7 @@ th:last-child {
 
 .status-pill.ok {
   background: rgba(56,217,138,0.15);
-  color: #38d938;
+  color: var(--success);
   border: 1px solid rgba(56,217,138,0.3);
 }
 
@@ -269,11 +271,17 @@ th:last-child {
 }
 
 .msg.success {
-  color: #1e7d46;
+  background: rgba(56, 217, 138, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(56, 217, 138, 0.25);
+  display: block;
 }
 
 .msg.error {
-  color: #a53025;
+  background: rgba(224, 82, 82, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(224, 82, 82, 0.25);
+  display: block;
 }
 
 button.ghost {

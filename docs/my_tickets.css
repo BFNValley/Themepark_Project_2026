@@ -1,4 +1,4 @@
-@import url('login.css')
+@import url('login.css');
 
 body {
   padding: 80px 22px 40px;
@@ -29,6 +29,7 @@ body {
   overflow-y: auto;
   border-radius: 12px;
   border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
 }
 
 #ticketsTable {

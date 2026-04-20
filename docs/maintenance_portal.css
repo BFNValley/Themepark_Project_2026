@@ -56,13 +56,10 @@ body {
   box-shadow: none;
 }
  
-.button-group button:last-child:hover { background: rgba(255,255,255,0.11); box-shadow: none; transform: none; }
-
-
-button:hover {
-  transform: scale(1.05);
-  background-color: #83abdf;
-  box-shadow: 0 10px 24px rgba(79, 128, 199, 0.18);
+.button-group button:last-child:hover {
+  background: rgba(255,255,255,0.11); 
+  box-shadow: none; 
+  transform: none; 
 }
 
 .back-button {
