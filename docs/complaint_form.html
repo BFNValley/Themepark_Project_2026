@@ -53,22 +53,16 @@
           </fieldset>
 
           <fieldset class="form-section">
-            <div class="form-row">
-              <div class="form-field">
-                <label for="fname">First Name</label>
-                <input type="text" id="fname" name="fname" required />
-              </div>
-              <div class="form-field">
-                <label for="lname">Last Name</label>
-                <input type="text" id="lname" name="lname" required />
-              </div>
+            <div class="form-field">
+              <label>Customer</label>
+              <p id="customer-meta" class="customer-meta">Loading profile...</p>
             </div>
 
+            <input type="hidden" id="fname" name="fname" />
+            <input type="hidden" id="lname" name="lname" />
+            <input type="hidden" id="email" name="email" />
+
             <div class="form-row">
-              <div class="form-field">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required />
-              </div>
               <div class="form-field">
                 <label for="complaint-date">Date of Incident</label>
                 <input type="date" id="complaint-date" name="date" required />
